@@ -1,4 +1,4 @@
-from sapo import db, login_manager
+from main import db, login_manager
 from flask_login import UserMixin
 
 @login_manager.user_loader

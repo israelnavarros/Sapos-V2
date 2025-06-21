@@ -1,5 +1,5 @@
 import os
-from sapo import app
+from main import app
 from flask_wtf import FlaskForm
 from wtforms import StringField, EmailField, PasswordField, IntegerField, TimeField, DateField, TelField, SelectField, SubmitField, HiddenField, SelectMultipleField, DecimalField, TextAreaField, RadioField, DateTimeLocalField, validators
 from wtforms import widgets

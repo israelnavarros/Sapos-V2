@@ -1,5 +1,5 @@
-from flask import  render_template, request, redirect, session, flash, url_for
-from sapo import app, db, mail
+from flask import  render_template, request, jsonify, session, flash, url_for
+from main import app, db, mail
 from models import Formularios
 from helpers import FormularioInscricao
 from sqlalchemy import text
@@ -8,59 +8,21 @@ import random, datetime
 
 #intenção de excluir este, deixar apenas as rotas com os cargos
 
-@app.route('/inscricao')
-def inscricao():
-    form_inscricao = FormularioInscricao()
-    #futuramente implementar o id sendo passado para as vagas
-    id = random.randint(0,1000)
-    print(id)
-    return render_template('inscricao.html', titulo='Pagina inicial', form_inscricao=form_inscricao, id=id)
+# Endpoint para obter um id de inscrição (exemplo)
+@app.route('/api/inscricao', methods=['GET'])
+def api_inscricao():
+    id = random.randint(0, 1000)
+    return jsonify({
+        "id": id,
+        "mensagem": "Use este endpoint para obter um id de inscrição. O formulário deve ser enviado via POST para /api/inscricaofinalizada"
+    })
 
-@app.route('/email')
-def email():
-    msg = Message("Teste de assunto",
-#        recipients=["copacontabil@hotmail.com", "copacontabil@gmail.com"]
-                    recipients=["anbruno@id.uff.br"]
-    )
-    msg.html = render_template('template_email.html')
-    mail.send(msg)
-    return redirect(url_for('home'))
-
-
-@app.route('/inscricaofinalizada', methods=['POST',])
-def inscricaofinalizada():
-    form_inscricao = FormularioInscricao(request.form)
-
-    nomecompleto = form_inscricao.nomecompleto.data
-    cep = form_inscricao.cep.data
-    cidade = form_inscricao.cidade.data
-    estado = form_inscricao.estado.data
-    logradouro = form_inscricao.logradouro.data
-    complemento = form_inscricao.complemento.data
-    datanasc = form_inscricao.datanasc.data
-    cpf = form_inscricao.cpf.data
-    email = form_inscricao.email.data
-    telefone = form_inscricao.telefone.data
-    prefcontato = form_inscricao.prefcontato.data
-    sitcivil = form_inscricao.sitcivil.data
-    situemprg = form_inscricao.situemprg.data
-    renda = form_inscricao.renda.data
-    emergencianome = form_inscricao.emergencianome.data
-    emergenciatelefone = form_inscricao.emergenciatelefone.data
-    emergenciagrau = form_inscricao.emergenciagrau.data
-    doencas = form_inscricao.doencas.data
-    tabaco = form_inscricao.tabaco.data
-    alcool = form_inscricao.alcool.data
-    cafeina = form_inscricao.cafeina.data
-    condenado = form_inscricao.condenado.data
-    medicamentos = form_inscricao.medicamentos.data
-    cirurgia = form_inscricao.cirurgia.data
-    motivo = form_inscricao.motivo.data
-    expectativa = form_inscricao.expectativa.data
-    jaconsultou = form_inscricao.jaconsultou.data
-    mediahorassono = form_inscricao.mediahorassono.data
-    outrasexp = form_inscricao.outrasexp.data
-    comentarios = form_inscricao.comentarios.data
+# Endpoint para registrar inscrição
+@app.route('/api/inscricaofinalizada', methods=['POST'])
+def api_inscricaofinalizada():
+    data = request.get_json()
+    if not data:
+        return jsonify({"success": False, "message": "Dados não enviados."}), 400
 
     data_atual = datetime.datetime.today()
     ano = str(data_atual.year)[-2:]
@@ -69,83 +31,100 @@ def inscricaofinalizada():
     aleatorio = str(random.randint(10, 99))
     id_form = "9" + ano + mes + dia + aleatorio
 
-    nova_inscricao = Formularios(id_form=id_form,
-                                nomecompleto=nomecompleto,
-                                cep=cep,
-                                cidade=cidade,
-                                estado=estado,
-                                logradouro=logradouro,
-                                complemento=complemento,
-                                datanasc=datanasc,
-                                cpf=cpf,
-                                email=email,
-                                telefone=telefone,
-                                prefcontato=prefcontato,
-                                sitcivil=sitcivil,
-                                situemprg=situemprg,
-                                renda=renda,
-                                emergencianome=emergencianome,
-                                emergenciatelefone=emergenciatelefone,
-                                emergenciagrau=emergenciagrau,
-                                doencas=doencas,
-                                tabaco=tabaco,
-                                alcool=alcool,
-                                cafeina=cafeina,
-                                condenado=condenado,
-                                medicamentos=medicamentos,
-                                cirurgia=cirurgia,
-                                motivo=motivo,
-                                expectativa=expectativa,
-                                jaconsultou=jaconsultou,
-                                mediahorassono=mediahorassono,
-                                outrasexp=outrasexp,
-                                comentarios=comentarios)
+    nova_inscricao = Formularios(
+        id_form=id_form,
+        nomecompleto=data.get('nomecompleto'),
+        cep=data.get('cep'),
+        cidade=data.get('cidade'),
+        estado=data.get('estado'),
+        logradouro=data.get('logradouro'),
+        complemento=data.get('complemento'),
+        datanasc=data.get('datanasc'),
+        cpf=data.get('cpf'),
+        email=data.get('email'),
+        telefone=data.get('telefone'),
+        prefcontato=data.get('prefcontato'),
+        sitcivil=data.get('sitcivil'),
+        situemprg=data.get('situemprg'),
+        renda=data.get('renda'),
+        emergencianome=data.get('emergencianome'),
+        emergenciatelefone=data.get('emergenciatelefone'),
+        emergenciagrau=data.get('emergenciagrau'),
+        doencas=data.get('doencas'),
+        tabaco=data.get('tabaco'),
+        alcool=data.get('alcool'),
+        cafeina=data.get('cafeina'),
+        condenado=data.get('condenado'),
+        medicamentos=data.get('medicamentos'),
+        cirurgia=data.get('cirurgia'),
+        motivo=data.get('motivo'),
+        expectativa=data.get('expectativa'),
+        jaconsultou=data.get('jaconsultou'),
+        mediahorassono=data.get('mediahorassono'),
+        outrasexp=data.get('outrasexp'),
+        comentarios=data.get('comentarios')
+    )
     db.session.add(nova_inscricao)
     db.session.commit()
 
+    # Envia email de confirmação
     msg = Message("Sua inscrição foi registrada!",
-                  recipients=[email]
-                  )
+                  recipients=[data.get('email')])
     mensagem = 'Obrigado por participar do formulário. Porém... o processo ainda não acabou! Seu formulário será avaliado e logo terá um email de resposta.'
-    msg.html = render_template('template_email.html', mensagem=mensagem, nomecompleto=nomecompleto)
+    # Você pode criar um template de email em string ou usar render_template se quiser manter HTML
+    msg.html = f"<p>{mensagem}</p><p>Nome: {data.get('nomecompleto')}</p>"
     mail.send(msg)
 
-    flash('Obrigado por completar o formulário. Enviamos para seu email novas instruções.')
-    return redirect(url_for('home'))
+    return jsonify({'success': True, 'message': 'Inscrição registrada! Verifique seu email para mais instruções.'}), 201
 
-@app.route('/administrar/avaliarforms')
-def avaliarforms():
+# Listar formulários pendentes para avaliação
+@app.route('/api/avaliarforms', methods=['GET'])
+def api_avaliarforms():
     formularios = Formularios.query.order_by(text("Formularios.id_form desc")).filter_by(status=None)
-    return render_template('avaliar_formularios.html', titulo='Pagina de Administração', formularios=formularios)
+    forms_json = [
+        {
+            'id_form': f.id_form,
+            'nomecompleto': f.nomecompleto,
+            'email': f.email,
+            # adicione outros campos necessários
+        } for f in formularios
+    ]
+    return jsonify(forms_json)
 
-@app.route('/administrar/avaliarforms/aceitar/<int:id>')
-def aceitarform(id):
+# Aceitar formulário
+@app.route('/api/avaliarforms/aceitar/<int:id>', methods=['POST'])
+def api_aceitarform(id):
     form_modificado = Formularios.query.filter_by(id_form=id).first()
+    if not form_modificado:
+        return jsonify({'success': False, 'message': 'Formulário não encontrado'}), 404
+
     form_modificado.status = "aceito"
     db.session.add(form_modificado)
     db.session.commit()
 
     msg = Message("Parabéns, você foi aceito!",
-                  recipients=[form_modificado.email]
-                  )
+                  recipients=[form_modificado.email])
     mensagem = 'Agora, o próximo passo é você clicar neste link para criar sua senha.'
-    msg.html = render_template('template_email.html',mensagem=mensagem, nomecompleto=form_modificado.nomecompleto)
+    msg.html = f"<p>{mensagem}</p><p>Nome: {form_modificado.nomecompleto}</p>"
     mail.send(msg)
 
-    return redirect(url_for('avaliarforms'))
+    return jsonify({'success': True, 'message': 'Formulário aceito e email enviado.'})
 
-@app.route('/administrar/avaliarforms/recusar/<int:id>')
-def recusarform(id):
+# Recusar formulário
+@app.route('/api/avaliarforms/recusar/<int:id>', methods=['POST'])
+def api_recusarform(id):
     form_modificado = Formularios.query.filter_by(id_form=id).first()
+    if not form_modificado:
+        return jsonify({'success': False, 'message': 'Formulário não encontrado'}), 404
+
     form_modificado.status = "recusado"
     db.session.add(form_modificado)
     db.session.commit()
 
     msg = Message("Infelizmente você não foi aceito.",
-                  recipients=[form_modificado.email]
-                  )
+                  recipients=[form_modificado.email])
     mensagem = 'Agradecemos imensamente sua participação. Pode tentar novamente numa próxima abertura de vagas.'
-    msg.html = render_template('template_email.html',mensagem=mensagem, nomecompleto=form_modificado.nomecompleto)
+    msg.html = f"<p>{mensagem}</p><p>Nome: {form_modificado.nomecompleto}</p>"
     mail.send(msg)
 
-    return redirect(url_for('avaliarforms'))
+    return jsonify({'success': True, 'message': 'Formulário recusado e email enviado.'})
