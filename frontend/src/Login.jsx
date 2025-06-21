@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect, useContext   } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext'; // crie um contexto para autenticação
+
 
 function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mensagem, setMensagem] = useState('');
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(AuthContext);
+
+    useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensagem('');
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha }),
       });
       const data = await response.json();
       if (data.success) {
-        setMensagem(data.message);
+        setUser(data.user); // Salva o usuário no contexto global
+        navigate('/');      // Redireciona para o dashboard principal
+        // setMensagem(data.message);
         // Redirecionar ou atualizar estado global aqui se necessário
       } else {
         setMensagem(data.message);
@@ -31,7 +44,7 @@ function Login() {
       <div className="container py-5 h-100">
         <div className="row d-flex align-items-center justify-content-center h-100">
           <div className="col-md-8 col-lg-7 col-xl-6">
-            <img className="img-fluid bg-transparent" src="/uploads/SAPO - Logo.png" width="200" height="200" alt="Logo SAPO" />
+            <img className="img-fluid bg-transparent" src="src/assets/Logo.png" width="200" height="200" alt="Logo SAPO" />
           </div>
           <div className="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
             <form onSubmit={handleSubmit}>

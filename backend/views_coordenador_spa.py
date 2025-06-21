@@ -1,5 +1,5 @@
 from flask import  render_template, request, redirect, session, flash, url_for, send_from_directory
-from backend.main import app, db, mail
+from main import app, db, mail
 from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func

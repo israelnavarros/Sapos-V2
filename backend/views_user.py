@@ -51,11 +51,13 @@ def login():
             "user": {
                 "id": usuario.id_usuario,
                 "nome": usuario.nome,
-                "email": usuario.email
+                "email": usuario.email,
+                "cargo": usuario.cargo,           
+                "grupo": usuario.grupo,           
+                "matricula": usuario.matricula    
             }
         }), 200
     return jsonify({"success": False, "message": "Usuário ou senha incorreta."}), 401
-
 
 @app.route('/api/logout', methods=['POST'])
 @login_required
