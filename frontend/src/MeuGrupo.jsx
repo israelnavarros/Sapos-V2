@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import Header from './Header';
+import AdicionarEstagiario from './AdicionarEstagiario';
+import { Link } from 'react-router-dom';
 
 export default function MeuGrupo() {
   const { user } = useContext(AuthContext);
@@ -10,27 +12,28 @@ export default function MeuGrupo() {
   const [reunioes, setReunioes] = useState([]);
   const [vagas, setVagas] = useState({ ocupadas: 0, total: 0 });
   const [novoReuniao, setNovoReuniao] = useState({ dia: '', horaini: '', horafim: '' });
+  const [showAdicionar, setShowAdicionar] = useState(false);
 
   // Carrega dados do grupo ao montar
   useEffect(() => {
     async function fetchGrupo() {
-    try {
-      const grupoRes = await fetch('/api/meu_grupo', {
-        credentials: 'include' // <-- Adicione esta linha!
-      });
-      if (!grupoRes.ok) throw new Error('Erro ao buscar grupo');
-      const grupoData = await grupoRes.json();
-      setGrupoInfo(grupoData.grupo_info);
-      setCoordenadores(grupoData.coordenadores);
-    setEstagiarios(grupoData.estagiarios);
-    setReunioes(grupoData.reunioes);
-    setVagas({ ocupadas: grupoData.estagiarios_count, total: grupoData.grupo_info.vagas });
-    } catch (err) {
-      setGrupoInfo(null);
-      alert('Erro ao carregar dados do grupo.');
-      console.error(err);
+      try {
+        const grupoRes = await fetch('/api/meu_grupo', {
+          credentials: 'include' // <-- Adicione esta linha!
+        });
+        if (!grupoRes.ok) throw new Error('Erro ao buscar grupo');
+        const grupoData = await grupoRes.json();
+        setGrupoInfo(grupoData.grupo_info);
+        setCoordenadores(grupoData.coordenadores);
+        setEstagiarios(grupoData.estagiarios);
+        setReunioes(grupoData.reunioes);
+        setVagas({ ocupadas: grupoData.estagiarios_count, total: grupoData.grupo_info.vagas });
+      } catch (err) {
+        setGrupoInfo(null);
+        alert('Erro ao carregar dados do grupo.');
+        console.error(err);
+      }
     }
-  }
     fetchGrupo();
   }, []);
 
@@ -109,15 +112,27 @@ export default function MeuGrupo() {
                 Vagas: {vagas.ocupadas}/{vagas.total}
               </button>
               <ul className="dropdown-menu">
-                <li><a className="dropdown-item" href="/reg_estag_diretamente">Adicionar diretamente</a></li>
+                <li>
+                  <Link className="dropdown-item" to="/meugrupo/adicionar-estagiario">
+                    Adicionar diretamente
+                  </Link>
+                </li>
                 <li><a className="dropdown-item" href="#">Adicionar por link</a></li>
                 <li><a className="dropdown-item" href="#">Adicionar por lista de estagiários</a></li>
               </ul>
             </div>
+            {showAdicionar && (
+              <AdicionarEstagiario
+                grupoInfo={grupoInfo}
+                onSuccess={() => setShowAdicionar(false)}
+              />
+            )}
           </div>
           <div className="list-group list-group-flush p-2">
             {estagiarios.map(estag => (
-              <a key={estag.id} href={`/sup_meu_estagiario/${estag.id_usuario}`} className="list-group-item list-group-item-action">{estag.nome}</a>
+              <Link key={estag.id} to={`/sup_meu_estagiario/${estag.id}`} className="list-group-item list-group-item-action">
+                {estag.nome}
+              </Link>
             ))}
           </div>
         </div>

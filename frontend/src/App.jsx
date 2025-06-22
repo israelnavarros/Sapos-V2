@@ -3,6 +3,8 @@ import Login from './Login';
 import Index from './Index';
 import MeuPerfil from './MeuPerfil';
 import MeuGrupo from './MeuGrupo';
+import AdicionarEstagiarioWrapper from './AdicionarEstagiarioWrapper';
+import SupMeuEstagiario from './MeuEstagiario';
 import { AuthProvider } from './AuthContext';
 
 function App() {
@@ -14,6 +16,8 @@ function App() {
           <Route path="/meuperfil" element={<MeuPerfil />} />
           <Route path="/meugrupo" element={<MeuGrupo />} />
           <Route path="/" element={<Index />} />
+          <Route path="/meugrupo/adicionar-estagiario" element={<AdicionarEstagiarioWrapper />} />
+          <Route path="/sup_meu_estagiario/:id_estagiario" element={<SupMeuEstagiario />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

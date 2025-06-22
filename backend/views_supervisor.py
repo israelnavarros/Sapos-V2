@@ -85,17 +85,23 @@ def api_meu_grupo():
     ]
 
     return jsonify({
-        'grupo_info': {
-            'id_grupo': grupo_info.id_grupo,
-            'nome': grupo_info.titulo,
-            'vagas': grupo_info.vagas
-        },
-        'coordenadores': [{'id': c.id_usuario, 'nome': c.nome} for c in lista_coord],
-        'estagiarios': [{'id': e.id_usuario, 'nome': e.nome} for e in lista_estag],
-        'estagiarios_count': lista_estag_count,
-        'botao_vagas': botao_vagas,
-        'reunioes': reunioes_json
-    })
+    'grupo_info': {
+        'id_grupo': grupo_info.id_grupo,
+        'titulo': grupo_info.titulo,
+        'vagas': grupo_info.vagas,
+        'local': grupo_info.local,
+        'convenio': grupo_info.convenio,
+        'resumo': grupo_info.resumo,
+        'objetivos': grupo_info.objetivos,
+        'atividades': grupo_info.atividades,
+        'bibliografia': grupo_info.bibliografia
+    },
+    'coordenadores': [{'id': c.id_usuario, 'nome': c.nome} for c in lista_coord],
+    'estagiarios': [{'id': e.id_usuario, 'nome': e.nome} for e in lista_estag],
+    'estagiarios_count': lista_estag_count,
+    'botao_vagas': botao_vagas,
+    'reunioes': reunioes_json
+})
 
 @app.route('/api/reg_estag_diretamente', methods=['POST'])
 @login_required
@@ -185,18 +191,22 @@ def api_sup_meu_estagiario(id_estagiario):
         for consulta in consultas_realizadas
     ]) or 0
 
+    # ...existing code...
     return jsonify({
         'estagiario_info': {
             'id': estagiario_info.id_usuario,
             'nome': estagiario_info.nome,
             'email': estagiario_info.email,
-            # adicione outros campos necessários
+            'matricula': estagiario_info.matricula,
+            'criado_em': estagiario_info.criado_em.strftime('%Y-%m-%d') if estagiario_info.criado_em else '',
+            'valido_ate': estagiario_info.valido_ate.strftime('%Y-%m-%d') if estagiario_info.valido_ate else '',
+            'avatar_url': f'/api/uploads/usuarios/{estagiario_info.id_usuario}'
         },
         'pacientes_info': [
             {
-                'id': p.id_paciente,
-                'nome': p.nome_completo,
-                # adicione outros campos necessários
+                'id_paciente': p.id_paciente,
+                'nome_completo': p.nome_completo,
+                'status': p.status
             } for p in pacientes_info
         ],
         'media_idade': media_idade,
