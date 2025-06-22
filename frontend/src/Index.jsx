@@ -2,6 +2,7 @@ import IndexSupervisor from './Index_Supervisor';
 import IndexEstagiario from './Index_Estagiario';
 import IndexSecretaria from './Index_Secretaria';
 import IndexCoordenador from './Index_Coordenador';
+import Header from './Header';
 import { useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -19,10 +20,38 @@ export default function Index() {
     return <Navigate to="/login" />;
   }
 
-  if (user.cargo == 1) return <IndexSupervisor />;
-  if (user.cargo == 2) return <IndexEstagiario />;
-  if (user.cargo == 0) return <IndexSecretaria />;
-  if (user.cargo == 3) return <IndexCoordenador />;
+  if (user.cargo == 1) return (
+    <>
+      <Header user={user} />
+      <div className="container mx-auto py-6">
+        <IndexSupervisor />
+      </div>
+    </>
+  );
+  if (user.cargo == 2) return (
+    <>
+      <Header user={user} />
+      <div className="container mx-auto py-6">
+        <IndexEstagiario />
+      </div>
+    </>
+  );
+  if (user.cargo == 0) return (
+    <>
+      <Header user={user} />
+      <div className="container mx-auto py-6">
+        <IndexSecretaria />
+      </div>
+    </>
+  );
+  if (user.cargo == 3) return (
+    <>
+      <Header user={user} />
+      <div className="container mx-auto py-6">
+        <IndexCoordenador />
+      </div>
+    </>
+  );
 
   // Caso o cargo não seja reconhecido
   return <div>Cargo não reconhecido.</div>;

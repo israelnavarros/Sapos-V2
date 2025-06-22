@@ -1,22 +1,30 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
 
 // Exemplo de usuário logado (substitua pelo seu contexto ou props)
-const mockUser = {
-  nome: 'Usuário',
-  id_usuario: 1,
-  cargo: 1, // 0: secretaria, 1: supervisor, 2: estagiário
-  avatarUrl: '/uploads/SAPO - Logo.png',
-};
+// const mockUser = {
+//   nome: 'Usuário',
+//   id_usuario: 1,
+//   cargo: 1, // 0: secretaria, 1: supervisor, 2: estagiário
+//   avatarUrl: '/uploads/SAPO - Logo.png',
+// };
 
-function Header({ user = mockUser, onLogout }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+function Header() {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const { user, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <header className="bg-white shadow">
       <nav className="container mx-auto flex items-center justify-between py-2">
         <Link to="/" className="flex items-center gap-2">
-          <img src="/uploads/SAPO - Logo.png" alt="Logo SAPO" width={60} height={60} className="bg-transparent" />
+          <img src="/src/assets/Logo.png" alt="Logo SAPO" width={60} height={60} className="bg-transparent" />
           <span className="font-bold text-xl text-teal-700">SAPOS</span>
         </Link>
         <button
@@ -46,7 +54,7 @@ function Header({ user = mockUser, onLogout }) {
             </li>
           )}
           <li>
-            <Link to={`/meuperfil/${user.id_usuario}`} className="flex items-center text-gray-800 hover:text-teal-600">
+            <Link to="/meuperfil/" className="flex items-center text-gray-800 hover:text-teal-600">
               <img
                 src={user.avatarUrl}
                 alt="Profile"
@@ -57,11 +65,11 @@ function Header({ user = mockUser, onLogout }) {
           </li>
           <li>
             <button
-              onClick={onLogout}
-              className="text-gray-800 hover:text-red-600"
-            >
-              Deslogar
-            </button>
+        onClick={handleLogout}
+        className="text-gray-800 hover:text-red-600"
+      >
+        Deslogar
+      </button>
           </li>
         </ul>
       </nav>
