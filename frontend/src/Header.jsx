@@ -14,7 +14,7 @@ function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
-
+   const cargo = user?.cargo || 0;
     const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -38,17 +38,17 @@ function Header() {
           <li>
             <Link to="/" className="text-gray-800 hover:text-teal-600">Página Inicial</Link>
           </li>
-          {user.cargo === 0 && (
+          {user?.cargo === 0 && (
             <li>
               <Link to="/administracao" className="text-gray-800 hover:text-teal-600">Administração</Link>
             </li>
           )}
-          {user.cargo === 1 && (
+          {user?.cargo === 1 && (
             <li>
               <Link to="/meugrupo" className="text-gray-800 hover:text-teal-600">Meu Grupo</Link>
             </li>
           )}
-          {user.cargo === 2 && (
+          {user?.cargo === 2 && (
             <li>
               <Link to="/meus-pacientes" className="text-gray-800 hover:text-teal-600">Meus Pacientes</Link>
             </li>
@@ -61,7 +61,7 @@ function Header() {
                 alt="Profile"
                 className="w-6 h-6 rounded-full mr-2"
               />
-              {user.nome}
+              {user?.nome}
             </Link>
           </li>
           <li>

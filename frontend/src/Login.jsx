@@ -29,6 +29,7 @@ function Login() {
       const data = await response.json();
       if (data.success) {
         setUser(data.user); // Salva o usuário no contexto global
+        localStorage.setItem('user', JSON.stringify(data.user)); // Salva no localStorage
         navigate('/');      // Redireciona para o dashboard principal
         // setMensagem(data.message);
         // Redirecionar ou atualizar estado global aqui se necessário
