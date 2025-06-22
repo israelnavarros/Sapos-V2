@@ -1,10 +1,17 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Header from './Header';
+import { Pie } from 'react-chartjs-2';
+import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+Chart.register(ArcElement, Tooltip, Legend);
 
 export default function SupMeuEstagiario() {
     const { id_estagiario } = useParams();
     const [info, setInfo] = useState(null);
+    const [idadeData, setIdadeData] = useState(null);
+    const [generoData, setGeneroData] = useState(null);
+    const [escolaridadeData, setEscolaridadeData] = useState(null);
+    const [rendaData, setRendaData] = useState(null);
 
     useEffect(() => {
         async function fetchInfo() {
@@ -13,6 +20,97 @@ export default function SupMeuEstagiario() {
             setInfo(data);
         }
         fetchInfo();
+    }, [id_estagiario]);
+
+    // Função para gerar cores aleatórias
+    function getRandomColors(n) {
+        return Array.from({ length: n }, () =>
+            `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`
+        );
+    }
+
+    // Buscar dados dos gráficos
+    useEffect(() => {
+        if (!id_estagiario) return;
+
+        // Idade dos pacientes
+        fetch(`/api/sup_primeira_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                // data é um array de idades, conte quantos de cada
+                const ageCounts = data.reduce((acc, age) => {
+                    acc[age] = (acc[age] || 0) + 1;
+                    return acc;
+                }, {});
+                const labels = Object.keys(ageCounts);
+                const values = Object.values(ageCounts);
+                setIdadeData({
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: getRandomColors(labels.length)
+                    }]
+                });
+            });
+
+        // Gênero dos pacientes
+        fetch(`/api/sup_segunda_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                const traducaoMap = { 'M': 'Masculino', 'F': 'Feminino' };
+                const labels = Object.keys(data).map(key => traducaoMap[key] || key);
+                const values = Object.values(data);
+                setGeneroData({
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: getRandomColors(labels.length)
+                    }]
+                });
+            });
+
+        // Escolaridade dos pacientes
+        fetch(`/api/sup_terceira_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                const traducao = {
+                    'AN': 'Analfabeto', 'PE': 'Pré-Escolar', 'FI': 'Ensino Fundamental Incompleto',
+                    'FC': 'Ensino Fundamental Completo', 'MI': 'Ensino Médio Incompleto',
+                    'MC': 'Ensino Médio Completo', 'SI': 'Ensino Superior Incompleto', 'SC': 'Ensino Superior Completo'
+                };
+                const labels = Object.keys(data).map(key => traducao[key] || key);
+                const values = Object.values(data);
+                setEscolaridadeData({
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: getRandomColors(labels.length)
+                    }]
+                });
+            });
+
+        // Renda familiar dos pacientes
+        fetch(`/api/sup_quarta_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                const translationMap = {
+                    '<2000': 'Menor que R$2000',
+                    '2000-3000': 'R$2000 a R$3000',
+                    '3000-4000': 'R$3000 a R$4000',
+                    '4000-5000': 'R$4000 a R$5000',
+                    '>5000': 'Maior que R$5000'
+                };
+                const labels = Object.keys(data).map(key => translationMap[key] || key);
+                const values = Object.values(data);
+                setRendaData({
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: getRandomColors(labels.length)
+                    }]
+                });
+            });
+
     }, [id_estagiario]);
 
     if (!info) return <div>Carregando...</div>;
@@ -75,7 +173,7 @@ export default function SupMeuEstagiario() {
                 </div>
             </div>
 
-            {/* Métricas */}
+
             <div className="shadow-lg row g-0 border rounded my-4">
                 <div className="p-4">
                     <div className="row">
@@ -86,7 +184,7 @@ export default function SupMeuEstagiario() {
                                         <i className="bi bi-people-fill" style={{ fontSize: "2rem" }}></i>
                                     </div>
                                     <div className="text-wrapper text-end" style={{ flex: "1 0 70%" }}>
-                                        <h3 className="mb-0">{info.media_idade?.toFixed(1) || 0}</h3>
+                                        <h3 className="mb-0">{Number(info.media_idade).toFixed(1) || 0}</h3>
                                         <span className="text-muted">Média de idade dos pacientes</span>
                                     </div>
                                 </div>
@@ -130,6 +228,25 @@ export default function SupMeuEstagiario() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="shadow-lg row g-0 border rounded my-4">
+                <div className="p-4">
+                    <h4>Desempenho</h4>
+                    <div className="row">
+                        <div className="col-md-6 mb-3">
+                            {idadeData && <Pie data={idadeData} options={{ plugins: { title: { display: true, text: 'Idade dos Pacientes' }}}} />}
+                        </div>
+                        <div className="col-md-6 mb-3">
+                            {generoData && <Pie data={generoData} options={{ plugins: { title: { display: true, text: 'Gênero dos Pacientes' }}}} />}
+                        </div>
+                        <div className="col-md-6 mb-3">
+                            {escolaridadeData && <Pie data={escolaridadeData} options={{ plugins: { title: { display: true, text: 'Escolaridade dos Pacientes' }}}} />}
+                        </div>
+                        <div className="col-md-6 mb-3">
+                            {rendaData && <Pie data={rendaData} options={{ plugins: { title: { display: true, text: 'Renda Familiar dos Pacientes' }}}} />}
                         </div>
                     </div>
                 </div>

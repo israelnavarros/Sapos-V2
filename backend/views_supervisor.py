@@ -301,7 +301,8 @@ def api_sup_ficha_paciente(id):
         'nome_resp_encaminhamento': dados_paciente.nome_resp_encaminhamento,
         'motivo': dados_paciente.motivo,
         'medicamentos': dados_paciente.medicamentos,
-        'id_estagiario': estagiario.nome if estagiario else None,
+        'id_estagiario': estagiario.id_usuario if estagiario else None,
+        'nome_estagiario': estagiario.nome if estagiario else None,
         'id_supervisor': supervisor.nome if supervisor else None,
         'status': dados_paciente.status,
         'data_criacao': str(dados_paciente.data_criacao)
