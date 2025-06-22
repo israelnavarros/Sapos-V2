@@ -87,7 +87,7 @@ def api_meu_grupo():
     return jsonify({
         'grupo_info': {
             'id_grupo': grupo_info.id_grupo,
-            'nome': grupo_info.nome,
+            'nome': grupo_info.titulo,
             'vagas': grupo_info.vagas
         },
         'coordenadores': [{'id': c.id_usuario, 'nome': c.nome} for c in lista_coord],

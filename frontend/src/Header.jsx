@@ -45,7 +45,7 @@ function Header() {
           )}
           {user.cargo === 1 && (
             <li>
-              <Link to="/meu-grupo" className="text-gray-800 hover:text-teal-600">Meu Grupo</Link>
+              <Link to="/meugrupo" className="text-gray-800 hover:text-teal-600">Meu Grupo</Link>
             </li>
           )}
           {user.cargo === 2 && (
@@ -56,7 +56,8 @@ function Header() {
           <li>
             <Link to="/meuperfil/" className="flex items-center text-gray-800 hover:text-teal-600">
               <img
-                src={user.avatarUrl}
+                // src={user.avatarUrl}
+                src='/src/assets/avatar_padrao.jpg'
                 alt="Profile"
                 className="w-6 h-6 rounded-full mr-2"
               />

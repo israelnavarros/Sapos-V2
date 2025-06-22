@@ -9,7 +9,7 @@ from flask_simple_crypt import SimpleCrypt
 
 
 app = Flask(__name__)
-cors = CORS(app, origins='*')
+cors = CORS(app, supports_credentials=True, origins=['http://localhost:5173'])
 app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
@@ -20,6 +20,10 @@ mail = Mail(app)
 crypt = SimpleCrypt(app)
 
 from views_user import *
+from views_coordenador_spa import *
+from views_formulario import *
+from views_secretaria import *
+from views_supervisor import *
 
 # with app.app_context():
 #     db.create_all()
