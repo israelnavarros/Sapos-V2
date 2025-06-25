@@ -76,7 +76,7 @@ def api_meu_grupo():
     reunioes = ReuniaoGrupos.query.filter_by(id_grupo=current_user.grupo).all()
     reunioes_json = [
         {
-            'id': r.id_reuniaogrupos,
+            'id_reuniaogrupos': r.id_reuniaogrupos,
             'dia': DIAS_DA_SEMANA.get(r.dia, 'Desconhecido'),
             'hora_inicio': r.hora_inicio.strftime('%H:%M:%S'),
             'hora_fim': r.hora_fim.strftime('%H:%M:%S')
@@ -353,3 +353,4 @@ def api_sup_check_ficha(id):
 @login_required
 def api_dashboard_coordenacao():
     return jsonify({'status': 'success'})
+

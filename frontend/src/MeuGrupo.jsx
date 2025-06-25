@@ -51,11 +51,21 @@ export default function MeuGrupo() {
         diaReuniao: novoReuniao.dia,
         horainiReuniao: novoReuniao.horaini,
         horafimReuniao: novoReuniao.horafim
-      })
+      }),
+      credentials: 'include'
     });
     const data = await res.json();
-    if (data.status === 'success') {
-      setReunioes([...reunioes, data.novaReuniao]);
+    console.log('cavalo molado ------', data);
+    if (data.success) {
+      setReunioes([
+        ...reunioes,
+        {
+          id_reuniaogrupos: data.idRe,
+          dia: Number(data.diaR),
+          hora_inicio: data.horainiR,
+          hora_fim: data.horafimR
+        }
+      ]);
       setNovoReuniao({ dia: '', horaini: '', horafim: '' });
     } else {
       alert(data.message || 'Erro ao adicionar reunião');
@@ -64,13 +74,15 @@ export default function MeuGrupo() {
 
   // Remover reunião
   const handleRemoveReuniao = async (id_reuniao) => {
+    console.log('Removendo reunião com ID:', id_reuniao);
     const res = await fetch('/api/remover_reuniao', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id_reuniao_grupo: id_reuniao })
+      body: JSON.stringify({ id_reuniao_grupo: Number(id_reuniao) }),
+      credentials: 'include'
     });
     const data = await res.json();
-    if (data.status === 'success') {
+    if (data.success) {
       setReunioes(reunioes.filter(r => r.id_reuniaogrupos !== id_reuniao));
     } else {
       alert('Erro ao remover reunião');
