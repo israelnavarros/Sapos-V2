@@ -230,10 +230,10 @@ def est_terceira_estatistica_paciente(id_paciente):
 
 # ------------------- UPLOADS -------------------
 
-@app.route('/api/uploads/pacientes/paciente/<id>', methods=['GET'])
-def imagem_paciente_tabela(id):
-    imagem = recupera_imagem_pacientes(id)
-    return send_from_directory(app.config['UPLOAD_PACIENTES_PATH'], imagem)
+# @app.route('/api/uploads/pacientes/paciente/<id>', methods=['GET'])
+# def imagem_paciente_tabela(id):
+#     imagem = recupera_imagem_pacientes(id)
+#     return send_from_directory(app.config['UPLOAD_PACIENTES_PATH'], imagem)
 
 # ------------------- FUNÇÕES AUXILIARES -------------------
 

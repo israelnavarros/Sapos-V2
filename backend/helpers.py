@@ -182,7 +182,7 @@ def deleta_imagem(id):
 
 def recupera_imagem_pacientes(id):
     for nome_arquivo in os.listdir(app.config['UPLOAD_PACIENTES_PATH']):
-        if f'capa{id}' in nome_arquivo:
+        if f'{id}' in nome_arquivo:
             return nome_arquivo
     return 'capa_padrao.jpg'
 

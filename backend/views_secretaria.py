@@ -8,6 +8,8 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_mail import Message
 import random, json, time, os, base64
 from datetime import datetime, date, timedelta
+import base64
+import re
 
 # Consultas da secretaria
 @app.route('/api/consulta_secretaria', methods=['GET'])
@@ -229,13 +231,15 @@ def api_pacientes():
         })
     return jsonify(lista_pacientes)
 
+
 @app.route('/api/editar_paciente/<int:id>', methods=['GET'])
 @login_required
 def api_editar_paciente(id):
     paciente = Pacientes.query.filter_by(id_paciente=id).first()
     if not paciente:
         return jsonify({'success': False, 'message': 'Paciente não encontrado'}), 404
-
+    supervisor = Usuarios.query.get(paciente.id_supervisor)
+    estagiario = Usuarios.query.get(paciente.id_estagiario)
     paciente_json = {
         'id_paciente': paciente.id_paciente,
         'nome_completo': paciente.nome_completo,
@@ -264,10 +268,13 @@ def api_editar_paciente(id):
         'medicamentos': paciente.medicamentos,
         'id_estagiario': paciente.id_estagiario,
         'id_supervisor': paciente.id_supervisor,
+        'supervisor_nome': supervisor.nome if supervisor else '',
+        'estagiario_nome': estagiario.nome if estagiario else '',
         'status': paciente.status,
         'data_criacao': str(paciente.data_criacao)
     }
     return jsonify(paciente_json)
+
 
 @app.route('/api/atualizar_paciente/<int:id>', methods=['POST'])
 @login_required
@@ -305,6 +312,17 @@ def api_atualizar_paciente(id):
     paciente.id_supervisor = data.get('id_supervisor')
     paciente.status = data.get('status')
     paciente.data_criacao = data.get('data_criacao')
+
+    cropped_data = data.get('croppedData')
+    print(data.get('croppedData'))
+    if cropped_data:
+        match = re.match(r'data:image/(png|jpg|jpeg);base64,(.*)', cropped_data)
+        if match:
+            img_str = match.group(2)
+            img_bytes = base64.b64decode(img_str)
+            img_path = os.path.join(app.config['UPLOAD_PACIENTES_PATH'], f"{id}.png")
+            with open(img_path, "wb") as f:
+                f.write(img_bytes)
 
     db.session.commit()
     return jsonify({'success': True})

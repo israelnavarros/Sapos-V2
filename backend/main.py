@@ -25,6 +25,7 @@ from views_formulario import *
 from views_secretaria import *
 from views_supervisor import *
 from views_estagiario import *
+from views_comuns import *
 
 # with app.app_context():
 #     db.create_all()
