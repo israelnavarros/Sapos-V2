@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 export default function SecGrupos() {
   const [listaGrupos, setListaGrupos] = useState([]);
@@ -48,6 +49,8 @@ export default function SecGrupos() {
   };
 
   return (
+    <>
+    <Header/>
     <div className="shadow-lg row g-0 border rounded p-3">
       <div className="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
         <button className="btn btn-primary btn-lg" onClick={() => navigate('/criar_grupo')}>
@@ -140,5 +143,6 @@ export default function SecGrupos() {
         </div>
       </div>
     </div>
+    </>
   );
 }
