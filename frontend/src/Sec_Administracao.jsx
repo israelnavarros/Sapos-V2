@@ -56,7 +56,7 @@ export default function SecAdministracao() {
               <div className="icon-box">
                 <div className="icon"><i className="bi bi-diagram-2"></i></div>
                 <h4 className="title">
-                  <Link to="/adm_grupos" className="stretched-link">Grupos</Link>
+                  <Link to="/sec_grupos" className="stretched-link">Grupos</Link>
                 </h4>
               </div>
             </div>
