@@ -56,8 +56,8 @@ function Header() {
           <li>
             <Link to="/meuperfil/" className="flex items-center text-gray-800 hover:text-teal-600">
               <img
-                // src={user.avatarUrl}
-                src='/src/assets/capa_padrao.jpg'
+                src={`/api/uploads/usuarios/${user.id}`}
+                // src='/src/assets/capa_padrao.jpg'
                 alt="Profile"
                 className="w-6 h-6 rounded-full mr-2"
               />

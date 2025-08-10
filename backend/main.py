@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_simple_crypt import SimpleCrypt
 
 
+
 app = Flask(__name__)
 cors = CORS(app, supports_credentials=True, origins=['http://localhost:5173'])
 app.config.from_pyfile('config.py')

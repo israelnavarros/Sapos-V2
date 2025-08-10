@@ -102,7 +102,22 @@ def meuperfil(profile):
         "criado_em": usuario.criado_em.isoformat() if usuario.criado_em else None,
         "valido_ate": usuario.valido_ate.isoformat() if usuario.valido_ate else None
     }), 200
-
+@app.route('/api/atualizar_avatar_usuario/<int:id_usuario>', methods=['POST'])
+@login_required
+def atualizar_avatar_usuario(id_usuario):
+    data = request.get_json()
+    cropped_data = data.get('croppedData')
+    if cropped_data:
+        import base64, os, re
+        deleta_imagem_usuario(id_usuario)
+        match = re.match(r'data:image/(png|jpg|jpeg);base64,(.*)', cropped_data)
+        if match:
+            img_str = match.group(2)
+            img_bytes = base64.b64decode(img_str)
+            img_path = os.path.join(app.config['UPLOAD_USUARIOS_PATH'], f"avatar{id_usuario}.png")
+            with open(img_path, "wb") as f:
+                f.write(img_bytes)
+    return jsonify({'success': True})
 @app.route('/api/uploads/usuarios/<id>')
 def api_imagem_usuario(id):
     imagem = recupera_imagem_usuario(id)
@@ -119,8 +134,7 @@ def api_upload_imagem_usuario_perfil():
     if file:
         deleta_imagem_usuario(current_user.id_usuario)
         upload_path = app.config['UPLOAD_USUARIOS_PATH']
-        tempo = time.time()
-        filename = f'avatar{current_user.id_usuario}-{int(tempo)}.jpg'
+        filename = f'avatar{current_user.id_usuario}.jpg'
         file_path = os.path.join(upload_path, filename)
         file.save(file_path)
         avatar_url = url_for('api_imagem_usuario', id=current_user.id_usuario, _external=True)

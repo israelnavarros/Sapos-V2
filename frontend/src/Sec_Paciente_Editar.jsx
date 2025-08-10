@@ -120,7 +120,7 @@ export default function SecEditarPaciente() {
       <form className="shadow-lg row g-0 border rounded p-3" onSubmit={handleSubmit}>
         <div className="text-center d-flex justify-content-center">
           <figure className="img thumbnail col-md-4">
-            <img className="img-fluid" id="profile-img" src={`/api/uploads/pacientes/${id_paciente}?t=${Date.now()}`} alt="Paciente" onError={e => { e.target.src = "/src/assets/Logo.png"; }}/>
+            <img className="img-fluid" id="profile-img" src={`/api/uploads/pacientes/${id_paciente}?t=${Date.now()}`} alt="Paciente" onError={e => { e.target.src = "/src/usuarios/avatar_padrao.jpg"; }}/>
             <input type="hidden" name="croppedData" value={croppedImg} />
             <div className="d-grid gap-2 col-6 mx-auto mt-2">
               <label className="label custom-file-upload btn btn-primary btn-sm">
