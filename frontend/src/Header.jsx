@@ -14,7 +14,7 @@ function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full greenColor shadow z-50">
+    <header className="fixed top-0 left-0 w-full greenColor shadow z-50 font-inter">
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
@@ -60,12 +60,12 @@ function Header() {
               className="w-14 h-14 rounded-full object-cover"
             />
             <div className="flex flex-col items-start">
-              <Link to="/meuperfil/" className="text-white text-sm font-semibold hover:text-teal-600">
+              <Link to="/meuperfil/" className="text-white text-base font-semibold hover:text-teal-600">
                 {user?.nome}
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-xs text-white hover:text-green-600 transition bg-transparent border-none"
+                className="text-xs text-white hover:text-green-400 transition bg-transparent border-none "
               >
                 Deslogar
               </button>

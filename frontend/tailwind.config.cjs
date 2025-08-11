@@ -10,6 +10,9 @@ module.exports = {
       colors: {
         olive: '#556B2F',
       },
+      fontFamily: {
+        inter: ['Inter', 'sans-serif'],
+      },
     },
   },
   plugins: [],
