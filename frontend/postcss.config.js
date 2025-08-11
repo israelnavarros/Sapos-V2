@@ -3,8 +3,9 @@ import autoprefixer from "autoprefixer";
 
 export default {
   plugins: [
-    tailwindcss(),
+    tailwindcss({
+      config: './tailwind.config.js', // ou .js se você voltar
+    }),
     autoprefixer(),
   ],
 }
-
