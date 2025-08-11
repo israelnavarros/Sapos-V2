@@ -60,12 +60,12 @@ function Header() {
               className="w-14 h-14 rounded-full object-cover"
             />
             <div className="flex flex-col items-start">
-              <Link to="/meuperfil/" className="text-white text-base font-regular font-inter hover:text-teal-600">
+              <Link to="/meuperfil/" className="text-white text-base hover:font-medium transition">
                 {user?.nome}
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-xs text-semiwhite hover:text-green-400 transition bg-transparent border-none font-thin"
+                className="text-xs text-semiwhite transition cursor-pointer bg-transparent border-none font-thin"
               >
                 Sair
               </button>

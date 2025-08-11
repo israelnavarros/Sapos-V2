@@ -4,11 +4,9 @@
   --font-inter: 'Inter', sans-serif;
   --font-mono: 'Fira Code', monospace;
   --font-sans: 'Helvetica Neue', Arial, sans-serif;
-  --font-weight-regular: 50;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
   --color-green: #3C7E61;
   --color-semiwhite: #D8D8D8;
+  --color-background: #F4F1EE;
 }
 
 :root {
@@ -16,9 +14,9 @@
   line-height: 1.5;
   /* font-weight: 400; */
 
-  color-scheme: light dark;
+  color-scheme: red;
   color: rgba(0, 0, 0, 0.87);
-  /* background-color: #4e0505; */
+  background-color: var(--color-background);
 
   /* font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -32,9 +30,9 @@ a {
   /* color: #fafafa; */
   text-decoration: inherit;
 }
-a:hover {
+/* a:hover {
   color: #008006;
-}
+} */
 
 body {
   margin: 0;
