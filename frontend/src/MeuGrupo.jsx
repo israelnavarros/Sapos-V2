@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 
 export default function MeuGrupo() {
   const { user } = useContext(AuthContext);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [grupoInfo, setGrupoInfo] = useState(null);
   const [coordenadores, setCoordenadores] = useState([]);
   const [estagiarios, setEstagiarios] = useState([]);
@@ -104,155 +105,189 @@ export default function MeuGrupo() {
         <br /><br />
 
         {/* Coordenadores */}
-        <div className="shadow-lg row g-0 border rounded mb-4">
-          <h1 className="display-6 w-25 m-3">Coordenadores</h1>
-          <ul className="list-group list-group-flush p-2">
+        <section className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Coordenadores</h2>
+          <ul className="space-y-2">
             {coordenadores.map(coord => (
-              <li key={coord.id} className="list-group-item list-group-item-action">{coord.nome}</li>
+              <li key={coord.id} className="px-4 py-2 bg-gray-50 rounded hover:bg-gray-100 transition text-gray-700">
+                {coord.nome}
+              </li>
             ))}
           </ul>
-        </div>
+        </section>
+
 
         {/* Estagiários */}
-        <div className="shadow-lg row g-0 border rounded mb-4">
-          <div className="col-md-8">
-            <h1 className="display-6 w-25 p-3">Estagiários</h1>
-          </div>
-          <div className="col-md-4 col-12 justify-content-end p-3">
-            <div className="dropdown text-end">
-              <button className="btn btn-secondary dropdown-toggle h-100 w-100" type="button">
+        <section className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+            <h2 className="text-xl font-semibold text-gray-800">Estagiários</h2>
+            <div className="relative">
+              <button
+                className="bg-green text-white px-4 py-2 rounded hover:bg-green-600 cursor-pointer transition w-full"
+                onClick={() => setShowDropdown(prev => !prev)}
+              >
                 Vagas: {vagas.ocupadas}/{vagas.total}
               </button>
-              <ul className="dropdown-menu">
-                <li>
-                  <Link className="dropdown-item" to="/meugrupo/adicionar-estagiario">
-                    Adicionar diretamente
-                  </Link>
-                </li>
-                <li><a className="dropdown-item" href="#">Adicionar por link</a></li>
-                <li><a className="dropdown-item" href="#">Adicionar por lista de estagiários</a></li>
-              </ul>
+              {showDropdown && (
+                <ul className="absolute right-0 mt-2 w-64 bg-white border rounded shadow-lg z-10">
+                  <li>
+                    <Link to="/meugrupo/adicionar-estagiario" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
+                      Adicionar diretamente
+                    </Link>
+                  </li>
+                  <li>
+                    <button className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700">
+                      Adicionar por link
+                    </button>
+                  </li>
+                  <li>
+                    <button className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700">
+                      Adicionar por lista de estagiários
+                    </button>
+                  </li>
+                </ul>
+              )}
             </div>
-            {showAdicionar && (
-              <AdicionarEstagiario
-                grupoInfo={grupoInfo}
-                onSuccess={() => setShowAdicionar(false)}
-              />
-            )}
           </div>
-          <div className="list-group list-group-flush p-2">
-            {estagiarios.map(estag => (
-              <Link key={estag.id} to={`/sup_meu_estagiario/${estag.id}`} className="list-group-item list-group-item-action">
-                {estag.nome}
-              </Link>
-            ))}
-          </div>
-        </div>
 
-        {/* Reuniões */}
-        <div className="shadow-lg row g-0 border rounded mb-4">
-          <h1 className="display-6 w-25 m-3">Reuniões</h1>
-          <div className="px-2 py-3">
-            <div className="row g-2 justify-content-center">
-              <div className="col-md-4 col-12 p-2">
-                <div className="form-floating">
-                  <select className="form-select" id="diaReuniao" required
-                    value={novoReuniao.dia}
-                    onChange={e => setNovoReuniao({ ...novoReuniao, dia: e.target.value })}
-                  >
-                    <option value="">Escolha uma das opções</option>
-                    {DIAS_DA_SEMANA.map((dia, idx) => (
-                      <option key={idx} value={idx}>{dia}</option>
-                    ))}
-                  </select>
-                  <label htmlFor="diaReuniao">Dia da semana</label>
-                </div>
-              </div>
-              <div className="col-md-2 col-12 p-2">
-                <div className="form-floating">
-                  <input type="time" className="form-control" id="horainiReuniao" required
-                    value={novoReuniao.horaini}
-                    onChange={e => setNovoReuniao({ ...novoReuniao, horaini: e.target.value })}
-                  />
-                  <label htmlFor="horainiReuniao">Horário de inicio</label>
-                </div>
-              </div>
-              <div className="col-md-2 col-12 p-2">
-                <div className="form-floating">
-                  <input type="time" className="form-control" id="horafimReuniao" required
-                    value={novoReuniao.horafim}
-                    onChange={e => setNovoReuniao({ ...novoReuniao, horafim: e.target.value })}
-                  />
-                  <label htmlFor="horafimReuniao">Horário de fim</label>
-                </div>
-              </div>
-              <div className="col-md-1 col-12 p-2">
-                <button type="button" className="btn btn-light h-100 w-100" onClick={handleAddReuniao}>
-                  <i className="bi bi-plus-square"></i>
-                  <span className="d-inline d-md-none"> Adicionar Reunião</span>
-                </button>
-              </div>
+          {showAdicionar && (
+            <AdicionarEstagiario
+              grupoInfo={grupoInfo}
+              onSuccess={() => setShowAdicionar(false)}
+            />
+          )}
+
+          <ul className="space-y-2">
+            {estagiarios.map(estag => (
+              <li key={estag.id}>
+                <Link
+                  to={`/sup_meu_estagiario/${estag.id}`}
+                  className="block px-4 py-2 bg-gray-50 rounded hover:bg-gray-100 transition text-green"
+                >
+                  {estag.nome}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Reuniões</h2>
+
+          {/* Formulário de nova reunião */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Dia da semana</label>
+              <select
+                className="w-full border rounded px-3 py-2"
+                value={novoReuniao.dia}
+                onChange={e => setNovoReuniao({ ...novoReuniao, dia: e.target.value })}
+              >
+                <option value="">Escolha</option>
+                {DIAS_DA_SEMANA.map((dia, idx) => (
+                  <option key={idx} value={idx}>{dia}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Horário de início</label>
+              <input
+                type="time"
+                className="w-full border rounded px-3 py-2"
+                value={novoReuniao.horaini}
+                onChange={e => setNovoReuniao({ ...novoReuniao, horaini: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Horário de fim</label>
+              <input
+                type="time"
+                className="w-full border rounded px-3 py-2"
+                value={novoReuniao.horafim}
+                onChange={e => setNovoReuniao({ ...novoReuniao, horafim: e.target.value })}
+              />
+            </div>
+            <div className="flex items-end">
+              <button
+                type="button"
+                className="bg-green text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer transition w-full"
+                onClick={handleAddReuniao}
+              >
+                Adicionar
+              </button>
             </div>
           </div>
-          <div className="px-2 py-3">
-            <table className="table table-hover table-responsive table-borderless" id="reunioesTable">
-              <tbody>
-                {reunioes.map(reuniao => (
-                  <tr key={reuniao.id_reuniaogrupos}>
-                    <td className="text-start align-middle">Dia da Semana: {DIAS_DA_SEMANA[reuniao.dia]}</td>
-                    <td className="text-start align-middle">Horário de Início: {reuniao.hora_inicio}</td>
-                    <td className="text-start align-middle">Horário de Término: {reuniao.hora_fim}</td>
-                    <td className="text-center align-middle">
-                      <button type="button" className="btn btn-light" onClick={() => handleRemoveReuniao(reuniao.id_reuniaogrupos)}>
-                        <i className="bi bi-dash-square"></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+
+          {/* Tabela de reuniões */}
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Dia</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Início</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fim</th>
+                <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {reunioes.map(reuniao => (
+                <tr key={reuniao.id_reuniaogrupos} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">{DIAS_DA_SEMANA[reuniao.dia]}</td>
+                  <td className="px-4 py-2">{reuniao.hora_inicio}</td>
+                  <td className="px-4 py-2">{reuniao.hora_fim}</td>
+                  <td className="px-4 py-2 text-center">
+                    <button
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => handleRemoveReuniao(reuniao.id_reuniaogrupos)}
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
 
         {/* Informações do grupo */}
-        <div className="row g-2">
-          <div className="col-md-6 mb-4">
-            <div className="shadow-lg row g-0 border rounded">
-              <h1 className="display-6 text-center pt-3">Local do Estágio</h1>
-              <p className="ms-3 text-justify">{grupoInfo.local}</p>
-            </div>
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Local do Estágio */}
+          <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Local do Estágio</h2>
+            <p className="text-gray-700 text-justify">{grupoInfo.local}</p>
           </div>
-          <div className="col-md-6 mb-4">
-            <div className="shadow-lg row g-0 border rounded">
-              <h1 className="display-6 text-center pt-3">Convênio</h1>
-              <p className="ps-3 text-justify">{grupoInfo.convenio || 'Não possui convênio'}</p>
-            </div>
+
+          {/* Convênio */}
+          <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Convênio</h2>
+            <p className="text-gray-700 text-justify">{grupoInfo.convenio || 'Não possui convênio'}</p>
           </div>
-          <div className="col-md-6 mb-4">
-            <div className="shadow-lg row g-0 border rounded">
-              <h1 className="display-6 text-center pt-3">Resumo</h1>
-              <p className="p-3 text-justify">{grupoInfo.resumo}</p>
-            </div>
+
+          {/* Resumo */}
+          <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Resumo</h2>
+            <p className="text-gray-700 text-justify">{grupoInfo.resumo}</p>
           </div>
-          <div className="col-md-6 mb-4">
-            <div className="shadow-lg row g-0 border rounded">
-              <h1 className="display-6 text-center pt-3">Objetivos</h1>
-              <p className="ps-3 text-justify">{grupoInfo.objetivos}</p>
-            </div>
+
+          {/* Objetivos */}
+          <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Objetivos</h2>
+            <p className="text-gray-700 text-justify">{grupoInfo.objetivos}</p>
           </div>
-          <div className="col-md-6 mb-4">
-            <div className="shadow-lg row g-0 border rounded">
-              <h1 className="display-6 text-center pt-3">Atividades</h1>
-              <p className="ps-3 text-justify">{grupoInfo.atividades}</p>
-            </div>
+
+          {/* Atividades */}
+          <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Atividades</h2>
+            <p className="text-gray-700 text-justify">{grupoInfo.atividades}</p>
           </div>
-          <div className="col-md-6 mb-4">
-            <div className="shadow-lg row g-0 border rounded">
-              <h1 className="display-6 text-center pt-3">Bibliografia</h1>
-              <p className="ps-3 text-justify">{grupoInfo.bibliografia}</p>
-            </div>
+
+          {/* Bibliografia */}
+          <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Bibliografia</h2>
+            <p className="text-gray-700 text-justify">{grupoInfo.bibliografia}</p>
           </div>
-        </div>
+        </section>
+
       </div>
     </>
   );
