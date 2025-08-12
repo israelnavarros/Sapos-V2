@@ -72,7 +72,7 @@ export default function SecAdministracao() {
               <div className="icon-box">
                 <div className="icon"><i className="bi bi-exclamation-triangle"></i></div>
                 <h4 className="title">
-                  <Link to="/adm_alertas" className="stretched-link">Alertas</Link>
+                  <Link to="/sec_alertas" className="stretched-link">Alertas</Link>
                 </h4>
               </div>
             </div>
