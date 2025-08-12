@@ -1,7 +1,6 @@
-import { useState, useEffect, useContext   } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext'; // crie um contexto para autenticação
-
+import { AuthContext } from './AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -10,7 +9,7 @@ function Login() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(AuthContext);
 
-    useEffect(() => {
+  useEffect(() => {
     if (user) {
       navigate('/');
     }
@@ -28,62 +27,72 @@ function Login() {
       });
       const data = await response.json();
       if (data.success) {
-        setUser(data.user); // Salva o usuário no contexto global
-        localStorage.setItem('user', JSON.stringify(data.user)); // Salva no localStorage
-        navigate('/');      // Redireciona para o dashboard principal
-        // setMensagem(data.message);
-        // Redirecionar ou atualizar estado global aqui se necessário
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/');
       } else {
         setMensagem(data.message);
       }
     } catch (err) {
-      setMensagem('Erro ao conectar com o servidor.' + err.message);
+      setMensagem('Erro ao conectar com o servidor. ' + err.message);
     }
   };
 
   return (
-    <div style={{ backgroundColor: '#58ebdb', minHeight: '100vh' }}>
-      <div className="container py-5 h-100">
-        <div className="row d-flex align-items-center justify-content-center h-100">
-          <div className="col-md-8 col-lg-7 col-xl-6">
-            <img className="img-fluid bg-transparent" src="src/assets/Logo.png" width="200" height="200" alt="Logo SAPO" />
+    <div className="flex flex-col md:flex-row w-screen h-screen">
+      <div className="flex-1 bg-green flex flex-col justify-center items-center text-white p-10 text-center">
+        <img src="src/assets/Logo.png" alt="Logo SAPO" className="w-32 h-32 mb-6" />
+        <h1 className="text-3xl font-bold mb-2">Bem-vindo ao SAPOS</h1>
+        <p className="text-lg max-w-md mb-4">
+          Sistema de Acompanhamento de Pacientes e Organização de Saúde.
+        </p>
+        <p className="text-base font-light italic max-w-md text-white opacity-90">
+          Onde a prática encontra o cuidado humano.
+        </p>
+      </div>
+
+
+      {/* Direita (bege/login) */}
+      <div className="flex-1 bg-background flex flex-col justify-center items-center p-10 text-center">
+
+        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
+          <h2 className="text-2xl font-semibold text-gray-700">Login</h2>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 text-left">E-mail</label>
+            <input
+              type="email"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
           </div>
-          <div className="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
-            <form onSubmit={handleSubmit}>
-              <div className="form-group mb-3">
-                <label className="form-label">E-mail</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group mb-3">
-                <label className="form-label">Senha</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  value={senha}
-                  onChange={e => setSenha(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group py-2 d-grid gap-2 col-6 mx-auto mt-2">
-                <button type="submit" className="btn btn-primary btn-lg btn-block">Entrar</button>
-              </div>
-              {mensagem && (
-                <div className="toast align-items-center bg-light border-0 show mt-3" role="alert">
-                  <div className="d-flex">
-                    <div className="toast-body">{mensagem}</div>
-                    <button type="button" className="btn-close me-2 m-auto" onClick={() => setMensagem('')}></button>
-                  </div>
-                </div>
-              )}
-            </form>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 text-left">Senha</label>
+            <input
+              type="password"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
+              value={senha}
+              onChange={e => setSenha(e.target.value)}
+              required
+            />
           </div>
-        </div>
+
+          <button
+            type="submit"
+            className="w-full bg-green text-white py-2 rounded-md hover:bg-green-600 cursor-pointer transition-all font-semibold"
+          >
+            Entrar
+          </button>
+
+          {mensagem && (
+            <div className="bg-red-100 text-red-700 p-3 rounded-md text-sm text-center">
+              {mensagem}
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );
