@@ -12,6 +12,7 @@ import SecEditarPaciente from './Sec_Paciente_Editar';
 import SecGrupos from './Sec_Grupos';
 import SecUsuarios from './Sec_Usuarios';
 import SecAlertas from './Sec_Alertas';
+import EstMeuGrupo from './EstMeuGrupo';
 import { AuthProvider } from './AuthContext';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
           <Route path="/sec_grupos" element={<SecGrupos />} />
           <Route path="/sec_usuarios" element={<SecUsuarios />} />
           <Route path="/sec_alertas" element={<SecAlertas />} />
+          <Route path="/est_meu_grupo" element={<EstMeuGrupo />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -81,6 +81,8 @@ class Alertas(db.Model):
     validade = db.Column(db.Date, nullable=False)
 
 class Pacientes(db.Model):
+    __tablename__ = 'pacientes'
+
     id_paciente = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_estagiario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
     id_supervisor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
@@ -115,10 +117,29 @@ class Pacientes(db.Model):
 
     motivo = db.Column(db.Text, nullable=False)
     medicamentos = db.Column(db.Text, nullable=True)
+    intervalo_sessoes = db.Column(db.String(50), nullable=True)
 
+    # Relacionamento com tags via tabela intermediária
+    tags_rel = db.relationship('PacienteTag', backref='paciente', lazy='dynamic')
+
+    def get_tags(self):
+        return [pt.tag.nome for pt in self.tags_rel]
 
     def __repr__(self):
-        return '<Paciente %r>' % self.id_paciente
+        return f'<Paciente {self.id_paciente}>'
+
+    def serialize(self):
+        return {
+            'id_paciente': self.id_paciente,
+            'nome_completo': self.nome_completo,
+            'idade': self.idade,
+            'sexo': self.sexo,
+            'profissao': self.profissao,
+            'cidade': self.cidade,
+            'tags': self.get_tags()
+            # Adicione outros campos conforme necessário
+        }
+
 
 class FolhaEvolucao(db.Model):
     id_folha = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -127,8 +148,12 @@ class FolhaEvolucao(db.Model):
     nome_estagiario = db.Column(db.String(100), nullable=False)
     data_postagem = db.Column(db.DateTime, nullable=False)
     postagem = db.Column(db.Text, nullable=False)
-    check_supervisor = db.Column(db.String(100), nullable=True)
     data_check_supervisor = db.Column(db.DateTime, nullable=True)
+    status_validacao = db.Column(db.String(20), nullable=False, default='Pendente')
+    feedback = db.Column(db.Text, nullable=True)
+    data_status = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    
+
 
     def serialize(self):
         return {
@@ -136,12 +161,31 @@ class FolhaEvolucao(db.Model):
             'id_paciente': self.id_paciente,
             'id_estagiario': self.id_estagiario,
             'nome_estagiario': self.nome_estagiario,
-            #'data_postagem': self.data_postagem.strftime('%Y-%m-%d %H:%M:%S'),
             'data_postagem': self.data_postagem.strftime('%d/%m/%Y %H:%M:%S'),
             'postagem': self.postagem,
-            'check_supervisor': self.check_supervisor if self.check_supervisor else None,
-            'data_check_supervisor': self.data_check_supervisor.strftime('%d/%m/%Y %H:%M:%S')if self.data_check_supervisor else None
+            'data_check_supervisor': self.data_check_supervisor.strftime('%d/%m/%Y %H:%M:%S') if self.data_check_supervisor else None,
+            'status_validacao': self.status_validacao,
+            'feedback': self.feedback,
+            'data_status': self.data_status.strftime('%d/%m/%Y %H:%M:%S') if self.data_status else None
         }
+
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+
+    id_tag = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(50), nullable=False)
+
+    def __repr__(self):
+        return f"<Tag {self.nome}>"
+
+class PacienteTag(db.Model):
+    __tablename__ = 'paciente_tags'
+
+    id_paciente = db.Column(db.Integer, db.ForeignKey('pacientes.id_paciente'), primary_key=True)
+    id_tag = db.Column(db.Integer, db.ForeignKey('tags.id_tag'), primary_key=True)
+
+    tag = db.relationship('Tag', backref=db.backref('paciente_tags', cascade='all, delete-orphan'))
 
 class Consultas(db.Model):
     id_consulta = db.Column(db.Integer, primary_key=True, autoincrement=True)
