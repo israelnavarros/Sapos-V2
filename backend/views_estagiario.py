@@ -157,6 +157,119 @@ def est_consulta_card():
     })
 
 # ------------------- FICHA PACIENTE -------------------
+@app.route('/api/meus_pacientes', methods=['GET'])
+@login_required
+def api_meus_pacientes():
+    pacientes = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario, status='True').order_by(Pacientes.nome_completo).all()
+    
+    lista = []
+    for paciente in pacientes:
+        atividade = atividade_paciente(paciente.id_paciente)
+        lista.append({
+            'id_paciente': paciente.id_paciente,
+            'nome_completo': paciente.nome_completo,
+            'atividade_recente': atividade,
+            # 'imagem_url': url_for('imagem_paciente', id=paciente.id_paciente),  
+            # outros campos úteis aqui
+        })
+    
+    return jsonify(lista)
+
+@app.route('/api/ficha_paciente/<int:id>', methods=['GET'])
+@login_required
+def api_ficha_paciente(id):
+    dados_paciente = Pacientes.query.get_or_404(id)
+    estagiario = Usuarios.query.filter_by(id_usuario=dados_paciente.id_estagiario).first()
+    supervisor = Usuarios.query.filter_by(id_usuario=dados_paciente.id_supervisor).first()
+    
+    paciente_json = {
+        'id_paciente': dados_paciente.id_paciente,
+        'nome_completo': dados_paciente.nome_completo,
+        'nome_responsavel': dados_paciente.nome_responsavel,
+        'grau_parentesco': dados_paciente.grau_parentesco,
+        'data_nascimento': str(dados_paciente.data_nascimento),
+        'idade': dados_paciente.idade,
+        'sexo': dados_paciente.sexo,
+        'escolaridade': dados_paciente.escolaridade,
+        'profissao': dados_paciente.profissao,
+        'ocupacao': dados_paciente.ocupacao,
+        'salario': dados_paciente.salario,
+        'renda_familiar': dados_paciente.renda_familiar,
+        'cep': dados_paciente.cep,
+        'cidade': dados_paciente.cidade,
+        'bairro': dados_paciente.bairro,
+        'logradouro': dados_paciente.logradouro,
+        'complemento': dados_paciente.complemento,
+        'telefone': dados_paciente.telefone,
+        'celular1': dados_paciente.celular1,
+        'celular2': dados_paciente.celular2,
+        'origem_encaminhamento': dados_paciente.origem_encaminhamento,
+        'nome_instituicao': dados_paciente.nome_instituicao,
+        'nome_resp_encaminhamento': dados_paciente.nome_resp_encaminhamento,
+        'motivo': dados_paciente.motivo,
+        'medicamentos': dados_paciente.medicamentos,
+        'id_estagiario': estagiario.id_usuario if estagiario else None,
+        'nome_estagiario': estagiario.nome if estagiario else None,
+        'id_supervisor': supervisor.nome if supervisor else None,
+        'status': dados_paciente.status,
+        'data_criacao': str(dados_paciente.data_criacao)
+    }
+
+    aux_folhas_pacientes = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
+    folhas_pacientes = []
+    for folha in aux_folhas_pacientes:
+        try:
+            postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
+            folha_json = {
+                'id_folha': folha.id_folha,
+                'postagem': postagem_descriptografada,
+                'id_paciente': folha.id_paciente,
+                'id_estagiario': folha.id_estagiario,
+                'nome_estagiario': folha.nome_estagiario,
+                'data_postagem': str(folha.data_postagem)
+            }
+            folhas_pacientes.append(folha_json)
+        except Exception as e:
+            folhas_pacientes.append({
+                'id_folha': folha.id_folha,
+                'postagem': 'Erro na descriptografia',
+                'id_paciente': folha.id_paciente,
+                'id_estagiario': folha.id_estagiario,
+                'nome_estagiario': folha.nome_estagiario,
+                'data_postagem': str(folha.data_postagem)
+            })
+
+    return jsonify({
+        'paciente': paciente_json,
+        'folhas_pacientes': folhas_pacientes
+    })
+
+@app.route('/api/adicionar_paciente', methods=['POST'])
+@login_required
+def api_adicionar_paciente():
+    data = request.get_json()
+    
+    novo_paciente = Pacientes(
+        id_estagiario=current_user.id_usuario,
+        id_supervisor=data['id_supervisor'],
+        nome_completo=data['nome_completo'],
+        data_nascimento=datetime.strptime(data['data_nascimento'], '%Y-%m-%d').date(),
+        idade=data['idade'],
+        sexo=data['sexo'],
+        cidade=data['cidade'],
+        bairro=data['bairro'],
+        telefone=data['telefone'],
+        email=data['email'],
+        motivo=data['motivo'],
+        medicamentos=data['medicamentos'],
+        status='True',
+        data_criacao=date.today().strftime('%d/%m/%Y')
+    )
+    
+    db.session.add(novo_paciente)
+    db.session.commit()
+    
+    return jsonify({'status': 'success', 'id_paciente': novo_paciente.id_paciente})
 
 @app.route('/api/consulta_ids_supervisores', methods=['GET'])
 @login_required

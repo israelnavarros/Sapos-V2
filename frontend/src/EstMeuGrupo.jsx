@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from './Header';
 
-export default function EstMeuGrupo() {
+export default function EstMeuPacientes() {
   const [pacientes, setPacientes] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/estag_meu_grupo', { credentials: 'include' })
+    fetch('/api/meus_pacientes', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setPacientes(data))
       .catch(err => console.error('Erro ao carregar pacientes do grupo:', err));
@@ -38,9 +38,9 @@ export default function EstMeuGrupo() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {pacientes.map(({ paciente, ultima_atividade }) => (
+              {pacientes.map((paciente) => (
                 <tr key={paciente.id_paciente} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">
+                  {/* <td className="px-4 py-2">
                     <Link to={`/est_ficha_paciente/${paciente.id_paciente}`}>
                       <img
                         src={`/api/imagem_paciente/${paciente.id_paciente}`}
@@ -48,7 +48,7 @@ export default function EstMeuGrupo() {
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     </Link>
-                  </td>
+                  </td> */}
                   <td className="px-4 py-2 text-center">
                     <Link to={`/est_ficha_paciente/${paciente.id_paciente}`} className="text-blue-600 hover:underline">
                       {paciente.nome_completo}
@@ -56,9 +56,6 @@ export default function EstMeuGrupo() {
                   </td>
                   <td className="px-4 py-2 text-center">
                     {new Date(paciente.data_criacao).toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                    {ultima_atividade || 'Sem registro'}
                   </td>
                 </tr>
               ))}

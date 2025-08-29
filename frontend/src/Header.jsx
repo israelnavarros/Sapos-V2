@@ -49,7 +49,7 @@ function Header() {
           )}
           {cargo === 2 && (
             <li>
-              <Link to="/meus-pacientes" className="text-white ">Meus Pacientes</Link>
+              <Link to="/meuspacientes" className="text-white ">Meus Pacientes</Link>
             </li>
           )}
 
