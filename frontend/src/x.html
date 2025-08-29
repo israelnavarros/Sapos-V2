@@ -1,0 +1,608 @@
+{% extends "header.html" %}
+{% block conteudo %}
+
+<div class="shadow-lg row g-0 border rounded p-3">
+  <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="ficha-tab" data-bs-toggle="tab" data-bs-target="#ficha-tab-pane" type="button" role="tab" aria-controls="ficha-tab-pane" aria-selected="true">
+        Dados do Paciente
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="evolucao-tab" data-bs-toggle="tab" data-bs-target="#evolucao-tab-pane" type="button" role="tab" aria-controls="evolucao-tab-pane" aria-selected="false">
+        Folha de Evolução
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="estatisticas-tab" data-bs-toggle="tab" data-bs-target="#estatisticas-tab-pane" type="button" role="tab" aria-controls="estatisticas-tab-pane" aria-selected="false">
+        Estatísticas do Paciente
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="ficha-tab-pane" role="tabpanel" aria-labelledby="ficha-tab" tabindex="0">
+      <div class="border border-top-0">
+        <div class="p-3">
+          <form action="{{ url_for('adm_paciente_atualizado') }}" method="post"  enctype="multipart/form-data" id="formPaciente">
+            {{ formulario_paciente.csrf_token() }}
+            {{ formulario_paciente.id_paciente }}
+
+            <div class="text-center d-flex justify-content-center">
+              <figure class="img thumbnail col-md-4">
+                <img class="img-fluid" name="profile-img" id="profile-img" src="{{ url_for('imagem_paciente_tabela', id=formulario_paciente.id_paciente.data) }}">
+              </figure>
+            </div>
+
+            <fieldset class="row g-3">
+              <h3>Ficha de Atendimento</h3>
+
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.id_supervisor(class="form-control", id="floatingSupervisor", placeholder="Nome Completo", disabled=True) }}
+                  <label for="floatingSupervisor">Supervisor</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.id_estagiario(class="form-control", id="floatingEstagiario", placeholder="Nome Completo", disabled=True) }}
+                  <label for="floatingEstagiario">Estagiário</label>
+                </div>
+              </div>
+              <div class="col-2">
+                <div class="form-floating">
+                  {{ formulario_paciente.status(class="form-control", id="floatingStatus", disabled=True) }}
+                  <label for="floatingStatus">Status</label>
+                </div>
+              </div>
+              <div class="col-2">
+                <div class="form-floating">
+                  {{ formulario_paciente.data_criacao(class="form-control", id="floatingDataCriacao", placeholder="Data de Criação", disabled=True) }}
+                  <label for="floatingDataCriacao">Data de Criação</label>
+                </div>
+              </div>
+
+              <h3>Dados Pessoais do Paciente</h3>
+
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.nome_completo(class="form-control", id="floatingNomeCompleto", placeholder="Nome Completo", disabled=True) }}
+                  <label for="floatingNomeCompleto">Nome Completo</label>
+                </div>
+              </div>
+              <div class="col-9">
+                <div class="form-floating">
+                  {{ formulario_paciente.nome_responsavel(class="form-control", id="floatingNomeResponsavel", placeholder="Nome do Responsável", disabled=True) }}
+                  <label for="floatingNomeResponsavel">Nome do Responsável</label>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="form-floating">
+                  {{ formulario_paciente.grau_parentesco(class="form-control", id="floatingGrauParentesco", placeholder="Grau de Parentesco", disabled=True) }}
+                  <label for="floatingGrauParentesco">Grau de Parentesco</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.data_nascimento(class="form-control", id="floatingDataNascimento", placeholder="Data de Nascimento", disabled=True) }}
+                  <label for="floatingDataNascimento">Data de Nascimento</label>
+                </div>
+              </div>
+              <div class="col-2">
+                <div class="form-floating">
+                  {{ formulario_paciente.idade(class="form-control", id="floatingIdade", placeholder="Idade", disabled=True) }}
+                  <label for="floatingIdade">Idade</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  {{ formulario_paciente.sexo(class="form-control", id="floatingSexo", placeholder="Sexo", disabled=True) }}
+                  <label for="floatingSexo">Sexo</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.escolaridade(class="form-control", id="floatingEscolaridade", placeholder="Escolaridade", disabled=True) }}
+                  <label for="floatingEscolaridade">Escolaridade</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  {{ formulario_paciente.profissao(class="form-control", id="floatingProfissao", placeholder="Profissão", disabled=True) }}
+                  <label for="floatingProfissao">Profissão</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  {{ formulario_paciente.ocupacao(class="form-control", id="floatingOcupacao", placeholder="Ocupação", disabled=True) }}
+                  <label for="floatingOcupacao">Ocupação</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  {{ formulario_paciente.salario(class="form-control", id="floatingSalario", placeholder="Salário", disabled=True) }}
+                  <label for="floatingSalario">Salário</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating">
+                  {{ formulario_paciente.renda_familiar(class="form-control", id="floatingRendaFamiliar", placeholder="Renda Familiar", disabled=True) }}
+                  <label for="floatingRendaFamiliar">Renda Familiar</label>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="row g-3">
+              <h3>Endereço</h3>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.cep(class="form-control", id="floatingCep", placeholder="CEP", onkeyup="chamaCep()", disabled=True) }}
+                  <label for="floatingCep">CEP</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.cidade(class="form-control", id="floatingCidade", placeholder="Cidade", disabled=True) }}
+                  <label for="floatingCidade">Cidade</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.bairro(class="form-control", id="floatingBairro", placeholder="Bairro", disabled=True) }}
+                  <label for="floatingBairro">Bairro</label>
+                </div>
+              </div>
+              <div class="col-8">
+                <div class="form-floating">
+                  {{ formulario_paciente.logradouro(class="form-control", id="floatingLogradouro", placeholder="Logradouro", disabled=True) }}
+                  <label for="floatingLogradouro">Logradouro</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.complemento(class="form-control", id="floatingComplemento", placeholder="Complemento", disabled=True) }}
+                  <label for="floatingComplemento">Complemento</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.telefone(class="form-control", id="floatingTelefone", placeholder="Telefone", disabled=True) }}
+                  <label for="floatingTelefone">Telefone</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.celular1(class="form-control", id="floatingCelular1", placeholder="Celular 1", disabled=True) }}
+                  <label for="floatingCelular1">Celular 1</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  {{ formulario_paciente.celular2(class="form-control", id="floatingCelular2", placeholder="Celular 2", disabled=True) }}
+                  <label for="floatingCelular2">Celular 2</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.email(class="form-control", id="floatingEmail", placeholder="Email", disabled=True) }}
+                  <label for="floatingEmail">Email</label>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="row g-3">
+              <h3>Origem do Encaminhamento</h3>
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.origem_encaminhamento(class="form-control", id="floatingOrigem", placeholder="Origem do Encaminhamento", onchange="mostrarCaixaDeTexto()", disabled=True) }}
+                  <label for="floatingOrigem">Origem do Encaminhamento</label>
+                  <input type="text" class="form-control mt-2 py-0" id="outrasOpcao" name="outrasOpcao" style="display: none;" value="{{ outrasopcoes }}">
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.nome_instituicao(class="form-control", id="floatingNomeInstituicao", placeholder="Nome da Instituição", disabled=True) }}
+                  <label for="floatingNomeInstituicao">Nome da Instituição</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.nome_resp_encaminhamento(class="form-control", id="floatingNomeResp", placeholder="Nome de quem assinou o encaminhamento", disabled=True) }}
+                  <label for="floatingNomeResp">Nome de quem assinou o encaminhamento</label>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="row g-3">
+              <h3>Motivo da Consulta</h3>
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.motivo(class="form-control", id="floatingMotivo", placeholder="Motivo da Consulta", style="height: 150px", disabled=True) }}
+                  <label for="floatingMotivo">Motivo da Consulta</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ formulario_paciente.medicamentos(class="form-control", id="floatingMedicamentos", placeholder="Medicamentos", style="height: 150px", disabled=True) }}
+                  <label for="floatingMedicamentos">Medicamentos</label>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-pane fade" id="evolucao-tab-pane" role="tabpanel" aria-labelledby="evolucao-tab" tabindex="0">
+      <div class="border border-top-0">
+
+        <div class="container pt-3">
+          <div class="card mb-3">
+            <div class="card-body">
+              <form method="post" action="{{ url_for('est_ficha_adicionada') }}" id="cadastrar_evolucao">
+                <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="id_paciente" value="{{ formulario_paciente.id_paciente.data }}"/>
+                <div class="mb-3">
+                  <textarea class="form-control" placeholder="Escreva sua postagem aqui..." rows="3" name="postagem"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" id="publicarEvolucaoBtn">Publicar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="container py-3" id="ListaDeFolhas">
+          <div class="card mt-3">
+            <div class="card-body text-center">
+              <h5 class="card-title">Este paciente ainda não possui nenhum histórico de evolução.</h5>
+              <p class="card-text">Você pode adicionar a primeiros dados agora.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-pane fade" id="estatisticas-tab-pane" role="tabpanel" aria-labelledby="estatisticas-tab" tabindex="0">
+      <div class="border border-top-0">
+        <div class="container pt-3">
+
+          <div class="card mt-3">
+            <div class="card-body">
+              <canvas id="primeiraEstatisticaPaciente" width="400" height="400"></canvas>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-body">
+              <canvas id="segundaEstatisticaPaciente" width="400" height="400"></canvas>
+            </div>
+          </div>
+
+          <div class="card mt-3">
+            <div class="card-body">
+              <canvas id="terceiraEstatisticaPaciente" width="400" height="400"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<br><br>
+
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+<script type="text/javascript" src="{{ url_for('static', filename='jquery.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='chart.umd.js') }}"></script>
+
+<script>
+$(document).ready(function(){
+    // Função para carregar a lista de folhas de evolução
+    function carregarFolhasEvolucao() {
+        $.ajax({
+            url: "/est_lista_folhas_atualizada/{{ formulario_paciente.id_paciente.data }}",
+            type: "GET",
+            dataType: 'json',
+            success: function(data) {
+                $("#ListaDeFolhas").empty(); // Limpa a lista antes de adicionar novos itens
+                data.folhas_pacientes.forEach(function(folha) { // Itera sobre os valores do array folhas_pacientes
+
+                    var data_postagem = moment(folha.data_postagem, "DD-MM-YYYY HH:mm:ss");
+                    var agora = moment();
+                    var diferenca_horario = agora.diff(data_postagem);
+
+                    var adicionalHtml = '';
+                    // 2 horas para poder excluir a avaliação
+                    if (diferenca_horario <= 7200000) {
+                      adicionalHtml += '{% if current_user.cargo == 2 %}<li><a class="dropdown-item remover_evolucao" href="#" data-folha-id="' + folha.id_folha + '">Excluir</a></li>{% endif %}';
+                    }
+
+                    var imagemBaseUrl = "{{ url_for('imagem_usuario', id='') }}";
+
+
+
+                    var cardHtml = '' +
+                        '<div class="card mt-3">' +
+                        '  <div class="card-body">' +
+                        '    <div class="d-flex">' +
+                        '      <img src="' + imagemBaseUrl + folha.id_estagiario + '" class="rounded-circle me-3" style="width: 50px; height: 50px;">' +
+                        '      <div>' +
+                        '        <h5 class="card-title">' + folha.nome_estagiario + '</h5>' +
+                        '        <p class="card-text">' + folha.data_postagem + '</p>' +
+                        '      </div>' +
+                        '      <div class="ms-auto d-flex align-items-center">' +
+                        (folha.check_supervisor ?
+                        '        <i class="bi bi-check-circle text-success me-4 fs-4" data-bs-toggle="tooltip" data-bs-placement="top" title="Revisado por: ' + folha.check_supervisor.split('+')[1] + ' em ' + folha.data_check_supervisor + '"></i>' : '') +
+                        '        <div class="dropdown">' +
+                        '          <button class="btn btn-secondary" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">' +
+                        '            <i class="bi bi-three-dots-vertical"></i>' +
+                        '          </button>' +
+                        '          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">' +
+                        '            <li><a class="dropdown-item" href="#">Editar</a></li>' +
+                                    adicionalHtml +
+                        '          </ul>' +
+                        '        </div>' +
+                        '      </div>' +
+                        '    </div>' +
+                        '    <div class="mt-3">' +
+                        '      <p class="card-text">' + folha.postagem + '</p>' +
+                        '    </div>' +
+                        '  </div>' +
+                        '</div>';
+                    $("#ListaDeFolhas").append(cardHtml);
+                });
+
+                // Inicializa os tooltips após adicionar o novo conteúdo
+                $(function () {
+                    $('[data-bs-toggle="tooltip"]').tooltip();
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error("Erro ao carregar os dados da folha de evolução:", error);
+                $("#ListaDeFolhas").empty(); // Limpa a lista antes de adicionar novos itens
+                var cardHtml = '' +
+                          '<div class="card mt-3">' +
+                          '  <div class="card-body text-center">' +
+                          '    <h5 class="card-title">Este paciente ainda não possui nenhum histórico de evolução.</h5>' +
+                          '    <p class="card-text">Você pode adicionar a primeiros dados agora.</p>' +
+                          '  </div>' +
+                          '</div>';
+                $("#ListaDeFolhas").append(cardHtml);
+            }
+        });
+    }
+
+    // Chama a função para carregar a lista de folhas de evolução no início da página
+    carregarFolhasEvolucao();
+
+
+    $('#publicarEvolucaoBtn').click(function() {
+        $(this).addClass('disabled').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Publicando...').prop('disabled', true);
+
+        setTimeout(function() {
+            // Obtém os dados do formulário
+            var formData = $('#cadastrar_evolucao').serialize();
+
+            // Envia a requisição Ajax para o Flask
+            $.ajax({
+                url: '/est_ficha_adicionada',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    carregarFolhasEvolucao();
+
+                    // Reseta os campos
+                    $('#cadastrar_evolucao')[0].reset();
+                },
+                error: function(xhr, textStatus, error){
+                    console.error('Error:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+                    var response = JSON.parse(xhr.responseText);
+                    alert(response.message);
+                },
+                complete: function() {
+                    // Reativar o botão e restaurar o texto original
+                    $('#publicarEvolucaoBtn').removeClass('disabled').html('Publicar').prop('disabled', false);
+                }
+            });
+        }, 1000); //quantidade de segundos de espera
+
+    });
+
+    $(document).on('click', '.remover_evolucao', function(e) {
+        e.preventDefault(); // Impede o comportamento padrão do link
+        var folhaId = $(this).data('folha-id');
+        // Solicitação AJAX para excluir a folha
+        var csrfToken = $('#csrf_token').val();
+        $.ajax({
+            url: '/est_ficha_deletada/' + folhaId,
+            type: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                // Atualizar a interface do usuário ou fazer qualquer outra ação necessária após a exclusão
+                console.log('Folha excluída com sucesso!');
+                // Recarregar a lista de folhas
+                carregarFolhasEvolucao();
+            },
+            error: function(xhr, status, error) {
+                console.error("Erro ao excluir a folha:", error);
+                console.error('Error:', error);
+                console.error('Status:', status);
+                console.error('Response:', xhr.responseText);
+                var response = JSON.parse(xhr.responseText);
+                alert(response.message);
+            }
+        });
+    });
+
+});
+</script>
+
+
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: '/est_primeira_estatistica_paciente/{{ formulario_paciente.id_paciente.data }}',
+        method: 'GET',
+        success: function(data) {
+            const ctx = document.getElementById('primeiraEstatisticaPaciente').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Marcadas', 'Realizadas', 'Canceladas'],
+                    datasets: [{
+                        label: 'Consultas',
+                        data: [data.marcadas, data.realizadas, data.canceladas],
+                        backgroundColor: ['#0000ff', '#008000', '#ff0000'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    rotation: 270,
+                    circumference: 180,  // Apenas meia circunferência para criar o gráfico de meia pizza
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Consultas por Status'
+                        }
+                    }
+                }
+            });
+        },
+        error: function(error) {
+            console.error('Erro ao buscar os dados:', error);
+        }
+    });
+
+
+    $.ajax({
+        url: '/est_segunda_estatistica_paciente/{{ formulario_paciente.id_paciente.data }}',
+        method: 'GET',
+        success: function(data) {
+            const ctx = document.getElementById('segundaEstatisticaPaciente').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+                    datasets: [
+                        {
+                            label: 'Marcadas',
+                            data: data.marcadas,
+                            backgroundColor: '#0000ff',
+                        },
+                        {
+                            label: 'Realizadas',
+                            data: data.realizadas,
+                            backgroundColor: '#008000',
+                        },
+                        {
+                            label: 'Canceladas',
+                            data: data.canceladas,
+                            backgroundColor: '#ff0000',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            min: 0,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Consultas por Dia da Semana'
+                        }
+                    }
+                }
+            });
+        },
+        error: function(error) {
+            console.error('Erro ao buscar os dados:', error);
+        }
+    });
+
+
+    $.ajax({
+        url: '/est_terceira_estatistica_paciente/{{ formulario_paciente.id_paciente.data }}',
+        method: 'GET',
+        success: function(data) {
+            const ctx = document.getElementById('terceiraEstatisticaPaciente').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00','12:00', '13:00', '14:00', '15:00', '16:00', '17:00','18:00', '19:00', '20:00'],
+                    datasets: [
+                        {
+                            label: 'Marcadas',
+                            data: data.marcadas,
+                            backgroundColor: '#0000ff',
+                        },
+                        {
+                            label: 'Realizadas',
+                            data: data.realizadas,
+                            backgroundColor: '#008000',
+                        },
+                        {
+                            label: 'Canceladas',
+                            data: data.canceladas,
+                            backgroundColor: '#ff0000',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            min: 0,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Consultas por Horário'
+                        }
+                    }
+                }
+            });
+        },
+        error: function(error) {
+            console.error('Erro ao buscar os dados:', error);
+        }
+    });
+});
+
+</script>
+
+{% endblock %}

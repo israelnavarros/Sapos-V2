@@ -27,6 +27,13 @@ export default function EstFichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar dados do paciente:', err));
 
+    fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setFolhas(data.folhas_pacientes || []);
+      })
+      .catch(err => console.error('Erro ao carregar folhas de evolução:', err));
+    ;
     // Fetch das estatísticas
     fetch(`/api/est_primeira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
@@ -70,6 +77,41 @@ export default function EstFichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar estatística 3:', err));
   }, [id_paciente]);
+  const handlePublicar = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(document.getElementById('cadastrar_evolucao'));
+    try {
+      const res = await fetch('/est_ficha_adicionada', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const updatedFolhas = await fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' });
+        const folhasData = await updatedFolhas.json();
+        setFolhas(folhasData.folhas_pacientes || []);
+        document.getElementById('cadastrar_evolucao').reset();
+      }
+    } catch (err) {
+      console.error('Erro ao publicar evolução:', err);
+    }
+  };
+
+  const handleRemover = async (idFolha) => {
+    try {
+      const res = await fetch(`/est_ficha_deletada/${idFolha}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const updatedFolhas = await fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' });
+        const folhasData = await updatedFolhas.json();
+        setFolhas(folhasData.folhas_pacientes || []);
+      }
+    } catch (err) {
+      console.error('Erro ao excluir evolução:', err);
+    }
+  };
 
   if (!info || !info.paciente) return <div>Carregando...</div>;
   const paciente = info.paciente;
@@ -156,6 +198,43 @@ export default function EstFichaPaciente() {
                 <label>Renda Familiar</label>
                 <input className="form-control" value={paciente.renda_familiar || ''} readOnly />
               </div>
+            </div>
+          </div>
+        )}
+        {tab === 'evolucao' && (
+          <div className="container pt-3">
+            <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
+              <input type="hidden" name="id_paciente" value={paciente.id_paciente} />
+              <textarea className="form-control mb-3" name="postagem" rows="3" placeholder="Escreva sua postagem aqui..." />
+              <button type="submit" className="btn btn-primary">Publicar</button>
+            </form>
+
+            <div id="ListaDeFolhas">
+              {folhas.length === 0 ? (
+                <div className="card mt-3 text-center">
+                  <div className="card-body">
+                    <h5>Este paciente ainda não possui nenhum histórico de evolução.</h5>
+                    <p>Você pode adicionar os primeiros dados agora.</p>
+                  </div>
+                </div>
+              ) : (
+                folhas.map(folha => (
+                  <div className="card mt-3" key={folha.id_folha}>
+                    <div className="card-body">
+                      <div className="d-flex">
+                        <div>
+                          <h5>{folha.nome_estagiario}</h5>
+                          <p>{folha.data_postagem}</p>
+                        </div>
+                        <div className="ms-auto">
+                          <button className="btn btn-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
+                        </div>
+                      </div>
+                      <p className="mt-3">{folha.postagem}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}

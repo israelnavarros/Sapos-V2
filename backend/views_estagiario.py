@@ -278,6 +278,64 @@ def consulta_ids_supervisores():
     supervisor = [{'id_supervisor': supervisor_unico.id_usuario, 'nome': supervisor_unico.nome} for supervisor_unico in supervisores]
     return jsonify(supervisor)
 
+@app.route('/api/est_lista_folhas_atualizada/<int:id>', methods=['GET'])
+@login_required
+def est_lista_folhas_atualizada(id):
+    aux_folha_paciente = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
+    if aux_folha_paciente:
+        folha_paciente = []
+        for folha in aux_folha_paciente:
+            try:
+                postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
+                folha.postagem = postagem_descriptografada
+                folha_paciente.append(folha.serialize())
+            except Exception as e:
+                print(f'Erro ao descriptografar a postagem: {e}')
+                folha_paciente.append({
+                    'id_folha': folha.id_folha,
+                    'postagem': 'Erro na descriptografia. Favor consultar um supervisor.',
+                    'id_paciente': folha.id_paciente,
+                    'id_estagiario': folha.id_estagiario,
+                    'nome_estagiario': folha.nome_estagiario,
+                    'data_postagem': folha.data_postagem
+                })
+
+        return jsonify({'folhas_pacientes': folha_paciente})
+    return jsonify({'status': 'error', 'message': 'Paciente não possui nenhum histórico de evolução.'}), 400
+
+
+@app.route('/api/est_ficha_adicionada', methods=['POST'])
+@login_required
+def est_ficha_adicionada():
+    id_paciente = request.form['id_paciente']
+    id_estagiario = current_user.id_usuario
+    nome_estagiario = current_user.nome
+    data_postagem = datetime.now().replace(microsecond=0)
+    postagem = crypt.encrypt(request.form['postagem']).decode('utf-8')
+
+    nova_folha = FolhaEvolucao(
+        id_paciente=id_paciente,
+        id_estagiario=id_estagiario,
+        nome_estagiario=nome_estagiario,
+        data_postagem=data_postagem,
+        postagem=postagem
+    )
+    db.session.add(nova_folha)
+    db.session.commit()
+
+    return jsonify({'message': 'Folha adicionada com sucesso!'})
+
+
+@app.route('/api/est_ficha_deletada/<int:id>', methods=['DELETE'])
+@login_required
+def est_ficha_deletada(id):
+    folha = FolhaEvolucao.query.get_or_404(id)
+    db.session.delete(folha)
+    db.session.commit()
+
+    return jsonify({'message': 'Folha excluída com sucesso'})
+# ------------------- ESTATÍSTICAS -------------------
+
 @app.route('/api/est_primeira_estatistica_paciente/<int:id_paciente>', methods=['GET'])
 @login_required
 def est_primeira_estatistica_paciente(id_paciente):
