@@ -81,13 +81,13 @@ export default function EstFichaPaciente() {
     e.preventDefault();
     const formData = new FormData(document.getElementById('cadastrar_evolucao'));
     try {
-      const res = await fetch('/est_ficha_adicionada', {
+      const res = await fetch('/api/est_ficha_adicionada', {
         method: 'POST',
         body: formData,
         credentials: 'include',
       });
       if (res.ok) {
-        const updatedFolhas = await fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' });
+        const updatedFolhas = await fetch(`/api/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' });
         const folhasData = await updatedFolhas.json();
         setFolhas(folhasData.folhas_pacientes || []);
         document.getElementById('cadastrar_evolucao').reset();
@@ -99,7 +99,7 @@ export default function EstFichaPaciente() {
 
   const handleRemover = async (idFolha) => {
     try {
-      const res = await fetch(`/est_ficha_deletada/${idFolha}`, {
+      const res = await fetch(`/api/est_ficha_deletada/${idFolha}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -119,165 +119,201 @@ export default function EstFichaPaciente() {
   return (
     <>
       <Header />
-      <div className="shadow-lg row g-0 border rounded p-3">
-        {/* Abas simples */}
-        <div style={{ display: 'flex', borderBottom: '1px solid #ccc', marginBottom: 16 }}>
-          <button onClick={() => setTab('ficha')} style={{ border: 'none', background: tab === 'ficha' ? '#eee' : 'transparent', padding: 10, cursor: 'pointer' }}>Dados do Paciente</button>
-          <button onClick={() => setTab('evolucao')} style={{ border: 'none', background: tab === 'evolucao' ? '#eee' : 'transparent', padding: 10, cursor: 'pointer' }}>Folha de Evolução</button>
-          <button onClick={() => setTab('estatisticas')} style={{ border: 'none', background: tab === 'estatisticas' ? '#eee' : 'transparent', padding: 10, cursor: 'pointer' }}>Estatísticas do Paciente</button>
-        </div>
+      <div className="flex flex-col md:flex-row gap-6 p-6">
+        <div className="w-full md:w-1/3 bg-[#FAFAFA] border-2 border-[#A8D5BA] rounded-lg p-4 text-center">
+          <img
+            src={`/api/uploads/pacientes/${paciente.id_paciente}`}
+            alt="Foto do paciente"
+            className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
+          />
+          <h2 className="text-xl font-semibold text-gray-800">{paciente.nome_completo}</h2>
+          <p className="text-sm text-gray-600">Idade: {paciente.idade}</p>
+          <p className="text-sm text-gray-600 mb-4">
+            Status
+          </p>
+          <h2 className="text-xl font-semibold text-gray-800">{paciente.status = "true" ? 'Ativo' : 'Desativado'}</h2>
 
-        {tab === 'ficha' && (
-          <div className="p-3">
-            <div className="text-center d-flex justify-content-center">
-              <figure className="img thumbnail col-md-4">
-                <img className="img-fluid" alt="Paciente" src={`/api/uploads/pacientes/${paciente.id_paciente}`} />
-              </figure>
-            </div>
-            <div className="row g-3">
-              <h3>Ficha de Atendimento</h3>
-              <div className="col-4">
-                <label>Supervisor</label>
-                <input className="form-control" value={paciente.id_supervisor || ''} readOnly />
-              </div>
-              <div className="col-4">
-                <label>Estagiário</label>
-                <input className="form-control" value={paciente.nome_estagiario || ''} readOnly />
-              </div>
-              <div className="col-2">
-                <label>Status</label>
-                <input className="form-control" value={paciente.status ? 'Ativo' : 'Desativado'} readOnly />
-              </div>
-              <div className="col-2">
-                <label>Data de Criação</label>
-                <input className="form-control" value={paciente.data_criacao || ''} readOnly />
-              </div>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setTab('ficha')}
+              className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] ${tab === 'ficha'
+                  ? 'bg-green text-white'
+                  : 'bg-white text-gray-700'
+                }`}
+            >
+              Dados do Paciente
+            </button>
 
-              <h3>Dados Pessoais do Paciente</h3>
-              <div className="col-12">
-                <label>Nome Completo</label>
-                <input className="form-control" value={paciente.nome_completo || ''} readOnly />
-              </div>
-              <div className="col-9">
-                <label>Nome do Responsável</label>
-                <input className="form-control" value={paciente.nome_responsavel || ''} readOnly />
-              </div>
-              <div className="col-3">
-                <label>Grau de Parentesco</label>
-                <input className="form-control" value={paciente.grau_parentesco || ''} readOnly />
-              </div>
-              <div className="col-4">
-                <label>Data de Nascimento</label>
-                <input className="form-control" value={paciente.data_nascimento || ''} readOnly />
-              </div>
-              <div className="col-2">
-                <label>Idade</label>
-                <input className="form-control" value={paciente.idade || ''} readOnly />
-              </div>
-              <div className="col-6">
-                <label>Sexo</label>
-                <input className="form-control" value={paciente.sexo || ''} readOnly />
-              </div>
-              <div className="col-12">
-                <label>Escolaridade</label>
-                <input className="form-control" value={paciente.escolaridade || ''} readOnly />
-              </div>
-              <div className="col-6">
-                <label>Profissão</label>
-                <input className="form-control" value={paciente.profissao || ''} readOnly />
-              </div>
-              <div className="col-6">
-                <label>Ocupação</label>
-                <input className="form-control" value={paciente.ocupacao || ''} readOnly />
-              </div>
-              <div className="col-6">
-                <label>Salário</label>
-                <input className="form-control" value={paciente.salario || ''} readOnly />
-              </div>
-              <div className="col-6">
-                <label>Renda Familiar</label>
-                <input className="form-control" value={paciente.renda_familiar || ''} readOnly />
-              </div>
-            </div>
+            <button onClick={() => setTab('evolucao')} className={`py-2 px-4 font-medium  border-0 border-t-2 border-[#A8D5BA] ${tab === 'evolucao' ? 'bg-green text-white' : 'bg-white text-gray-700'
+              }`}>Folha de Evolução</button>
+            <button onClick={() => setTab('estatisticas')} className={`py-2 px-4 font-medium  border-0 border-t-2 border-[#A8D5BA] ${tab === 'estatisticas' ? 'bg-green text-white' : 'bg-white text-gray-700'
+              }`}>Estatísticas do Paciente</button>
           </div>
-        )}
-        {tab === 'evolucao' && (
-          <div className="container pt-3">
-            <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
-              <input type="hidden" name="id_paciente" value={paciente.id_paciente} />
-              <textarea className="form-control mb-3" name="postagem" rows="3" placeholder="Escreva sua postagem aqui..." />
-              <button type="submit" className="btn btn-primary">Publicar</button>
-            </form>
-
-            <div id="ListaDeFolhas">
-              {folhas.length === 0 ? (
-                <div className="card mt-3 text-center">
-                  <div className="card-body">
-                    <h5>Este paciente ainda não possui nenhum histórico de evolução.</h5>
-                    <p>Você pode adicionar os primeiros dados agora.</p>
-                  </div>
+        </div>
+        <div className="w-full md:w-2/3 bg-white shadow-md rounded-lg p-6">
+          {tab === 'ficha' && (
+            <div className="p-3">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Ficha de Atendimento</h3>
+              <p className="text-sm text-gray-500 mb-4">Sample</p>
+              <div className="text-center d-flex justify-content-center">
+                <figure className="img thumbnail col-md-4">
+                  <img className="img-fluid" alt="Paciente" src={`/api/uploads/pacientes/${paciente.id_paciente}`} />
+                </figure>
+              </div>
+              <div className="row g-3">
+                <div className="col-4">
+                  <label>Supervisor</label>
+                  <input className="text-gray-800" value={paciente.id_supervisor || ''} readOnly />
                 </div>
-              ) : (
-                folhas.map(folha => (
-                  <div className="card mt-3" key={folha.id_folha}>
+                <div className="col-4">
+                  <label>Estagiário</label>
+                  <input className="text-gray-800" value={paciente.nome_estagiario || ''} readOnly />
+                </div>
+                <div className="col-2">
+                  <label>Status</label>
+                  <input className="text-gray-800" value={paciente.status ? 'Ativo' : 'Desativado'} readOnly />
+                </div>
+                <div className="col-2">
+                  <label>Data de Criação</label>
+                  <input className="text-gray-800" value={paciente.data_criacao || ''} readOnly />
+                </div>
+
+                <h3>Dados Pessoais do Paciente</h3>
+                <div className="col-12">
+                  <label>Nome Completo</label>
+                  <input className="text-gray-800" value={paciente.nome_completo || ''} readOnly />
+                </div>
+                <div className="col-9">
+                  <label>Nome do Responsável</label>
+                  <input className="text-gray-800" value={paciente.nome_responsavel || ''} readOnly />
+                </div>
+                <div className="col-3">
+                  <label>Grau de Parentesco</label>
+                  <input className="text-gray-800" value={paciente.grau_parentesco || ''} readOnly />
+                </div>
+                <div className="col-4">
+                  <label>Data de Nascimento</label>
+                  <input className="text-gray-800" value={paciente.data_nascimento || ''} readOnly />
+                </div>
+                <div className="col-2">
+                  <label>Idade</label>
+                  <input className="text-gray-800" value={paciente.idade || ''} readOnly />
+                </div>
+                <div className="col-6">
+                  <label>Sexo</label>
+                  <input className="text-gray-800" value={paciente.sexo || ''} readOnly />
+                </div>
+                <div className="col-12">
+                  <label>Escolaridade</label>
+                  <input className="text-gray-800" value={paciente.escolaridade || ''} readOnly />
+                </div>
+                <div className="col-6">
+                  <label>Profissão</label>
+                  <input className="text-gray-800" value={paciente.profissao || ''} readOnly />
+                </div>
+                <div className="col-6">
+                  <label>Ocupação</label>
+                  <input className="text-gray-800" value={paciente.ocupacao || ''} readOnly />
+                </div>
+                <div className="col-6">
+                  <label>Salário</label>
+                  <input className="text-gray-800" value={paciente.salario || ''} readOnly />
+                </div>
+                <div className="col-6">
+                  <label>Renda Familiar</label>
+                  <input className="text-gray-800" value={paciente.renda_familiar || ''} readOnly />
+                </div>
+              </div>
+            </div>
+          )}
+          {tab === 'evolucao' && (
+            <div className="container pt-3">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Folha de Evolução</h3>
+              <p className="text-sm text-gray-500 mb-4">Sample</p>
+              <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
+                <input type="hidden" name="id_paciente" value={paciente.id_paciente} />
+                <textarea className="form-control mb-3" name="postagem" rows="3" placeholder="Escreva sua postagem aqui..." />
+                <button type="submit" className="btn btn-primary">Publicar</button>
+              </form>
+
+              <div id="ListaDeFolhas">
+                {folhas.length === 0 ? (
+                  <div className="card mt-3 text-center">
                     <div className="card-body">
-                      <div className="d-flex">
-                        <div>
-                          <h5>{folha.nome_estagiario}</h5>
-                          <p>{folha.data_postagem}</p>
-                        </div>
-                        <div className="ms-auto">
-                          <button className="btn btn-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
-                        </div>
-                      </div>
-                      <p className="mt-3">{folha.postagem}</p>
+                      <h5>Este paciente ainda não possui nenhum histórico de evolução.</h5>
+                      <p>Você pode adicionar os primeiros dados agora.</p>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
+                ) : (
+                  folhas.map(folha => (
+                    <div className="card mt-3" key={folha.id_folha}>
+                      <div className="card-body">
+                        <div className="d-flex">
+                          <div>
+                            <div>
+                              <h1>Estagiário</h1>
+                              <h5>{folha.nome_estagiario}</h5>
 
-        {tab === 'estatisticas' && (
-          <div className="container pt-3">
-            <div className="card mt-3">
-              <div className="card-body">
-                {estat1 && estat1.datasets[0].data.every(v => v === 0) ? (
-                  <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
-                ) : (
-                  estat1 && <Doughnut data={estat1} options={{ plugins: { title: { display: true, text: 'Consultas por Status' } }, rotation: 270, circumference: 180 }} />
+                            </div>
+
+                            <p>{folha.data_postagem}</p>
+                          </div>
+                          <div className="ms-auto">
+                            <button className="btn btn-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
+                          </div>
+                        </div>
+                        <p className="mt-3">{folha.postagem}</p>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             </div>
-            <div className="card mt-3">
-              <div className="card-body">
-                {estat2 && estat2.datasets.every(ds => ds.data.every(v => v === 0)) ? (
-                  <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
-                ) : (
-                  estat2 && <Bar data={estat2} options={{
-                    plugins: { title: { display: true, text: 'Consultas por Dia da Semana' } },
-                    responsive: true,
-                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
-                  }} />
-                )}
+          )}
+
+          {tab === 'estatisticas' && (
+            <div className="container pt-3">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Estatísticas do Paciente</h3>
+              <p className="text-sm text-gray-500 mb-4">Sample</p>
+              <div className="card mt-3">
+                <div className="card-body">
+                  {estat1 && estat1.datasets[0].data.every(v => v === 0) ? (
+                    <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
+                  ) : (
+                    estat1 && <Doughnut data={estat1} options={{ plugins: { title: { display: true, text: 'Consultas por Status' } }, rotation: 270, circumference: 180 }} />
+                  )}
+                </div>
+              </div>
+              <div className="card mt-3">
+                <div className="card-body">
+                  {estat2 && estat2.datasets.every(ds => ds.data.every(v => v === 0)) ? (
+                    <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
+                  ) : (
+                    estat2 && <Bar data={estat2} options={{
+                      plugins: { title: { display: true, text: 'Consultas por Dia da Semana' } },
+                      responsive: true,
+                      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
+                    }} />
+                  )}
+                </div>
+              </div>
+              <div className="card mt-3">
+                <div className="card-body">
+                  {estat3 && estat3.datasets.every(ds => ds.data.every(v => v === 0)) ? (
+                    <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
+                  ) : (
+                    estat3 && <Bar data={estat3} options={{
+                      plugins: { title: { display: true, text: 'Consultas por Horário' } },
+                      responsive: true,
+                      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
+                    }} />
+                  )}
+                </div>
               </div>
             </div>
-            <div className="card mt-3">
-              <div className="card-body">
-                {estat3 && estat3.datasets.every(ds => ds.data.every(v => v === 0)) ? (
-                  <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
-                ) : (
-                  estat3 && <Bar data={estat3} options={{
-                    plugins: { title: { display: true, text: 'Consultas por Horário' } },
-                    responsive: true,
-                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
-                  }} />
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
+
       </div>
     </>
   );

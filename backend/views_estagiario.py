@@ -311,14 +311,19 @@ def est_ficha_adicionada():
     id_estagiario = current_user.id_usuario
     nome_estagiario = current_user.nome
     data_postagem = datetime.now().replace(microsecond=0)
+    data_status = datetime.now().replace(microsecond=0)
     postagem = crypt.encrypt(request.form['postagem']).decode('utf-8')
+    numero_sessao = FolhaEvolucao.query.filter_by(id_paciente=id_paciente).count() + 1
 
     nova_folha = FolhaEvolucao(
         id_paciente=id_paciente,
         id_estagiario=id_estagiario,
         nome_estagiario=nome_estagiario,
         data_postagem=data_postagem,
-        postagem=postagem
+        postagem=postagem,
+        numero_sessao=numero_sessao,
+        status_validacao='Pendente', 
+        data_status=data_status
     )
     db.session.add(nova_folha)
     db.session.commit()

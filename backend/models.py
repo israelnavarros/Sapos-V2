@@ -152,6 +152,7 @@ class FolhaEvolucao(db.Model):
     status_validacao = db.Column(db.String(20), nullable=False, default='Pendente')
     feedback = db.Column(db.Text, nullable=True)
     data_status = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    numero_sessao = db.Column(db.Integer)
     
 
 
