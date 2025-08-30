@@ -18,8 +18,8 @@ function Header() {
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src="/src/assets/Logo.png" alt="Logo SAPO" width={50} height={50} className='bg-amber-50' />
-          <span className="font-bold text-xl text-teal-700 ">SAPOS</span>
+          <img src="/src/assets/Logo.png" alt="Logo SAPO" width={50} height={50} className='bg-amber-50 rounded-2xl' />
+          <span className="font-bold text-xl text-white ">SAPOS</span>
         </Link>
 
         {/* Botão do menu mobile */}
