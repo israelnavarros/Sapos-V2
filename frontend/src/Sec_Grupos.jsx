@@ -18,7 +18,7 @@ export default function SecGrupos() {
 
   const abrirModal = (grupo) => {
     setGrupoSelecionado(grupo);
-    setVagasNova(grupo.vagas);
+    setVagasNova(grupo.vagas_estagiarios);
     const modal = new bootstrap.Modal(document.getElementById('editarVagasModal'));
     modal.show();
   };
@@ -35,7 +35,7 @@ export default function SecGrupos() {
         setListaGrupos(prev =>
           prev.map(g =>
             g.id_grupo === grupoSelecionado.id_grupo
-              ? { ...g, vagas: vagasNova }
+              ? { ...g, vagas_estagiarios: vagasNova }
               : g
           )
         );

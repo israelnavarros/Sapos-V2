@@ -28,7 +28,7 @@ export default function MeuGrupo() {
         setCoordenadores(grupoData.coordenadores);
         setEstagiarios(grupoData.estagiarios);
         setReunioes(grupoData.reunioes);
-        setVagas({ ocupadas: grupoData.estagiarios_count, total: grupoData.grupo_info.vagas });
+        setVagas({ ocupadas: grupoData.estagiarios_count, total: grupoData.grupo_info.vagas_estagiarios });
       } catch (err) {
         setGrupoInfo(null);
         alert('Erro ao carregar dados do grupo.');

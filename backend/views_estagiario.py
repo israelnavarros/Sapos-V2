@@ -214,10 +214,11 @@ def api_ficha_paciente(id):
         'status': dados_paciente.status,
         'data_criacao': str(dados_paciente.data_criacao)
     }
-
     aux_folhas_pacientes = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
     folhas_pacientes = []
     for folha in aux_folhas_pacientes:
+        estagiario_folha = Usuarios.query.get(folha.id_estagiario)
+        supervisor_folha = Usuarios.query.get(folha.id_supervisor)
         try:
             postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
             folha_json = {
@@ -225,7 +226,9 @@ def api_ficha_paciente(id):
                 'postagem': postagem_descriptografada,
                 'id_paciente': folha.id_paciente,
                 'id_estagiario': folha.id_estagiario,
-                'nome_estagiario': folha.nome_estagiario,
+                'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
+                'id_supervisor': folha.id_supervisor,
+                'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
                 'data_postagem': str(folha.data_postagem)
             }
             folhas_pacientes.append(folha_json)
@@ -235,7 +238,9 @@ def api_ficha_paciente(id):
                 'postagem': 'Erro na descriptografia',
                 'id_paciente': folha.id_paciente,
                 'id_estagiario': folha.id_estagiario,
-                'nome_estagiario': folha.nome_estagiario,
+                'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
+                'id_supervisor': folha.id_supervisor,
+                'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
                 'data_postagem': str(folha.data_postagem)
             })
 
@@ -285,6 +290,8 @@ def est_lista_folhas_atualizada(id):
     if aux_folha_paciente:
         folha_paciente = []
         for folha in aux_folha_paciente:
+            estagiario_folha = Usuarios.query.get(folha.id_estagiario)
+            supervisor_folha = Usuarios.query.get(folha.id_supervisor)
             try:
                 postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
                 folha.postagem = postagem_descriptografada
@@ -296,7 +303,9 @@ def est_lista_folhas_atualizada(id):
                     'postagem': 'Erro na descriptografia. Favor consultar um supervisor.',
                     'id_paciente': folha.id_paciente,
                     'id_estagiario': folha.id_estagiario,
-                    'nome_estagiario': folha.nome_estagiario,
+                    'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
+                    'id_supervisor': folha.id_supervisor,
+                    'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
                     'data_postagem': folha.data_postagem
                 })
 

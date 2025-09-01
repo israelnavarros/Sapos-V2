@@ -67,7 +67,7 @@ def api_meu_grupo():
     lista_coord = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='1').all()
     lista_estag = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status=True).all()
     lista_estag_count = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status=True).count()
-    botao_vagas = 'disabled' if lista_estag_count >= grupo_info.vagas else ''
+    botao_vagas = 'disabled' if lista_estag_count >= grupo_info.vagas_estagiarios else ''
 
     DIAS_DA_SEMANA = {
         0: 'Domingo', 1: 'Segunda-feira', 2: 'Terça-feira', 3: 'Quarta-feira',
@@ -88,7 +88,7 @@ def api_meu_grupo():
     'grupo_info': {
         'id_grupo': grupo_info.id_grupo,
         'titulo': grupo_info.titulo,
-        'vagas': grupo_info.vagas,
+        'vagas_estagiarios': grupo_info.vagas_estagiarios,
         'local': grupo_info.local,
         'convenio': grupo_info.convenio,
         'resumo': grupo_info.resumo,
@@ -311,6 +311,8 @@ def api_sup_ficha_paciente(id):
     aux_folhas_pacientes = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
     folhas_pacientes = []
     for folha in aux_folhas_pacientes:
+        estagiario_folha = Usuarios.query.get(folha.id_estagiario)
+        supervisor_folha = Usuarios.query.get(folha.id_supervisor)
         try:
             postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
             folha_json = {
@@ -318,7 +320,9 @@ def api_sup_ficha_paciente(id):
                 'postagem': postagem_descriptografada,
                 'id_paciente': folha.id_paciente,
                 'id_estagiario': folha.id_estagiario,
-                'nome_estagiario': folha.nome_estagiario,
+                'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
+                'id_supervisor': folha.id_supervisor,
+                'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
                 'data_postagem': str(folha.data_postagem)
             }
             folhas_pacientes.append(folha_json)
@@ -328,7 +332,9 @@ def api_sup_ficha_paciente(id):
                 'postagem': 'Erro na descriptografia',
                 'id_paciente': folha.id_paciente,
                 'id_estagiario': folha.id_estagiario,
-                'nome_estagiario': folha.nome_estagiario,
+                'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
+                'id_supervisor': folha.id_supervisor,
+                'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
                 'data_postagem': str(folha.data_postagem)
             })
 

@@ -27,7 +27,7 @@ class Usuarios(db.Model, UserMixin):
 class Grupos(db.Model):
     id_grupo = db.Column(db.Integer, primary_key=True, autoincrement=True)
     titulo = db.Column(db.String(120), nullable=False)
-    vagas = db.Column(db.Integer, nullable=False)
+    vagas_estagiarios = db.Column(db.Integer, nullable=False)
     convenio = db.Column(db.String(50), nullable=True)
     local = db.Column(db.String(50), nullable=False)
     resumo = db.Column(db.String(2000), nullable=False)
@@ -36,7 +36,7 @@ class Grupos(db.Model):
     bibliografia = db.Column(db.String(2000), nullable=False)
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} id_grupo: {self.id_grupo} titulo: {self.titulo} vagas: {self.vagas} >"
+        return f"<{self.__class__.__name__} id_grupo: {self.id_grupo} titulo: {self.titulo} vagas: {self.vagas_estagiarios} >"
 
     def get_id(self):
         return (self.id_grupo)
@@ -145,7 +145,7 @@ class FolhaEvolucao(db.Model):
     id_folha = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_paciente = db.Column(db.Integer, db.ForeignKey('pacientes.id_paciente'), nullable=False)
     id_estagiario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
-    nome_estagiario = db.Column(db.String(100), nullable=False)
+    id_supervisor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
     data_postagem = db.Column(db.DateTime, nullable=False)
     postagem = db.Column(db.Text, nullable=False)
     data_check_supervisor = db.Column(db.DateTime, nullable=True)
@@ -157,11 +157,14 @@ class FolhaEvolucao(db.Model):
 
 
     def serialize(self):
+        estagiario = Usuarios.query.get(self.id_estagiario)
+        supervisor = Usuarios.query.get(self.id_supervisor) if self.id_supervisor else None
         return {
             'id_folha': self.id_folha,
             'id_paciente': self.id_paciente,
             'id_estagiario': self.id_estagiario,
-            'nome_estagiario': self.nome_estagiario,
+            'nome_estagiario': estagiario.nome if estagiario else 'Desconhecido',
+            'nome_supervisor': supervisor.nome if supervisor else 'Desconhecido',
             'data_postagem': self.data_postagem.strftime('%d/%m/%Y %H:%M:%S'),
             'postagem': self.postagem,
             'data_check_supervisor': self.data_check_supervisor.strftime('%d/%m/%Y %H:%M:%S') if self.data_check_supervisor else None,
@@ -210,16 +213,16 @@ class Consultas(db.Model):
     def __repr__(self):
         return '<Consulta %r>' % self.id_consulta
 
-class Vagas(db.Model):
-    id_vaga = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nome_vaga = db.Column(db.String(255), nullable=False)
-    id_admin = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
-    qnt_pessoas = db.Column(db.Integer, nullable=False)
-    ins_inicio = db.Column(db.DateTime, nullable=False)
-    ins_fim = db.Column(db.DateTime, nullable=False)
+# class Vagas(db.Model):
+#     id_vaga = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     nome_vaga = db.Column(db.String(255), nullable=False)
+#     id_admin = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+#     qnt_pessoas = db.Column(db.Integer, nullable=False)
+#     ins_inicio = db.Column(db.DateTime, nullable=False)
+#     ins_fim = db.Column(db.DateTime, nullable=False)
 
-    def __repr__(self):
-        return '<Name %r>' % self.name
+#     def __repr__(self):
+#         return '<Name %r>' % self.name
 
 class HistoricoDoencas(db.Model):
     id_doenca = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -228,39 +231,39 @@ class HistoricoDoencas(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
-class Formularios(db.Model):
-    id_form = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    status = db.Column(db.String(20))
-    nomecompleto = db.Column(db.String(255), nullable=False)
-    cep = db.Column(db.Integer, nullable=False)
-    cidade = db.Column(db.String(30), nullable=False)
-    estado = db.Column(db.String(30), nullable=False)
-    logradouro = db.Column(db.String(255), nullable=False)
-    complemento = db.Column(db.String(50), nullable=False)
-    datanasc = db.Column(db.Date, nullable=False)
-    cpf = db.Column(db.String(11), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    telefone = db.Column(db.String(11), nullable=False)
-    prefcontato = db.Column(db.String(12), nullable=False)
-    sitcivil = db.Column(db.String(15), nullable=False)
-    situemprg = db.Column(db.String(15), nullable=False)
-    renda = db.Column(db.Float, nullable=False)
-    emergencianome = db.Column(db.String(255), nullable=False)
-    emergenciatelefone = db.Column(db.String(11), nullable=False)
-    emergenciagrau = db.Column(db.String(50), nullable=False)
-    doencas = db.Column(db.String(50), nullable=False)
-    tabaco = db.Column(db.Integer, nullable=False)
-    alcool = db.Column(db.Integer, nullable=False)
-    cafeina = db.Column(db.Integer, nullable=False)
-    condenado = db.Column(db.String(3), nullable=False)
-    medicamentos = db.Column(db.String(3), nullable=False)
-    cirurgia = db.Column(db.String(3), nullable=False)
-    motivo = db.Column(db.Text, nullable=False)
-    expectativa = db.Column(db.Text, nullable=False)
-    jaconsultou = db.Column(db.String(3), nullable=False)
-    mediahorassono = db.Column(db.String(20), nullable=False)
-    outrasexp = db.Column(db.Text, nullable=True)
-    comentarios = db.Column(db.Text, nullable=True)
+# class Formularios(db.Model):
+#     id_form = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     status = db.Column(db.String(20))
+#     nomecompleto = db.Column(db.String(255), nullable=False)
+#     cep = db.Column(db.Integer, nullable=False)
+#     cidade = db.Column(db.String(30), nullable=False)
+#     estado = db.Column(db.String(30), nullable=False)
+#     logradouro = db.Column(db.String(255), nullable=False)
+#     complemento = db.Column(db.String(50), nullable=False)
+#     datanasc = db.Column(db.Date, nullable=False)
+#     cpf = db.Column(db.String(11), nullable=False)
+#     email = db.Column(db.String(100), nullable=False)
+#     telefone = db.Column(db.String(11), nullable=False)
+#     prefcontato = db.Column(db.String(12), nullable=False)
+#     sitcivil = db.Column(db.String(15), nullable=False)
+#     situemprg = db.Column(db.String(15), nullable=False)
+#     renda = db.Column(db.Float, nullable=False)
+#     emergencianome = db.Column(db.String(255), nullable=False)
+#     emergenciatelefone = db.Column(db.String(11), nullable=False)
+#     emergenciagrau = db.Column(db.String(50), nullable=False)
+#     doencas = db.Column(db.String(50), nullable=False)
+#     tabaco = db.Column(db.Integer, nullable=False)
+#     alcool = db.Column(db.Integer, nullable=False)
+#     cafeina = db.Column(db.Integer, nullable=False)
+#     condenado = db.Column(db.String(3), nullable=False)
+#     medicamentos = db.Column(db.String(3), nullable=False)
+#     cirurgia = db.Column(db.String(3), nullable=False)
+#     motivo = db.Column(db.Text, nullable=False)
+#     expectativa = db.Column(db.Text, nullable=False)
+#     jaconsultou = db.Column(db.String(3), nullable=False)
+#     mediahorassono = db.Column(db.String(20), nullable=False)
+#     outrasexp = db.Column(db.Text, nullable=True)
+#     comentarios = db.Column(db.Text, nullable=True)
 
-    def __repr__(self):
-        return '<Name %r>' % self.name
+#     def __repr__(self):
+#         return '<Name %r>' % self.name

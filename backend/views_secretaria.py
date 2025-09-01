@@ -121,7 +121,7 @@ def api_grupos():
         {
             'id_grupo': g.id_grupo,
             'titulo': g.titulo,
-            'vagas': g.vagas,
+            'vagas_estagiarios': g.vagas_estagiarios,
             'convenio': g.convenio,
             'local': g.local,
             'resumo': g.resumo,
@@ -137,14 +137,14 @@ def api_grupos():
 def api_atualizar_vaga_grupo():
     data = request.get_json()
     grupo_id = data.get('id')
-    novas_vagas = data.get('vagas')
+    novas_vagas = data.get('vagas_estagiarios')
 
     if grupo_id is None or novas_vagas is None:
         return jsonify({'success': False, 'message': 'Dados inválidos'}), 400
 
     grupo = Grupos.query.get(grupo_id)
     if grupo:
-        grupo.vagas = novas_vagas
+        grupo.vagas_estagiarios = novas_vagas
         db.session.commit()
         return jsonify({'success': True})
     else:
@@ -155,7 +155,7 @@ def api_atualizar_vaga_grupo():
 def api_cadastrar_grupo():
     data = request.get_json()
     titulo = data.get('titulo')
-    vagas = data.get('vagas')
+    vagas_estagiarios = data.get('vagas_estagiarios')
     convenio = data.get('convenio')
     local = data.get('local')
     resumo = data.get('resumo')
@@ -164,7 +164,7 @@ def api_cadastrar_grupo():
     bibliografia = data.get('bibliografia')
 
     novo_grupo = Grupos(
-        titulo=titulo, vagas=vagas, convenio=convenio, local=local,
+        titulo=titulo, vagas_estagiarios=vagas_estagiarios, convenio=convenio, local=local,
         resumo=resumo, objetivos=objetivos, atividades=atividades, bibliografia=bibliografia
     )
     db.session.add(novo_grupo)
@@ -181,7 +181,7 @@ def api_editar_grupo(id):
     grupo_json = {
         'id_grupo': grupo.id_grupo,
         'titulo': grupo.titulo,
-        'vagas': grupo.vagas,
+        'vagas_estagiarios': grupo.vagas_estagiarios,
         'convenio': grupo.convenio,
         'local': grupo.local,
         'resumo': grupo.resumo,
@@ -201,7 +201,7 @@ def api_atualizar_grupo():
         return jsonify({'success': False, 'message': 'Grupo não encontrado'}), 404
 
     grupo.titulo = data.get('titulo')
-    grupo.vagas = data.get('vagas')
+    grupo.vagas_estagiarios = data.get('vagas_estagiarios')
     grupo.convenio = data.get('convenio')
     grupo.local = data.get('local')
     grupo.resumo = data.get('resumo')
