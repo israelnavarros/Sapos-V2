@@ -119,262 +119,264 @@ export default function EstFichaPaciente() {
   return (
     <>
       <Header />
-      <div className="flex flex-col md:flex-row gap-6 p-6">
-        <div className="w-full md:w-1/3 bg-[#FAFAFA] border-2 border-[#A8D5BA] rounded-lg p-4 text-center">
-          <img
-            src={`/api/uploads/pacientes/${paciente.id_paciente}`}
-            alt="Foto do paciente"
-            className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
-          />
-          <h2 className="text-xl font-semibold text-gray-800">{paciente.nome_completo}</h2>
-          <p className="text-sm text-gray-600">Idade: {paciente.idade}</p>
-          <p className="text-sm text-gray-600 mb-4">
-            Status
-          </p>
-          <h2 className="text-xl font-semibold text-gray-800">{paciente.status = "true" ? 'Ativo' : 'Desativado'}</h2>
+      <main className='mt-20 p-4'>
+        <div className="flex flex-col md:flex-row gap-6 p-6">
+          <div className="w-full md:w-1/3 bg-[#FAFAFA] border-2 border-[#A8D5BA] rounded-lg p-4 text-center">
+            <img
+              src={`/api/uploads/pacientes/${paciente.id_paciente}`}
+              alt="Foto do paciente"
+              className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
+            />
+            <h2 className="text-xl font-semibold text-gray-800">{paciente.nome_completo}</h2>
+            <p className="text-sm text-gray-600">Idade: {paciente.idade}</p>
+            <p className="text-sm text-gray-600 mb-4">
+              Status
+            </p>
+            <h2 className="text-xl font-semibold text-gray-800">{paciente.status = "true" ? 'Ativo' : 'Desativado'}</h2>
 
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => setTab('ficha')}
-              className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] ${tab === 'ficha'
-                ? 'bg-green text-white'
-                : 'bg-white text-gray-700'
-                }`}
-            >
-              Dados do Paciente
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => setTab('ficha')}
+                className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] ${tab === 'ficha'
+                  ? 'bg-green text-white'
+                  : 'bg-white text-gray-700'
+                  }`}
+              >
+                Dados do Paciente
+              </button>
 
-            <button onClick={() => setTab('evolucao')} className={`py-2 px-4 font-medium  border-0 border-t-2 border-[#A8D5BA] ${tab === 'evolucao' ? 'bg-green text-white' : 'bg-white text-gray-700'
-              }`}>Folha de Evolução</button>
-            <button onClick={() => setTab('estatisticas')} className={`py-2 px-4 font-medium  border-0 border-t-2 border-[#A8D5BA] ${tab === 'estatisticas' ? 'bg-green text-white' : 'bg-white text-gray-700'
-              }`}>Estatísticas do Paciente</button>
+              <button onClick={() => setTab('evolucao')} className={`py-2 px-4 font-medium  border-0 border-t-2 border-[#A8D5BA] ${tab === 'evolucao' ? 'bg-green text-white' : 'bg-white text-gray-700'
+                }`}>Folha de Evolução</button>
+              <button onClick={() => setTab('estatisticas')} className={`py-2 px-4 font-medium  border-0 border-t-2 border-[#A8D5BA] ${tab === 'estatisticas' ? 'bg-green text-white' : 'bg-white text-gray-700'
+                }`}>Estatísticas do Paciente</button>
+            </div>
           </div>
-        </div>
-        <div className="w-full md:w-2/3 bg-white shadow-md rounded-lg p-6">
-          {tab === 'ficha' && (
-            <div className="p-3">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Ficha de Atendimento</h3>
-              <p className="text-sm text-gray-500 mb-4">Sample</p>
-              <div className="text-center d-flex justify-content-center">
-                <figure className="img thumbnail col-md-4">
-                  <img className="img-fluid" alt="Paciente" src={`/api/uploads/pacientes/${paciente.id_paciente}`} />
-                </figure>
-              </div>
-              <div className="row g-3">
-                <div className="col-4">
-                  <label>Supervisor</label>
-                  <input className="text-gray-800" value={paciente.id_supervisor || ''} readOnly />
+          <div className="w-full md:w-2/3 bg-white shadow-md rounded-lg p-6">
+            {tab === 'ficha' && (
+              <div className="p-3">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Ficha de Atendimento</h3>
+                <p className="text-sm text-gray-500 mb-4">Sample</p>
+                <div className="text-center d-flex justify-content-center">
+                  <figure className="img thumbnail col-md-4">
+                    <img className="img-fluid" alt="Paciente" src={`/api/uploads/pacientes/${paciente.id_paciente}`} />
+                  </figure>
                 </div>
-                <div className="col-4">
-                  <label>Estagiário</label>
-                  <input className="text-gray-800" value={paciente.nome_estagiario || ''} readOnly />
-                </div>
-                <div className="col-2">
-                  <label>Status</label>
-                  <input className="text-gray-800" value={paciente.status ? 'Ativo' : 'Desativado'} readOnly />
-                </div>
-                <div className="col-2">
-                  <label>Data de Criação</label>
-                  <input className="text-gray-800" value={paciente.data_criacao || ''} readOnly />
-                </div>
-
-                <h3>Dados Pessoais do Paciente</h3>
-                <div className="col-12">
-                  <label>Nome Completo</label>
-                  <input className="text-gray-800" value={paciente.nome_completo || ''} readOnly />
-                </div>
-                <div className="col-9">
-                  <label>Nome do Responsável</label>
-                  <input className="text-gray-800" value={paciente.nome_responsavel || ''} readOnly />
-                </div>
-                <div className="col-3">
-                  <label>Grau de Parentesco</label>
-                  <input className="text-gray-800" value={paciente.grau_parentesco || ''} readOnly />
-                </div>
-                <div className="col-4">
-                  <label>Data de Nascimento</label>
-                  <input className="text-gray-800" value={paciente.data_nascimento || ''} readOnly />
-                </div>
-                <div className="col-2">
-                  <label>Idade</label>
-                  <input className="text-gray-800" value={paciente.idade || ''} readOnly />
-                </div>
-                <div className="col-6">
-                  <label>Sexo</label>
-                  <input className="text-gray-800" value={paciente.sexo || ''} readOnly />
-                </div>
-                <div className="col-12">
-                  <label>Escolaridade</label>
-                  <input className="text-gray-800" value={paciente.escolaridade || ''} readOnly />
-                </div>
-                <div className="col-6">
-                  <label>Profissão</label>
-                  <input className="text-gray-800" value={paciente.profissao || ''} readOnly />
-                </div>
-                <div className="col-6">
-                  <label>Ocupação</label>
-                  <input className="text-gray-800" value={paciente.ocupacao || ''} readOnly />
-                </div>
-                <div className="col-6">
-                  <label>Salário</label>
-                  <input className="text-gray-800" value={paciente.salario || ''} readOnly />
-                </div>
-                <div className="col-6">
-                  <label>Renda Familiar</label>
-                  <input className="text-gray-800" value={paciente.renda_familiar || ''} readOnly />
-                </div>
-              </div>
-            </div>
-          )}
-          {tab === 'evolucao' && (
-            <div className="container pt-3">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
-              <p className="text-sm text-gray-500 mb-4">Visualize e valide as atualizações feitas pelos estagiários a cada sessão.</p>
-              <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
-                <input type="hidden" name="id_paciente" value={paciente.id_paciente} />
-                <textarea className="form-control mb-3" name="postagem" rows="3" placeholder="Escreva sua postagem aqui..." />
-                <button type="submit" className="btn btn-primary">Publicar</button>
-              </form>
-
-              <div id="ListaDeFolhas">
-                {folhas.length === 0 ? (
-                  <div className="card mt-3 text-center">
-                    <div className="card-body">
-                      <h5>Este paciente ainda não possui nenhum histórico de evolução.</h5>
-                      <p>Você pode adicionar os primeiros dados agora.</p>
-                    </div>
+                <div className="row g-3">
+                  <div className="col-4">
+                    <label>Supervisor</label>
+                    <input className="text-gray-800" value={paciente.id_supervisor || ''} readOnly />
                   </div>
-                ) : (
-                  folhas.map(folha => (
-                    <div className="card mt-4" key={folha.id_folha}>
-                      <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                        <span className="text-muted small">{folha.data_postagem}</span>
-                      </div>
+                  <div className="col-4">
+                    <label>Estagiário</label>
+                    <input className="text-gray-800" value={paciente.nome_estagiario || ''} readOnly />
+                  </div>
+                  <div className="col-2">
+                    <label>Status</label>
+                    <input className="text-gray-800" value={paciente.status ? 'Ativo' : 'Desativado'} readOnly />
+                  </div>
+                  <div className="col-2">
+                    <label>Data de Criação</label>
+                    <input className="text-gray-800" value={paciente.data_criacao || ''} readOnly />
+                  </div>
 
-                      <div className="card-body border border-[#B8C6D1] border-secondary rounded">
-                        <div className="flex items-center justify-between mb-2">
-                          <img
-                            src={`/api/uploads/usuarios/${folha.id_estagiario}`}
-                            alt="Estagiário"
-                            className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
-                          />
-                          <div>
-                            <small>Nome do Estagiário</small>
-                            <h6 className="mb-0">{folha.nome_estagiario}</h6>
-                          </div>
-                          <div className='col'>
-                            <small>Nº da Sessão</small>
-                            <h1 className="text-muted">{folha.numero_sessao}</h1>
-                          </div>
+                  <h3>Dados Pessoais do Paciente</h3>
+                  <div className="col-12">
+                    <label>Nome Completo</label>
+                    <input className="text-gray-800" value={paciente.nome_completo || ''} readOnly />
+                  </div>
+                  <div className="col-9">
+                    <label>Nome do Responsável</label>
+                    <input className="text-gray-800" value={paciente.nome_responsavel || ''} readOnly />
+                  </div>
+                  <div className="col-3">
+                    <label>Grau de Parentesco</label>
+                    <input className="text-gray-800" value={paciente.grau_parentesco || ''} readOnly />
+                  </div>
+                  <div className="col-4">
+                    <label>Data de Nascimento</label>
+                    <input className="text-gray-800" value={paciente.data_nascimento || ''} readOnly />
+                  </div>
+                  <div className="col-2">
+                    <label>Idade</label>
+                    <input className="text-gray-800" value={paciente.idade || ''} readOnly />
+                  </div>
+                  <div className="col-6">
+                    <label>Sexo</label>
+                    <input className="text-gray-800" value={paciente.sexo || ''} readOnly />
+                  </div>
+                  <div className="col-12">
+                    <label>Escolaridade</label>
+                    <input className="text-gray-800" value={paciente.escolaridade || ''} readOnly />
+                  </div>
+                  <div className="col-6">
+                    <label>Profissão</label>
+                    <input className="text-gray-800" value={paciente.profissao || ''} readOnly />
+                  </div>
+                  <div className="col-6">
+                    <label>Ocupação</label>
+                    <input className="text-gray-800" value={paciente.ocupacao || ''} readOnly />
+                  </div>
+                  <div className="col-6">
+                    <label>Salário</label>
+                    <input className="text-gray-800" value={paciente.salario || ''} readOnly />
+                  </div>
+                  <div className="col-6">
+                    <label>Renda Familiar</label>
+                    <input className="text-gray-800" value={paciente.renda_familiar || ''} readOnly />
+                  </div>
+                </div>
+              </div>
+            )}
+            {tab === 'evolucao' && (
+              <div className="container pt-3">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
+                <p className="text-sm text-gray-500 mb-4">Visualize e valide as atualizações feitas pelos estagiários a cada sessão.</p>
+                <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
+                  <input type="hidden" name="id_paciente" value={paciente.id_paciente} />
+                  <textarea className="form-control mb-3" name="postagem" rows="3" placeholder="Escreva sua postagem aqui..." />
+                  <button type="submit" className="btn btn-primary">Publicar</button>
+                </form>
 
-                          <div className="ms-auto">
-  <button
-    disabled={folha.status_validacao === 'Validação Pendente'}
-    className={`flex items-center justify-between gap-3 w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
-      ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
-        folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
-        'border-green-600 text-green hover:bg-green-50 cursor-pointer'}
-    `}
-    onClick={() => {
-      if (folha.status_validacao !== 'Validação Pendente') {
-        console.log(`Status clicado: ${folha.status_validacao}`);
-      }
-    }}
-  >
-    {/* Ícone dentro de círculo */}
-    <span className={`flex items-center justify-center w-6 h-6 rounded-full
-      ${folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
-        folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
-        'bg-gray-200 text-gray-500'}
-    `}>
-      {folha.status_validacao === 'Aprovado' && (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      )}
-      {folha.status_validacao === 'Reprovado' && (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      )}
-      {folha.status_validacao === 'Validação Pendente' && (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      )}
-    </span>
-
-    {/* Texto do status */}
-    <span className="flex-grow text-left">{folha.status_validacao}</span>
-
-    {/* Seta para baixo se clicável */}
-    {folha.status_validacao !== 'Validação Pendente' && (
-      <svg className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-      </svg>
-    )}
-  </button>
-</div>
-
-
-                          <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
-                        </div>
-
-                        <div className="mt-3">
-                          <p className="text-dark">{folha.postagem}</p>
-                        </div>
+                <div id="ListaDeFolhas">
+                  {folhas.length === 0 ? (
+                    <div className="card mt-3 text-center">
+                      <div className="card-body">
+                        <h5>Este paciente ainda não possui nenhum histórico de evolução.</h5>
+                        <p>Você pode adicionar os primeiros dados agora.</p>
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+                  ) : (
+                    folhas.map(folha => (
+                      <div className="card mt-4" key={folha.id_folha}>
+                        <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                          <span className="text-muted small">{folha.data_postagem}</span>
+                        </div>
 
-          {tab === 'estatisticas' && (
-            <div className="container pt-3">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Estatísticas do Paciente</h3>
-              <p className="text-sm text-gray-500 mb-4">Sample</p>
-              <div className="card mt-3">
-                <div className="card-body">
-                  {estat1 && estat1.datasets[0].data.every(v => v === 0) ? (
-                    <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
-                  ) : (
-                    estat1 && <Doughnut data={estat1} options={{ plugins: { title: { display: true, text: 'Consultas por Status' } }, rotation: 270, circumference: 180 }} />
+                        <div className="card-body border border-[#B8C6D1] border-secondary rounded">
+                          <div className="flex items-center justify-between mb-2">
+                            <img
+                              src={`/api/uploads/usuarios/${folha.id_estagiario}`}
+                              alt="Estagiário"
+                              className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
+                            />
+                            <div>
+                              <small>Nome do Estagiário</small>
+                              <h6 className="mb-0">{folha.nome_estagiario}</h6>
+                            </div>
+                            <div className='col'>
+                              <small>Nº da Sessão</small>
+                              <h1 className="text-muted">{folha.numero_sessao}</h1>
+                            </div>
+
+                            <div className="ms-auto">
+                              <button
+                                disabled={folha.status_validacao === 'Validação Pendente'}
+                                className={`flex items-center justify-between gap-3 w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
+      ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
+                                    folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
+                                      'border-green-600 text-green hover:bg-green-50 cursor-pointer'}
+    `}
+                                onClick={() => {
+                                  if (folha.status_validacao !== 'Validação Pendente') {
+                                    console.log(`Status clicado: ${folha.status_validacao}`);
+                                  }
+                                }}
+                              >
+                                {/* Ícone dentro de círculo */}
+                                <span className={`flex items-center justify-center w-6 h-6 rounded-full
+      ${folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
+                                    folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
+                                      'bg-gray-200 text-gray-500'}
+    `}>
+                                  {folha.status_validacao === 'Aprovado' && (
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                  {folha.status_validacao === 'Reprovado' && (
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  )}
+                                  {folha.status_validacao === 'Validação Pendente' && (
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                  )}
+                                </span>
+
+                                {/* Texto do status */}
+                                <span className="flex-grow text-left">{folha.status_validacao}</span>
+
+                                {/* Seta para baixo se clicável */}
+                                {folha.status_validacao !== 'Validação Pendente' && (
+                                  <svg className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                )}
+                              </button>
+                            </div>
+
+
+                            <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
+                          </div>
+
+                          <div className="mt-3">
+                            <p className="text-dark">{folha.postagem}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
               </div>
-              <div className="card mt-3">
-                <div className="card-body">
-                  {estat2 && estat2.datasets.every(ds => ds.data.every(v => v === 0)) ? (
-                    <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
-                  ) : (
-                    estat2 && <Bar data={estat2} options={{
-                      plugins: { title: { display: true, text: 'Consultas por Dia da Semana' } },
-                      responsive: true,
-                      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
-                    }} />
-                  )}
+            )}
+
+            {tab === 'estatisticas' && (
+              <div className="container pt-3">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Estatísticas do Paciente</h3>
+                <p className="text-sm text-gray-500 mb-4">Sample</p>
+                <div className="card mt-3">
+                  <div className="card-body">
+                    {estat1 && estat1.datasets[0].data.every(v => v === 0) ? (
+                      <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
+                    ) : (
+                      estat1 && <Doughnut data={estat1} options={{ plugins: { title: { display: true, text: 'Consultas por Status' } }, rotation: 270, circumference: 180 }} />
+                    )}
+                  </div>
+                </div>
+                <div className="card mt-3">
+                  <div className="card-body">
+                    {estat2 && estat2.datasets.every(ds => ds.data.every(v => v === 0)) ? (
+                      <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
+                    ) : (
+                      estat2 && <Bar data={estat2} options={{
+                        plugins: { title: { display: true, text: 'Consultas por Dia da Semana' } },
+                        responsive: true,
+                        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
+                      }} />
+                    )}
+                  </div>
+                </div>
+                <div className="card mt-3">
+                  <div className="card-body">
+                    {estat3 && estat3.datasets.every(ds => ds.data.every(v => v === 0)) ? (
+                      <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
+                    ) : (
+                      estat3 && <Bar data={estat3} options={{
+                        plugins: { title: { display: true, text: 'Consultas por Horário' } },
+                        responsive: true,
+                        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
+                      }} />
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="card mt-3">
-                <div className="card-body">
-                  {estat3 && estat3.datasets.every(ds => ds.data.every(v => v === 0)) ? (
-                    <div className="text-center text-muted">Nenhuma consulta marcada ainda</div>
-                  ) : (
-                    estat3 && <Bar data={estat3} options={{
-                      plugins: { title: { display: true, text: 'Consultas por Horário' } },
-                      responsive: true,
-                      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, ticks: { stepSize: 1 } } }
-                    }} />
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
+
         </div>
-
-      </div>
-    </>
-  );
+        </main>
+      </>
+      );
 }
