@@ -269,40 +269,53 @@ export default function EstFichaPaciente() {
 
                           <div className="ms-auto">
   <button
-    disabled={folha.status_validacao === 'Pendente'}
-    className={`flex items-center px-3 py-1 text-sm font-semibold rounded border transition-all
-      ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-400 text-gray-500 cursor-default' :
-        folha.status_validacao === 'Reprovado' ? 'cursor-pointer border-[#BD4343] text-[#BD4343] hover:bg-red-50' :
-        'cursor-pointer bg-green text-white hover:bg-green-50 hover:border-green-500 hover:text-green' }
+    disabled={folha.status_validacao === 'Validação Pendente'}
+    className={`flex items-center justify-between gap-3 w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
+      ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
+        folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
+        'border-green-600 text-green hover:bg-green-50 cursor-pointer'}
     `}
     onClick={() => {
-      if (folha.status_validacao !== 'Pendente') {
-        // ação que você quiser disparar
+      if (folha.status_validacao !== 'Validação Pendente') {
         console.log(`Status clicado: ${folha.status_validacao}`);
       }
     }}
   >
-    {/* Ícone à esquerda */}
-    <span className="mr-2">
+    {/* Ícone dentro de círculo */}
+    <span className={`flex items-center justify-center w-6 h-6 rounded-full
+      ${folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
+        folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
+        'bg-gray-200 text-gray-500'}
+    `}>
       {folha.status_validacao === 'Aprovado' && (
-        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       )}
       {folha.status_validacao === 'Reprovado' && (
-        <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 17a5 5 0 100-10 5 5 0 000 10z" />
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       )}
       {folha.status_validacao === 'Validação Pendente' && (
-        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       )}
     </span>
-    {folha.status_validacao}
+
+    {/* Texto do status */}
+    <span className="flex-grow text-left">{folha.status_validacao}</span>
+
+    {/* Seta para baixo se clicável */}
+    {folha.status_validacao !== 'Validação Pendente' && (
+      <svg className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    )}
   </button>
 </div>
+
 
                           <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
                         </div>
