@@ -137,8 +137,8 @@ export default function EstFichaPaciente() {
             <button
               onClick={() => setTab('ficha')}
               className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] ${tab === 'ficha'
-                  ? 'bg-green text-white'
-                  : 'bg-white text-gray-700'
+                ? 'bg-green text-white'
+                : 'bg-white text-gray-700'
                 }`}
             >
               Dados do Paciente
@@ -228,8 +228,8 @@ export default function EstFichaPaciente() {
           )}
           {tab === 'evolucao' && (
             <div className="container pt-3">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Folha de Evolução</h3>
-              <p className="text-sm text-gray-500 mb-4">Sample</p>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
+              <p className="text-sm text-gray-500 mb-4">Visualize e valide as atualizações feitas pelos estagiários a cada sessão.</p>
               <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
                 <input type="hidden" name="id_paciente" value={paciente.id_paciente} />
                 <textarea className="form-control mb-3" name="postagem" rows="3" placeholder="Escreva sua postagem aqui..." />
@@ -246,23 +246,70 @@ export default function EstFichaPaciente() {
                   </div>
                 ) : (
                   folhas.map(folha => (
-                    <div className="card mt-3" key={folha.id_folha}>
-                      <div className="card-body">
-                        <div className="d-flex">
+                    <div className="card mt-4" key={folha.id_folha}>
+                      <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                        <span className="text-muted small">{folha.data_postagem}</span>
+                      </div>
+
+                      <div className="card-body border border-[#B8C6D1] border-secondary rounded">
+                        <div className="flex items-center justify-between mb-2">
+                          <img
+                            src={`/api/uploads/usuarios/${folha.id_estagiario}`}
+                            alt="Estagiário"
+                            className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
+                          />
                           <div>
-                            <div>
-                              <h1>Estagiário</h1>
-                              <h5>{folha.nome_estagiario}</h5>
-
-                            </div>
-
-                            <p>{folha.data_postagem}</p>
+                            <small>Nome do Estagiário</small>
+                            <h6 className="mb-0">{folha.nome_estagiario}</h6>
                           </div>
+                          <div className='col'>
+                            <small>Nº da Sessão</small>
+                            <h1 className="text-muted">{folha.numero_sessao}</h1>
+                          </div>
+
                           <div className="ms-auto">
-                            <button className="btn btn-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
-                          </div>
+  <button
+    disabled={folha.status_validacao === 'Pendente'}
+    className={`flex items-center px-3 py-1 text-sm font-semibold rounded border transition-all
+      ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-400 text-gray-500 cursor-default' :
+        folha.status_validacao === 'Reprovado' ? 'cursor-pointer border-[#BD4343] text-[#BD4343] hover:bg-red-50' :
+        'cursor-pointer bg-green text-white hover:bg-green-50 hover:border-green-500 hover:text-green' }
+    `}
+    onClick={() => {
+      if (folha.status_validacao !== 'Pendente') {
+        // ação que você quiser disparar
+        console.log(`Status clicado: ${folha.status_validacao}`);
+      }
+    }}
+  >
+    {/* Ícone à esquerda */}
+    <span className="mr-2">
+      {folha.status_validacao === 'Aprovado' && (
+        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      )}
+      {folha.status_validacao === 'Reprovado' && (
+        <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 17a5 5 0 100-10 5 5 0 000 10z" />
+        </svg>
+      )}
+      {folha.status_validacao === 'Validação Pendente' && (
+        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )}
+    </span>
+    {folha.status_validacao}
+  </button>
+</div>
+
+                          <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
                         </div>
-                        <p className="mt-3">{folha.postagem}</p>
+
+                        <div className="mt-3">
+                          <p className="text-dark">{folha.postagem}</p>
+                        </div>
                       </div>
                     </div>
                   ))

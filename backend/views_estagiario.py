@@ -229,7 +229,9 @@ def api_ficha_paciente(id):
                 'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
                 'id_supervisor': folha.id_supervisor,
                 'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                'data_postagem': str(folha.data_postagem)
+                'data_postagem': str(folha.data_postagem),
+                'numero_sessao': folha.numero_sessao,
+                'status_validacao': folha.status_validacao,
             }
             folhas_pacientes.append(folha_json)
         except Exception as e:
@@ -241,7 +243,9 @@ def api_ficha_paciente(id):
                 'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
                 'id_supervisor': folha.id_supervisor,
                 'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                'data_postagem': str(folha.data_postagem)
+                'data_postagem': str(folha.data_postagem),
+                'numero_sessao': folha.numero_sessao,
+                'status_validacao': folha.status_validacao,
             })
 
     return jsonify({
@@ -306,7 +310,10 @@ def est_lista_folhas_atualizada(id):
                     'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
                     'id_supervisor': folha.id_supervisor,
                     'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                    'data_postagem': folha.data_postagem
+                    'data_postagem': folha.data_postagem,
+                    'numero_sessao': folha.numero_sessao,
+                    'status_validacao': folha.status_validacao,
+
                 })
 
         return jsonify({'folhas_pacientes': folha_paciente})
@@ -318,7 +325,6 @@ def est_lista_folhas_atualizada(id):
 def est_ficha_adicionada():
     id_paciente = request.form['id_paciente']
     id_estagiario = current_user.id_usuario
-    nome_estagiario = current_user.nome
     data_postagem = datetime.now().replace(microsecond=0)
     data_status = datetime.now().replace(microsecond=0)
     postagem = crypt.encrypt(request.form['postagem']).decode('utf-8')
@@ -327,11 +333,10 @@ def est_ficha_adicionada():
     nova_folha = FolhaEvolucao(
         id_paciente=id_paciente,
         id_estagiario=id_estagiario,
-        nome_estagiario=nome_estagiario,
         data_postagem=data_postagem,
         postagem=postagem,
         numero_sessao=numero_sessao,
-        status_validacao='Pendente', 
+        status_validacao='Validação Pendente', 
         data_status=data_status
     )
     db.session.add(nova_folha)
