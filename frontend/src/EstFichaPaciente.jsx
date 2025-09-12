@@ -120,8 +120,8 @@ export default function EstFichaPaciente() {
     <>
       <Header />
       <main className='mt-20 p-4'>
-        <div className="flex flex-col md:flex-row gap-6 p-6">
-          <div className="w-full md:w-1/3 bg-[#FAFAFA] border-2 border-[#A8D5BA] rounded-lg p-4 text-center">
+        <div className="container-principal">
+          <div className="painel-esquerdo">
             <img
               src={`/api/uploads/pacientes/${paciente.id_paciente}`}
               alt="Foto do paciente"
@@ -134,7 +134,7 @@ export default function EstFichaPaciente() {
             </p>
             <h2 className="text-xl font-semibold text-gray-800">{paciente.status = "true" ? 'Ativo' : 'Desativado'}</h2>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col ">
               <button
                 onClick={() => setTab('ficha')}
                 className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] ${tab === 'ficha'
@@ -151,9 +151,9 @@ export default function EstFichaPaciente() {
                 }`}>Estatísticas do Paciente</button>
             </div>
           </div>
-          <div className="w-full md:w-2/3 bg-white shadow-md rounded-lg p-6">
+          <div className="painel-direito">
             {tab === 'ficha' && (
-              <div className="p-3">
+              <div className="pt-3">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Ficha de Atendimento</h3>
                 <p className="text-sm text-gray-500 mb-4">Sample</p>
                 <div className="text-center d-flex justify-content-center">
@@ -228,7 +228,7 @@ export default function EstFichaPaciente() {
               </div>
             )}
             {tab === 'evolucao' && (
-              <div className="container pt-3">
+              <div className="pt-3">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
                 <p className="text-sm text-gray-500 mb-4">Visualize e valide as atualizações feitas pelos estagiários a cada sessão.</p>
                 <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
@@ -271,11 +271,10 @@ export default function EstFichaPaciente() {
                             <div className="ms-auto">
                               <button
                                 disabled={folha.status_validacao === 'Validação Pendente'}
-                                className={`flex items-center justify-between gap-3 w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
-      ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
+                                className={`flex items-center justify-between  w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
+                                ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
                                     folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
-                                      'border-green-600 text-green hover:bg-green-50 cursor-pointer'}
-    `}
+                                      'border-green-600 text-green hover:bg-green-50 cursor-pointer'}`}
                                 onClick={() => {
                                   if (folha.status_validacao !== 'Validação Pendente') {
                                     console.log(`Status clicado: ${folha.status_validacao}`);
@@ -284,10 +283,9 @@ export default function EstFichaPaciente() {
                               >
                                 {/* Ícone dentro de círculo */}
                                 <span className={`flex items-center justify-center w-6 h-6 rounded-full
-      ${folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
+                                ${folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
                                     folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
-                                      'bg-gray-200 text-gray-500'}
-    `}>
+                                      'bg-gray-200 text-gray-500'}`}>
                                   {folha.status_validacao === 'Aprovado' && (
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -333,7 +331,7 @@ export default function EstFichaPaciente() {
             )}
 
             {tab === 'estatisticas' && (
-              <div className="container pt-3">
+              <div className="pt-3">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Estatísticas do Paciente</h3>
                 <p className="text-sm text-gray-500 mb-4">Sample</p>
                 <div className="card mt-3">
