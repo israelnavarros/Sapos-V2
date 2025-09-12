@@ -323,7 +323,10 @@ def api_sup_ficha_paciente(id):
                 'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
                 'id_supervisor': folha.id_supervisor,
                 'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                'data_postagem': str(folha.data_postagem)
+                'data_postagem': str(folha.data_postagem),
+                'data_postagem': str(folha.data_postagem),
+                'numero_sessao': folha.numero_sessao,
+                'status_validacao': folha.status_validacao,
             }
             folhas_pacientes.append(folha_json)
         except Exception as e:
@@ -335,7 +338,10 @@ def api_sup_ficha_paciente(id):
                 'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
                 'id_supervisor': folha.id_supervisor,
                 'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                'data_postagem': str(folha.data_postagem)
+                'data_postagem': str(folha.data_postagem),
+                'data_postagem': str(folha.data_postagem),
+                'numero_sessao': folha.numero_sessao,
+                'status_validacao': folha.status_validacao,
             })
 
     return jsonify({

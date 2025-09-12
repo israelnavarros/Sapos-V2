@@ -119,7 +119,7 @@ export default function EstFichaPaciente() {
   return (
     <>
       <Header />
-      <main className='mt-20 p-4'>
+      <main className='mt-20 p-4 '>
         <div className="container-principal">
           <div className="painel-esquerdo">
             <img
