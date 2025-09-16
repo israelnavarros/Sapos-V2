@@ -228,6 +228,7 @@ export default function EstFichaPaciente() {
                       <InfoCampo label="Telefone" value={paciente.telefone} />
                       <InfoCampo label="Celular 1" value={paciente.celular1} />
                       <InfoCampo label="Celular 2" value={paciente.celular2} />
+                      <InfoCampo label="Email" value={paciente.email} />
                       <InfoCampo label="Nome do Responsável" value={paciente.nome_responsavel} />
                       <InfoCampo label="Grau de Parentesco" value={paciente.grau_parentesco} />
                       <InfoCampo label="Escolaridade" value={paciente.escolaridade} />

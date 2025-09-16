@@ -169,6 +169,8 @@ def api_meus_pacientes():
             'id_paciente': paciente.id_paciente,
             'nome_completo': paciente.nome_completo,
             'atividade_recente': atividade,
+            'data_criacao': paciente.data_criacao,
+            'status': paciente.status,
             # 'imagem_url': url_for('imagem_paciente', id=paciente.id_paciente),  
             # outros campos úteis aqui
         })
@@ -187,6 +189,7 @@ def api_ficha_paciente(id):
         'nome_completo': dados_paciente.nome_completo,
         'nome_responsavel': dados_paciente.nome_responsavel,
         'grau_parentesco': dados_paciente.grau_parentesco,
+        'email': dados_paciente.email,
         'data_nascimento': str(dados_paciente.data_nascimento),
         'idade': dados_paciente.idade,
         'sexo': dados_paciente.sexo,

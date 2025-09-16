@@ -182,81 +182,6 @@ export default function FichaPaciente() {
             </div>
           </div>
           <div className="painel-direito">
-            {/* {tab === 'ficha' && (
-              <div className="pt-3">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Ficha de Atendimento</h3>
-                <p className="text-sm text-gray-500 mb-4">Sample</p>
-                <div className="text-center d-flex justify-content-center">
-                  <figure className="img thumbnail col-md-4">
-                    <img className="img-fluid" alt="Paciente" src={`/api/uploads/pacientes/${paciente.id_paciente}`} />
-                  </figure>
-                </div>
-                <div className="row g-3">
-                  <div className="col-4">
-                    <label>Supervisor</label>
-                    <input className="text-gray-800" value={paciente.id_supervisor || ''} readOnly />
-                  </div>
-                  <div className="col-4">
-                    <label>Estagiário</label>
-                    <input className="text-gray-800" value={paciente.nome_estagiario || ''} readOnly />
-                  </div>
-                  <div className="col-2">
-                    <label>Status</label>
-                    <input className="text-gray-800" value={paciente.status ? 'Ativo' : 'Desativado'} readOnly />
-                  </div>
-                  <div className="col-2">
-                    <label>Data de Criação</label>
-                    <input className="text-gray-800" value={paciente.data_criacao || ''} readOnly />
-                  </div>
-
-                  <h3>Dados Pessoais do Paciente</h3>
-                  <div className="col-12">
-                    <label>Nome Completo</label>
-                    <input className="text-gray-800" value={paciente.nome_completo || ''} readOnly />
-                  </div>
-                  <div className="col-9">
-                    <label>Nome do Responsável</label>
-                    <input className="text-gray-800" value={paciente.nome_responsavel || ''} readOnly />
-                  </div>
-                  <div className="col-3">
-                    <label>Grau de Parentesco</label>
-                    <input className="text-gray-800" value={paciente.grau_parentesco || ''} readOnly />
-                  </div>
-                  <div className="col-4">
-                    <label>Data de Nascimento</label>
-                    <input className="text-gray-800" value={paciente.data_nascimento || ''} readOnly />
-                  </div>
-                  <div className="col-2">
-                    <label>Idade</label>
-                    <input className="text-gray-800" value={paciente.idade || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Sexo</label>
-                    <input className="text-gray-800" value={paciente.sexo || ''} readOnly />
-                  </div>
-                  <div className="col-12">
-                    <label>Escolaridade</label>
-                    <input className="text-gray-800" value={paciente.escolaridade || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Profissão</label>
-                    <input className="text-gray-800" value={paciente.profissao || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Ocupação</label>
-                    <input className="text-gray-800" value={paciente.ocupacao || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Salário</label>
-                    <input className="text-gray-800" value={paciente.salario || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Renda Familiar</label>
-                    <input className="text-gray-800" value={paciente.renda_familiar || ''} readOnly />
-                  </div>
-                </div>
-              </div>
-            )} */}
             {tab === 'ficha' && (
               <div className="pt-3">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Ficha de Atendimento</h3>
@@ -319,6 +244,7 @@ export default function FichaPaciente() {
                       <InfoCampo label="Telefone" value={paciente.telefone} />
                       <InfoCampo label="Celular 1" value={paciente.celular1} />
                       <InfoCampo label="Celular 2" value={paciente.celular2} />
+                      <InfoCampo label="Email" value={paciente.email} />
                       <InfoCampo label="Nome do Responsável" value={paciente.nome_responsavel} />
                       <InfoCampo label="Grau de Parentesco" value={paciente.grau_parentesco} />
                       <InfoCampo label="Escolaridade" value={paciente.escolaridade} />
