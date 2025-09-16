@@ -128,7 +128,7 @@ def editar_consulta_estag():
 def cancelar_consulta_estag():
     consulta = Consultas.query.filter_by(id_consulta=request.form['id_consulta']).first()
     consulta.status = 'Cancelado'
-    consulta.cor = '#ff0000'
+    consulta.cor = '#BD4343'
     db.session.add(consulta)
     db.session.commit()
     return jsonify({'message': 'Consulta cancelada com sucesso!'})
@@ -138,7 +138,7 @@ def cancelar_consulta_estag():
 def realizar_consulta_estag():
     consulta = Consultas.query.filter_by(id_consulta=request.form['id_consulta']).first()
     consulta.status = 'Realizado'
-    consulta.cor = '#008000'
+    consulta.cor = '#3C7E61'
     db.session.add(consulta)
     db.session.commit()
     return jsonify({'message': 'Consulta realizada com sucesso!'})

@@ -201,7 +201,7 @@ class Consultas(db.Model):
     hora_fim = db.Column(db.Time, nullable=False)
     #datetime_inicio = db.Column(db.DateTime, nullable=False)
     #datetime_fim = db.Column(db.DateTime, nullable=False)
-    cor = db.Column(db.String(10), nullable=False, default='#0000ff')
+    cor = db.Column(db.String(10), nullable=False, default="#26268D")
     status = db.Column(db.String(10), nullable=False, default='Agendado')
     """
     Apenas para parametrizar:

@@ -163,3 +163,59 @@ button:focus-visible {
         max-width: 100%; /* Remove o limite de largura no mobile */
     }
 }
+
+/* Calendar.css */
+
+/* Cor geral das bordas do calendário */
+.fc {
+  --fc-border-color: theme('colors.slate.200');
+  --fc-list-event-hover-bg-color: theme('colors.slate.50');
+}
+
+/* Estilo dos botões do header (Prev, Next, Today, etc.) */
+.fc .fc-button {
+  @apply bg-white border border-slate-300 text-slate-700 text-sm font-semibold py-1.5 px-3 rounded-md shadow-sm;
+}
+.fc .fc-button:hover {
+  @apply bg-slate-50;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  @apply bg-green border-green-600 text-white;
+}
+
+/* Cor de fundo para o dia de hoje */
+.fc .fc-day-today {
+  --fc-today-bg-color: theme('colors.blue.50');
+}
+
+/* Cores customizadas para os eventos */
+.fc-event-blue {
+  /* Azul mais claro, como solicitado */
+  --fc-event-bg-color: theme('colors.blue.400');
+  --fc-event-border-color: theme('colors.blue.400');
+}
+.fc-event-green {
+  /* Usando sua variável de cor verde customizada */
+  --fc-event-bg-color: var(--color-green);
+  --fc-event-border-color: var(--color-green);
+}
+.fc-event-red {
+  /* Usando sua cor vermelha customizada */
+  --fc-event-bg-color: #BD4343;
+  --fc-event-border-color: #BD4343;
+}
+.fc-event-yellow {
+  --fc-event-bg-color: theme('colors.yellow.500');
+  --fc-event-border-color: theme('colors.yellow.500');
+  --fc-event-text-color: theme('colors.yellow.900');
+}
+.fc-event-gray {
+  --fc-event-bg-color: theme('colors.slate.500');
+  --fc-event-border-color: theme('colors.slate.500');
+}
+/* Adicione esta classe para as reuniões ficarem pretas */
+.fc-event-black {
+  --fc-event-bg-color: theme('colors.black');
+  --fc-event-border-color: theme('colors.black');
+}
