@@ -147,7 +147,12 @@ class FolhaEvolucao(db.Model):
     id_estagiario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
     id_supervisor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
     data_postagem = db.Column(db.DateTime, nullable=False)
-    postagem = db.Column(db.Text, nullable=False)
+    hipotese_diagnostica = db.Column(db.Text)
+    sintomas_atuais = db.Column(db.Text)
+    intervencoes_realizadas = db.Column(db.Text)
+    evolucao_clinica = db.Column(db.Text)
+    plano_proxima_sessao = db.Column(db.Text)
+    observacoes = db.Column(db.Text)
     data_check_supervisor = db.Column(db.DateTime, nullable=True)
     status_validacao = db.Column(db.String(20), nullable=False, default='Pendente')
     feedback = db.Column(db.Text, nullable=True)
@@ -167,6 +172,14 @@ class FolhaEvolucao(db.Model):
             'nome_supervisor': supervisor.nome if supervisor else 'Desconhecido',
             'data_postagem': self.data_postagem.strftime('%d/%m/%Y %H:%M:%S'),
             'postagem': self.postagem,
+            'hipotese_diagnostica': self.hipotese_diagnostica,
+            'sintomas_atuais': self.sintomas_atuais,
+            'intervencoes_realizadas': self.intervencoes_realizadas,
+            'evolucao_clinica': self.evolucao_clinica,
+            'plano_proxima_sessao': self.plano_proxima_sessao,
+            'observacoes': self.observacoes,
+            'numero_sessao': self.numero_sessao,
+            'status_validacao': self.status_validacao,
             'data_check_supervisor': self.data_check_supervisor.strftime('%d/%m/%Y %H:%M:%S') if self.data_check_supervisor else None,
             'status_validacao': self.status_validacao,
             'feedback': self.feedback,

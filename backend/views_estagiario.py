@@ -214,20 +214,18 @@ def api_ficha_paciente(id):
         'id_estagiario': estagiario.id_usuario if estagiario else None,
         'nome_estagiario': estagiario.nome if estagiario else None,
         'id_supervisor': supervisor.id_usuario if supervisor else None,
-        'nome_supervisor': supervisor.nome if estagiario else None,
+        'nome_supervisor': supervisor.nome if supervisor else None,
         'status': dados_paciente.status,
         'data_criacao': str(dados_paciente.data_criacao)
     }
-    aux_folhas_pacientes = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
+    aux_folhas_pacientes = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.desc()).all()
     folhas_pacientes = []
     for folha in aux_folhas_pacientes:
         estagiario_folha = Usuarios.query.get(folha.id_estagiario)
         supervisor_folha = Usuarios.query.get(folha.id_supervisor)
         try:
-            postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
             folha_json = {
                 'id_folha': folha.id_folha,
-                'postagem': postagem_descriptografada,
                 'id_paciente': folha.id_paciente,
                 'id_estagiario': folha.id_estagiario,
                 'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
@@ -236,12 +234,17 @@ def api_ficha_paciente(id):
                 'data_postagem': str(folha.data_postagem),
                 'numero_sessao': folha.numero_sessao,
                 'status_validacao': folha.status_validacao,
+                'hipotese_diagnostica': crypt.decrypt(folha.hipotese_diagnostica.encode('utf-8')).decode('utf-8'),
+                'sintomas_atuais': crypt.decrypt(folha.sintomas_atuais.encode('utf-8')).decode('utf-8'),
+                'intervencoes_realizadas': crypt.decrypt(folha.intervencoes_realizadas.encode('utf-8')).decode('utf-8'),
+                'evolucao_clinica': crypt.decrypt(folha.evolucao_clinica.encode('utf-8')).decode('utf-8'),
+                'plano_proxima_sessao': crypt.decrypt(folha.plano_proxima_sessao.encode('utf-8')).decode('utf-8'),
+                'observacoes': crypt.decrypt(folha.observacoes.encode('utf-8')).decode('utf-8'),
             }
             folhas_pacientes.append(folha_json)
         except Exception as e:
             folhas_pacientes.append({
                 'id_folha': folha.id_folha,
-                'postagem': 'Erro na descriptografia',
                 'id_paciente': folha.id_paciente,
                 'id_estagiario': folha.id_estagiario,
                 'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
@@ -291,37 +294,52 @@ def consulta_ids_supervisores():
     supervisor = [{'id_supervisor': supervisor_unico.id_usuario, 'nome': supervisor_unico.nome} for supervisor_unico in supervisores]
     return jsonify(supervisor)
 
-@app.route('/api/est_lista_folhas_atualizada/<int:id>', methods=['GET'])
-@login_required
-def est_lista_folhas_atualizada(id):
-    aux_folha_paciente = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
-    if aux_folha_paciente:
-        folha_paciente = []
-        for folha in aux_folha_paciente:
-            estagiario_folha = Usuarios.query.get(folha.id_estagiario)
-            supervisor_folha = Usuarios.query.get(folha.id_supervisor)
-            try:
-                postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
-                folha.postagem = postagem_descriptografada
-                folha_paciente.append(folha.serialize())
-            except Exception as e:
-                print(f'Erro ao descriptografar a postagem: {e}')
-                folha_paciente.append({
-                    'id_folha': folha.id_folha,
-                    'postagem': 'Erro na descriptografia. Favor consultar um supervisor.',
-                    'id_paciente': folha.id_paciente,
-                    'id_estagiario': folha.id_estagiario,
-                    'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
-                    'id_supervisor': folha.id_supervisor,
-                    'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                    'data_postagem': folha.data_postagem,
-                    'numero_sessao': folha.numero_sessao,
-                    'status_validacao': folha.status_validacao,
+# @app.route('/api/est_lista_folhas_atualizada/<int:id>', methods=['GET'])
+# @login_required
+# def est_lista_folhas_atualizada(id):
+#     aux_folha_paciente = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
+#     if aux_folha_paciente:
+#         folha_paciente = []
+#         for folha in aux_folha_paciente:
+#             estagiario_folha = Usuarios.query.get(folha.id_estagiario)
+#             supervisor_folha = Usuarios.query.get(folha.id_supervisor)
+#             try:
+#                 hipotese_diagnostica_descriptografada = crypt.decrypt(folha.hipotese_diagnostica.encode('utf-8')).decode('utf-8')
+#                 sintomas_atuais_descriptografada = crypt.decrypt(folha.sintomas_atuais.encode('utf-8')).decode('utf-8')
+#                 intervencoes_realizadas_descriptografada = crypt.decrypt(folha.intervencoes_realizadas.encode('utf-8')).decode('utf-8')
+#                 evolucao_clinica_descriptografada = crypt.decrypt(folha.evolucao_clinica.encode('utf-8')).decode('utf-8')
+#                 plano_proxima_sessao_descriptografada = crypt.decrypt(folha.plano_proxima_sessao.encode('utf-8')).decode('utf-8')
+#                 observacoes_descriptografada = crypt.decrypt(folha.observacoes.encode('utf-8')).decode('utf-8')
+#                 folha.hipotese_diagnostica = hipotese_diagnostica_descriptografada
+#                 folha.sintomas_atuais = sintomas_atuais_descriptografada
+#                 folha.intervencoes_realizadas = intervencoes_realizadas_descriptografada
+#                 folha.evolucao_clinica = evolucao_clinica_descriptografada
+#                 folha.plano_proxima_sessao = plano_proxima_sessao_descriptografada
+#                 folha.observacoes = observacoes_descriptografada
+#                 folha_paciente.append(folha.serialize())
 
-                })
+#             except Exception as e:
+#                 print(f'Erro ao descriptografar a postagem: {e}')
+#                 folha_paciente.append({
+#                     'id_folha': folha.id_folha,
+#                     'hipotese_diagnostica': 'Erro na descriptografia. Favor consultar um supervisor.',
+#                     'sintomas_atuais': 'Erro na descriptografia. Favor consultar um supervisor.',
+#                     'intervencoes_realizadas': 'Erro na descriptografia. Favor consultar um supervisor.',
+#                     'evolucao_clinica': 'Erro na descriptografia. Favor consultar um supervisor.',
+#                     'plano_proxima_sessao': 'Erro na descriptografia. Favor consultar um supervisor.',
+#                     'observacoes': 'Erro na descriptografia. Favor consultar um supervisor.',
+#                     'id_paciente': folha.id_paciente,
+#                     'id_estagiario': folha.id_estagiario,
+#                     'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
+#                     'id_supervisor': folha.id_supervisor,
+#                     'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
+#                     'data_postagem': folha.data_postagem,
+#                     'numero_sessao': folha.numero_sessao,
+#                     'status_validacao': folha.status_validacao,
 
-        return jsonify({'folhas_pacientes': folha_paciente})
-    return jsonify({'status': 'error', 'message': 'Paciente não possui nenhum histórico de evolução.'}), 400
+#                 })
+#         return jsonify({'folhas_pacientes': folha_paciente})
+#     return jsonify({'status': 'error', 'message': 'Paciente não possui nenhum histórico de evolução.'}), 400
 
 
 @app.route('/api/est_ficha_adicionada', methods=['POST'])
@@ -329,16 +347,28 @@ def est_lista_folhas_atualizada(id):
 def est_ficha_adicionada():
     id_paciente = request.form['id_paciente']
     id_estagiario = current_user.id_usuario
+    id_supervisor = request.form['id_supervisor']
     data_postagem = datetime.now().replace(microsecond=0)
     data_status = datetime.now().replace(microsecond=0)
-    postagem = crypt.encrypt(request.form['postagem']).decode('utf-8')
+    hipotese_diagnostica = crypt.encrypt(request.form['hipotese_diagnostica']).decode('utf-8')
+    sintomas_atuais = crypt.encrypt(request.form['sintomas_atuais']).decode('utf-8')
+    intervencoes_realizadas = crypt.encrypt(request.form['intervencoes_realizadas']).decode('utf-8')
+    evolucao_clinica = crypt.encrypt(request.form['evolucao_clinica']).decode('utf-8')
+    plano_proxima_sessao = crypt.encrypt(request.form['plano_proxima_sessao']).decode('utf-8')
+    observacoes = crypt.encrypt(request.form['observacoes']).decode('utf-8')
     numero_sessao = FolhaEvolucao.query.filter_by(id_paciente=id_paciente).count() + 1
 
     nova_folha = FolhaEvolucao(
         id_paciente=id_paciente,
         id_estagiario=id_estagiario,
         data_postagem=data_postagem,
-        postagem=postagem,
+        hipotese_diagnostica=hipotese_diagnostica,
+        sintomas_atuais=sintomas_atuais,
+        intervencoes_realizadas=intervencoes_realizadas,
+        evolucao_clinica=evolucao_clinica,
+        plano_proxima_sessao=plano_proxima_sessao,
+        observacoes=observacoes,
+        id_supervisor=id_supervisor,
         numero_sessao=numero_sessao,
         status_validacao='Validação Pendente', 
         data_status=data_status

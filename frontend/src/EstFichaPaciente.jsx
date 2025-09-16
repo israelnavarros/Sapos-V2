@@ -18,7 +18,21 @@ function InfoCampo({ label, value }) {
     </div>
   );
 }
+function CampoEvolucao({ label, texto }) {
+  const hasText = texto && texto.trim() !== '';
 
+  return (
+    <div className="w-full">
+      <label className="block text-sm font-medium text-gray-500">{label}</label>
+      <textarea
+        className={`w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800 ${!hasText ? 'italic text-slate-400' : ''}`}
+        value={hasText ? texto : 'Não informado'}
+        readOnly
+        rows="4" // Define uma altura padrão, mas o conteúdo pode ser maior e terá barra de rolagem
+      />
+    </div>
+  );
+}
 export default function EstFichaPaciente() {
   const { id_paciente } = useParams();
   const [info, setInfo] = useState(null);
@@ -28,6 +42,15 @@ export default function EstFichaPaciente() {
   const [estat3, setEstat3] = useState(null);
   const [tab, setTab] = useState('ficha'); // Controle das abas
   const [fichaTab, setFichaTab] = useState('atendimento');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [novaEvolucao, setNovaEvolucao] = useState({
+    hipotese_diagnostica: '',
+    sintomas_atuais: '',
+    intervencoes_realizadas: '',
+    evolucao_clinica: '',
+    plano_proxima_sessao: '',
+    observacoes: ''
+  });
 
   useEffect(() => {
     console.log('useEffect rodou', id_paciente);
@@ -41,13 +64,13 @@ export default function EstFichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar dados do paciente:', err));
 
-    fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        setFolhas(data.folhas_pacientes || []);
-      })
-      .catch(err => console.error('Erro ao carregar folhas de evolução:', err));
-    ;
+    // fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' })
+    //   .then(res => res.json())
+    //   .then(data => {
+    //     setFolhas(data.folhas_pacientes || []);
+    //   })
+    //   .catch(err => console.error('Erro ao carregar folhas de evolução:', err));
+    // ;
     // Fetch das estatísticas
     fetch(`/api/est_primeira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
@@ -91,36 +114,86 @@ export default function EstFichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar estatística 3:', err));
   }, [id_paciente]);
+  // Crie esta nova função logo abaixo da declaração dos seus estados
+  const fetchFolhas = async () => {
+    try {
+      const res = await fetch(`/api/ficha_paciente/${id_paciente}`, { credentials: 'include' });
+      if (!res.ok) {
+        // Lida com erros de API como 404 ou 500
+        throw new Error('Não foi possível carregar as folhas de evolução.');
+      }
+      const data = await res.json();
+      setFolhas(data.folhas_pacientes || []);
+    } catch (err) {
+      console.error('Erro ao carregar folhas de evolução:', err);
+      setFolhas([]); // Limpa as folhas em caso de erro para evitar mostrar dados antigos
+    }
+  };
+  const handleEvolucaoChange = (e) => {
+    const { name, value } = e.target;
+    setNovaEvolucao(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
   const handlePublicar = async (e) => {
     e.preventDefault();
-    const formData = new FormData(document.getElementById('cadastrar_evolucao'));
+    setIsSubmitting(true);
+
+    const formDataUrl = new URLSearchParams({
+      id_paciente: paciente.id_paciente,
+      id_supervisor: paciente.id_supervisor,
+      ...novaEvolucao
+    }).toString();
+
     try {
       const res = await fetch('/api/est_ficha_adicionada', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formDataUrl,
         credentials: 'include',
       });
+
       if (res.ok) {
-        const updatedFolhas = await fetch(`/api/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' });
-        const folhasData = await updatedFolhas.json();
-        setFolhas(folhasData.folhas_pacientes || []);
-        document.getElementById('cadastrar_evolucao').reset();
+        alert('Evolução publicada com sucesso!');
+        fetchFolhas();
+
+        setNovaEvolucao({
+          hipotese_diagnostica: '',
+          sintomas_atuais: '',
+          intervencoes_realizadas: '',
+          evolucao_clinica: '',
+          plano_proxima_sessao: '',
+          observacoes: ''
+        });
+      } else {
+        const errorData = await res.json();
+        alert(`Erro: ${errorData.message || 'Não foi possível publicar.'}`);
       }
     } catch (err) {
       console.error('Erro ao publicar evolução:', err);
+      alert('Ocorreu um erro de conexão.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  // DEPOIS
   const handleRemover = async (idFolha) => {
+    if (!window.confirm("Tem certeza que deseja excluir esta folha?")) return;
+
     try {
       const res = await fetch(`/api/est_ficha_deletada/${idFolha}`, {
         method: 'DELETE',
         credentials: 'include',
       });
       if (res.ok) {
-        const updatedFolhas = await fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' });
-        const folhasData = await updatedFolhas.json();
-        setFolhas(folhasData.folhas_pacientes || []);
+        alert("Folha excluída com sucesso!");
+        // ATUALIZAÇÃO AUTOMÁTICA: Simplesmente removemos a folha do estado local.
+        setFolhas(folhas.filter(folha => folha.id_folha !== idFolha));
+      } else {
+        alert("Erro ao excluir a folha.");
       }
     } catch (err) {
       console.error('Erro ao excluir evolução:', err);
@@ -273,10 +346,50 @@ export default function EstFichaPaciente() {
               <div className="pt-3">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
                 <p className="text-sm text-gray-500 mb-4">Visualize e valide as atualizações feitas pelos estagiários a cada sessão.</p>
-                <form id="cadastrar_evolucao" onSubmit={handlePublicar}>
-                  <input type="hidden" name="id_paciente" value={paciente.id_paciente} />
-                  <textarea className="form-control mb-3" name="postagem" rows="3" placeholder="Escreva sua postagem aqui..." />
-                  <button type="submit" className="btn btn-primary">Publicar</button>
+                <form onSubmit={handlePublicar} className="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Campo Hipótese Diagnóstica */}
+                    <div className="md:col-span-2">
+                      <label htmlFor="hipotese_diagnostica" className="block text-sm font-semibold text-slate-700">Hipótese Diagnóstica</label>
+                      <textarea id="hipotese_diagnostica" name="hipotese_diagnostica" value={novaEvolucao.hipotese_diagnostica} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                    </div>
+
+                    {/* Campo Sintomas Atuais */}
+                    <div>
+                      <label htmlFor="sintomas_atuais" className="block text-sm font-semibold text-slate-700">Sintomas Atuais</label>
+                      <textarea id="sintomas_atuais" name="sintomas_atuais" value={novaEvolucao.sintomas_atuais} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                    </div>
+
+                    {/* Campo Intervenções Realizadas */}
+                    <div>
+                      <label htmlFor="intervencoes_realizadas" className="block text-sm font-semibold text-slate-700">Intervenções Realizadas</label>
+                      <textarea id="intervencoes_realizadas" name="intervencoes_realizadas" value={novaEvolucao.intervencoes_realizadas} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                    </div>
+
+                    {/* Campo Evolução Clínica */}
+                    <div className="md:col-span-2">
+                      <label htmlFor="evolucao_clinica" className="block text-sm font-semibold text-slate-700">Evolução Clínica</label>
+                      <textarea id="evolucao_clinica" name="evolucao_clinica" value={novaEvolucao.evolucao_clinica} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                    </div>
+
+                    {/* Campo Plano para a Próxima Sessão */}
+                    <div className="md:col-span-2">
+                      <label htmlFor="plano_proxima_sessao" className="block text-sm font-semibold text-slate-700">Plano para a Próxima Sessão</label>
+                      <textarea id="plano_proxima_sessao" name="plano_proxima_sessao" value={novaEvolucao.plano_proxima_sessao} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                    </div>
+
+                    {/* Campo Observações */}
+                    <div className="md:col-span-2">
+                      <label htmlFor="observacoes" className="block text-sm font-semibold text-slate-700">Observações</label>
+                      <textarea id="observacoes" name="observacoes" value={novaEvolucao.observacoes} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 text-right">
+                    <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors disabled:opacity-50">
+                      {isSubmitting ? 'Publicando...' : 'Publicar Evolução'}
+                    </button>
+                  </div>
                 </form>
 
                 <div id="ListaDeFolhas">
@@ -289,27 +402,25 @@ export default function EstFichaPaciente() {
                     </div>
                   ) : (
                     folhas.map(folha => (
-                      <div className="card mt-4" key={folha.id_folha}>
-                        <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                          <span className="text-muted small">{folha.data_postagem}</span>
-                        </div>
-
+                      <div className="bg-white rounded-xl shadow-md mb-6" key={folha.id_folha}>
+                        <p className="text-xs text-slate-500">{new Date(folha.data_postagem).toLocaleString('pt-BR')}</p>
                         <div className="card-body border border-[#B8C6D1] border-secondary rounded">
-                          <div className="flex items-center justify-between mb-2">
-                            <img
-                              src={`/api/uploads/usuarios/${folha.id_estagiario}`}
-                              alt="Estagiário"
-                              className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
-                            />
-                            <div>
-                              <small>Nome do Estagiário</small>
-                              <h6 className="mb-0">{folha.nome_estagiario}</h6>
+                          <div className="flex items-center justify-between p-4 md:p-4">
+                            <div className="flex items-center gap-4">
+                              <img
+                                src={`/api/uploads/usuarios/${folha.id_estagiario}`}
+                                alt="Estagiário"
+                                className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
+                              />
+                              <div>
+                                <small>Nome do Estagiário</small>
+                                <h6 className="font-bold text-slate-800">{folha.nome_estagiario}</h6>
+                              </div>
+                              <div className='col'>
+                                <small>Nº da Sessão</small>
+                                <h1 className="text-muted">{folha.numero_sessao}</h1>
+                              </div>
                             </div>
-                            <div className='col'>
-                              <small>Nº da Sessão</small>
-                              <h1 className="text-muted">{folha.numero_sessao}</h1>
-                            </div>
-
                             <div className="ms-auto">
                               <button
                                 disabled={folha.status_validacao === 'Validação Pendente'}
@@ -356,13 +467,34 @@ export default function EstFichaPaciente() {
                                 )}
                               </button>
                             </div>
-
-
                             <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
                           </div>
 
-                          <div className="mt-3">
-                            <p className="text-dark">{folha.postagem}</p>
+                          <div className="border-t border-[#B8C6D1]"></div>
+
+                          <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div className="p-4 md:p-6">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />
+                                </div>
+                                <div>
+                                  <CampoEvolucao label="Sintomas Atuais" texto={folha.sintomas_atuais} />
+                                </div>
+                                <div>
+                                  <CampoEvolucao label="Intervenções Realizadas" texto={folha.intervencoes_realizadas} />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Evolução Clínica" texto={folha.evolucao_clinica} />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Plano para a Próxima Sessão" texto={folha.plano_proxima_sessao} />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Observações" texto={folha.observacoes} />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -416,7 +548,7 @@ export default function EstFichaPaciente() {
           </div>
 
         </div>
-        </main>
-      </>
-      );
+      </main>
+    </>
+  );
 }
