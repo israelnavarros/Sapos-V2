@@ -303,7 +303,8 @@ def api_sup_ficha_paciente(id):
         'medicamentos': dados_paciente.medicamentos,
         'id_estagiario': estagiario.id_usuario if estagiario else None,
         'nome_estagiario': estagiario.nome if estagiario else None,
-        'id_supervisor': supervisor.nome if supervisor else None,
+        'id_supervisor': supervisor.id_usuario if supervisor else None,
+        'nome_supervisor': supervisor.nome if estagiario else None,
         'status': dados_paciente.status,
         'data_criacao': str(dados_paciente.data_criacao)
     }
@@ -366,3 +367,17 @@ def api_sup_check_ficha(id):
 def api_dashboard_coordenacao():
     return jsonify({'status': 'success'})
 
+@app.route('/api/sup_validar_folha/<int:id_folha>', methods=['POST'])
+@login_required
+def sup_validar_folha(id_folha):
+    data = request.get_json()
+    status = data.get('status')
+    feedback = data.get('feedback', '')
+
+    folha = FolhaEvolucao.query.get_or_404(id_folha)
+    folha.status_validacao = status
+    folha.feedback = feedback
+    folha.data_status = datetime.now()
+
+    db.session.commit()
+    return jsonify({'message': 'Folha validada com sucesso!'})

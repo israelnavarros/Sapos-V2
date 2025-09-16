@@ -210,7 +210,8 @@ def api_ficha_paciente(id):
         'medicamentos': dados_paciente.medicamentos,
         'id_estagiario': estagiario.id_usuario if estagiario else None,
         'nome_estagiario': estagiario.nome if estagiario else None,
-        'id_supervisor': supervisor.nome if supervisor else None,
+        'id_supervisor': supervisor.id_usuario if supervisor else None,
+        'nome_supervisor': supervisor.nome if estagiario else None,
         'status': dados_paciente.status,
         'data_criacao': str(dados_paciente.data_criacao)
     }

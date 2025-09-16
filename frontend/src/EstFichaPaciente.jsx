@@ -6,6 +6,19 @@ import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Leg
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+function InfoCampo({ label, value }) {
+  return (
+    <div className="w-full">
+      <label className="block text-sm font-medium text-gray-500">{label}</label>
+      <input
+        className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+        value={value || 'Não informado'}
+        readOnly
+      />
+    </div>
+  );
+}
+
 export default function EstFichaPaciente() {
   const { id_paciente } = useParams();
   const [info, setInfo] = useState(null);
@@ -14,6 +27,7 @@ export default function EstFichaPaciente() {
   const [estat2, setEstat2] = useState(null);
   const [estat3, setEstat3] = useState(null);
   const [tab, setTab] = useState('ficha'); // Controle das abas
+  const [fichaTab, setFichaTab] = useState('atendimento');
 
   useEffect(() => {
     console.log('useEffect rodou', id_paciente);
@@ -154,76 +168,103 @@ export default function EstFichaPaciente() {
           <div className="painel-direito">
             {tab === 'ficha' && (
               <div className="pt-3">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Ficha de Atendimento</h3>
-                <p className="text-sm text-gray-500 mb-4">Sample</p>
-                <div className="text-center d-flex justify-content-center">
-                  <figure className="img thumbnail col-md-4">
-                    <img className="img-fluid" alt="Paciente" src={`/api/uploads/pacientes/${paciente.id_paciente}`} />
-                  </figure>
-                </div>
-                <div className="row g-3">
-                  <div className="col-4">
-                    <label>Supervisor</label>
-                    <input className="text-gray-800" value={paciente.id_supervisor || ''} readOnly />
-                  </div>
-                  <div className="col-4">
-                    <label>Estagiário</label>
-                    <input className="text-gray-800" value={paciente.nome_estagiario || ''} readOnly />
-                  </div>
-                  <div className="col-2">
-                    <label>Status</label>
-                    <input className="text-gray-800" value={paciente.status ? 'Ativo' : 'Desativado'} readOnly />
-                  </div>
-                  <div className="col-2">
-                    <label>Data de Criação</label>
-                    <input className="text-gray-800" value={paciente.data_criacao || ''} readOnly />
-                  </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Ficha de Atendimento</h3>
 
-                  <h3>Dados Pessoais do Paciente</h3>
-                  <div className="col-12">
-                    <label>Nome Completo</label>
-                    <input className="text-gray-800" value={paciente.nome_completo || ''} readOnly />
-                  </div>
-                  <div className="col-9">
-                    <label>Nome do Responsável</label>
-                    <input className="text-gray-800" value={paciente.nome_responsavel || ''} readOnly />
-                  </div>
-                  <div className="col-3">
-                    <label>Grau de Parentesco</label>
-                    <input className="text-gray-800" value={paciente.grau_parentesco || ''} readOnly />
-                  </div>
-                  <div className="col-4">
-                    <label>Data de Nascimento</label>
-                    <input className="text-gray-800" value={paciente.data_nascimento || ''} readOnly />
-                  </div>
-                  <div className="col-2">
-                    <label>Idade</label>
-                    <input className="text-gray-800" value={paciente.idade || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Sexo</label>
-                    <input className="text-gray-800" value={paciente.sexo || ''} readOnly />
-                  </div>
-                  <div className="col-12">
-                    <label>Escolaridade</label>
-                    <input className="text-gray-800" value={paciente.escolaridade || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Profissão</label>
-                    <input className="text-gray-800" value={paciente.profissao || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Ocupação</label>
-                    <input className="text-gray-800" value={paciente.ocupacao || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Salário</label>
-                    <input className="text-gray-800" value={paciente.salario || ''} readOnly />
-                  </div>
-                  <div className="col-6">
-                    <label>Renda Familiar</label>
-                    <input className="text-gray-800" value={paciente.renda_familiar || ''} readOnly />
-                  </div>
+
+                <div className="flex border-b border-gray-200 mb-4">
+                  <button
+                    onClick={() => setFichaTab('atendimento')}
+                    className={`py-2 px-4 font-medium transition-colors ${fichaTab === 'atendimento' ? 'border-b-2 border-green text-green' : 'text-gray-500 hover:bg-gray-100'
+                      }`}
+                  >
+                    Ficha de Atendimento
+                  </button>
+                  <button
+                    onClick={() => setFichaTab('pessoais')}
+                    className={`py-2 px-4 font-medium transition-colors ${fichaTab === 'pessoais' ? 'border-b-2 border-green text-green' : 'text-gray-500 hover:bg-gray-100'
+                      }`}
+                  >
+                    Dados Pessoais
+                  </button>
+                  <button
+                    onClick={() => setFichaTab('endereco')}
+                    className={`py-2 px-4 font-medium transition-colors ${fichaTab === 'endereco' ? 'border-b-2 border-green text-green' : 'text-gray-500 hover:bg-gray-100'
+                      }`}
+                  >
+                    Endereço
+                  </button>
+                  <button
+                    onClick={() => setFichaTab('encaminhamento')}
+                    className={`py-2 px-4 font-medium transition-colors ${fichaTab === 'encaminhamento' ? 'border-b-2 border-green text-green' : 'text-gray-500 hover:bg-gray-100'
+                      }`}
+                  >
+                    Origem
+                  </button>
+                </div>
+
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  {fichaTab === 'atendimento' && (
+                    <>
+                      <InfoCampo label="Nome do Estagiário" value={paciente.nome_estagiario} />
+                      <InfoCampo label="Nome do Supervisor" value={paciente.nome_supervisor} />
+                      <InfoCampo label="Data da Criação" value={paciente.data_criacao} />
+                      <InfoCampo label="Já fez terapia anteriormente?" value={paciente.ja_fez_terapia} />
+                      <div className="md:col-span-2">
+                        <InfoCampo label="Hipótese Diagnóstica" value={paciente.hipotese_diagnostica} />
+                      </div>
+                      <div className="md:col-span-2">
+                        <InfoCampo label="Medicamentos em uso" value={paciente.medicamentos} />
+                      </div>
+                    </>
+                  )}
+
+                  {fichaTab === 'pessoais' && (
+                    <>
+                      <InfoCampo label="Nome Completo" value={paciente.nome_completo} />
+                      <InfoCampo label="Data de Nascimento" value={paciente.data_nascimento} />
+                      <InfoCampo label="Idade" value={paciente.idade} />
+                      <InfoCampo label="Sexo" value={paciente.sexo} />
+                      <InfoCampo label="Telefone" value={paciente.telefone} />
+                      <InfoCampo label="Celular 1" value={paciente.celular1} />
+                      <InfoCampo label="Celular 2" value={paciente.celular2} />
+                      <InfoCampo label="Nome do Responsável" value={paciente.nome_responsavel} />
+                      <InfoCampo label="Grau de Parentesco" value={paciente.grau_parentesco} />
+                      <InfoCampo label="Escolaridade" value={paciente.escolaridade} />
+                      <InfoCampo label="Profissão" value={paciente.profissao} />
+                      <InfoCampo label="Ocupação" value={paciente.ocupacao} />
+                      <InfoCampo label="Salário" value={paciente.salario} />
+                      <InfoCampo label="Renda Familiar" value={paciente.renda_familiar} />
+                      <InfoCampo label="Status do Paciente" value={paciente.status ? 'Ativo' : 'Desativado'} />
+                    </>
+                  )}
+
+                  {fichaTab === 'endereco' && (
+                    <>
+                      <InfoCampo label="CEP" value={paciente.cep} />
+                      <InfoCampo label="Rua / Logradouro" value={paciente.logradouro} />
+                      <InfoCampo label="Número" value={paciente.endereco_numero} />
+                      <InfoCampo label="Complemento" value={paciente.complemento} />
+                      <InfoCampo label="Bairro" value={paciente.bairro} />
+                      <InfoCampo label="Cidade" value={paciente.cidade} />
+                      <InfoCampo label="Estado" value={paciente.estado} />
+                    </>
+                  )}
+
+                  {fichaTab === 'encaminhamento' && (
+                    <>
+                      <div className="md:col-span-2">
+                        <InfoCampo label="Origem do Encaminhamento" value={paciente.origem_encaminhamento} />
+                      </div>
+
+                      <InfoCampo label="Nome Instituição" value={paciente.cep} />
+                      <InfoCampo label="Nome Responsável Encaminhamento" value={paciente.logradouro} />
+
+                      <div className="md:col-span-2">
+                        <InfoCampo label="Motivo" value={paciente.motivo} />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
