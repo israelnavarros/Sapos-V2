@@ -8,19 +8,12 @@ import Modal from './Modal';
 
 
 export default function ConsultasDashboard() {
-  // Estados existentes
   const [consultasHoje, setConsultasHoje] = useState(0);
   const [consultasSemana, setConsultasSemana] = useState(0);
   const [eventos, setEventos] = useState([]);
-
-  // --- NOVOS ESTADOS ---
-  // Estado para controlar o modal (aberto/fechado, modo, dados)
   const [modalState, setModalState] = useState({ isOpen: false, mode: null, data: null });
-  // Estado para a lista de pacientes do select
   const [pacientes, setPacientes] = useState([]);
-  // Estado para os dados do formulário de criação/edição
   const [formData, setFormData] = useState({});
-  // Estado para controlar o status de envio do formulário
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- LÓGICA DE CARREGAMENTO DE DADOS ---
@@ -99,7 +92,6 @@ export default function ConsultasDashboard() {
   };
 
   // Funções para editar, cancelar e realizar seriam semelhantes, usando o `modalState.data.id`
-  // Exemplo para cancelar
   const handleActionConsulta = async (actionUrl) => {
     if (!window.confirm(`Tem certeza que deseja ${actionUrl.split('_')[0]} esta consulta?`)) return;
 
@@ -127,9 +119,8 @@ export default function ConsultasDashboard() {
 
   return (
     <main className='pt-20'>
-      <div className="p-4 sm:p-6 lg:p-8 bg-slate-100 min-h-screen">
+      <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
         <h1 className="text-3xl font-bold text-slate-800 mb-6">Minhas Consultas</h1>
-        {/* Cards de Resumo Corrigidos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
           {/* Card 1: Consultas Hoje */}
@@ -157,6 +148,25 @@ export default function ConsultasDashboard() {
         </div>
 
         {/* Calendário */}
+        <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 px-4 items-center">
+          <h3 className="text-sm font-semibold text-slate-600 mr-2">Legenda:</h3>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full bg-[#26268D]"></span>
+            <span className="text-xs text-slate-500">Agendada</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full bg-green"></span>
+            <span className="text-xs text-slate-500">Realizada</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full bg-[#BD4343]"></span>
+            <span className="text-xs text-slate-500">Cancelada</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full bg-black"></span>
+            <span className="text-xs text-slate-500">Reunião</span>
+          </div>
+        </div>
         <div className="bg-white rounded-xl shadow-md p-4">
           <FullCalendar
             plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
@@ -198,47 +208,47 @@ export default function ConsultasDashboard() {
                 <div className="flex items-start"><span className="w-28 font-semibold text-slate-600">Horário:</span><span className="flex-1 text-slate-800">{new Date(modalState.data.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>
                 {modalState.data.extendedProps.status && (<div className="flex items-start"><span className="w-28 font-semibold text-slate-600">Status:</span><span className="flex-1">{modalState.data.extendedProps.status}</span></div>)}
               </div>
-              
-<div className="mt-6 pt-4 border-t flex items-center justify-between">
-  
-  {/* LADO ESQUERDO: Ação Secundária */}
-  <div>
-    {modalState.data.extendedProps.status === 'Agendado' && !modalState.data.groupId && (
-      <button 
-        className="cursor-pointer px-3 py-1.5 bg-slate-200 text-slate-800 text-sm font-semibold rounded-md shadow-sm hover:bg-slate-300 transition-colors disabled:opacity-50"
-        disabled={isSubmitting} 
-        onClick={() => alert('Função de editar a ser implementada')}
-      >
-        Editar
-      </button>
-    )}
-  </div>
 
-  {/* LADO DIREITO: Ações Principais */}
-  <div className="flex items-center gap-3">
-    {modalState.data.extendedProps.status === 'Agendado' && !modalState.data.groupId && (
-      <>
-        {/* Botão Cancelar (Vermelho) */}
-        <button 
-          className="cursor-pointer px-3 py-1.5 bg-[#BD4343] text-white text-sm font-semibold rounded-md shadow-sm hover:bg-red-700 transition-colors disabled:opacity-50"
-          disabled={isSubmitting} 
-          onClick={() => handleActionConsulta('cancelar_consulta_estag')}
-        >
-          Cancelar
-        </button>
-        
-        {/* Botão Realizar (Verde) */}
-        <button 
-          className="cursor-pointer px-3 py-1.5 bg-green text-white text-sm font-semibold rounded-md shadow-sm hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isSubmitting || new Date(modalState.data.start) > new Date()} 
-          onClick={() => handleActionConsulta('realizar_consulta_estag')}
-        >
-          Realizar
-        </button>
-      </>
-    )}
-  </div>
-</div>
+              <div className="mt-6 pt-4 border-t flex items-center justify-between">
+
+                {/* LADO ESQUERDO: Ação Secundária */}
+                <div>
+                  {modalState.data.extendedProps.status === 'Agendado' && !modalState.data.groupId && (
+                    <button
+                      className="cursor-pointer px-3 py-1.5 bg-slate-200 text-slate-800 text-sm font-semibold rounded-md shadow-sm hover:bg-slate-300 transition-colors disabled:opacity-50"
+                      disabled={isSubmitting}
+                      onClick={() => alert('Função de editar a ser implementada')}
+                    >
+                      Editar
+                    </button>
+                  )}
+                </div>
+
+                {/* LADO DIREITO: Ações Principais */}
+                <div className="flex items-center gap-3">
+                  {modalState.data.extendedProps.status === 'Agendado' && !modalState.data.groupId && (
+                    <>
+                      {/* Botão Cancelar (Vermelho) */}
+                      <button
+                        className="cursor-pointer px-3 py-1.5 bg-[#BD4343] text-white text-sm font-semibold rounded-md shadow-sm hover:bg-red-700 transition-colors disabled:opacity-50"
+                        disabled={isSubmitting}
+                        onClick={() => handleActionConsulta('cancelar_consulta_estag')}
+                      >
+                        Cancelar
+                      </button>
+
+                      {/* Botão Realizar (Verde) */}
+                      <button
+                        className="cursor-pointer px-3 py-1.5 bg-green text-white text-sm font-semibold rounded-md shadow-sm hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isSubmitting || new Date(modalState.data.start) > new Date()}
+                        onClick={() => handleActionConsulta('realizar_consulta_estag')}
+                      >
+                        Realizar
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
