@@ -22,7 +22,8 @@ mail = Mail(app)
 crypt = SimpleCrypt(app)
 config = {
     "DEBUG": True,          
-    "CACHE_TYPE": "SimpleCache",  
+    "CACHE_TYPE": "FileSystemCache", 
+    "CACHE_DIR": "cache",
     "CACHE_DEFAULT_TIMEOUT": 300 
 }
 app.config.from_mapping(config)

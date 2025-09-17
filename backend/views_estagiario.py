@@ -180,9 +180,10 @@ def api_meus_pacientes():
 
 
 @app.route('/api/ficha_paciente/<int:id>', methods=['GET'])
-@cache.cached(timeout=3600, key_prefix='ficha_paciente_%s')
+# @cache.cached(timeout=3600, key_prefix='ficha_paciente_%s')
 @login_required
 def api_ficha_paciente(id):
+    print(f"!!!!!!!! CACHE MISS! EXECUTANDO FUNÇÃO REAL PARA PACIENTE {id} !!!!!")
     dados_paciente = Pacientes.query.get_or_404(id)
     estagiario = Usuarios.query.get(dados_paciente.id_estagiario)
     supervisor = Usuarios.query.get(dados_paciente.id_supervisor)
@@ -238,6 +239,9 @@ def api_ficha_paciente(id):
             try: return crypt.decrypt(campo_criptografado.encode('utf-8')).decode('utf-8')
             except Exception: return 'Erro na descriptografia.'
         folha_json = {
+            'id_paciente': folha.id_paciente,
+            'id_estagiario': folha.id_estagiario,
+            'id_supervisor': folha.id_supervisor,
             'id_folha': folha.id_folha,
             'nome_estagiario': folha.estagiario.nome if folha.estagiario else 'Desconhecido',
             'nome_supervisor': folha.supervisor.nome if folha.supervisor else 'Desconhecido',
@@ -337,7 +341,8 @@ def est_ficha_adicionada():
     )
     db.session.add(nova_folha)
     db.session.commit()
-
+    print(f"--- ADICIONAR: Tentando limpar o cache para a chave: 'ficha_paciente_{id_paciente}' ---")
+    cache.delete(f'ficha_paciente_{id_paciente}')
     return jsonify({'message': 'Folha adicionada com sucesso!'})
 
 
@@ -345,8 +350,10 @@ def est_ficha_adicionada():
 @login_required
 def est_ficha_deletada(id):
     folha = FolhaEvolucao.query.get_or_404(id)
+    id_paciente = folha.id_paciente
     db.session.delete(folha)
     db.session.commit()
+    cache.delete(f'ficha_paciente_{id_paciente}')
 
     return jsonify({'message': 'Folha excluída com sucesso'})
 # ------------------- ESTATÍSTICAS -------------------

@@ -21,7 +21,7 @@ export default function Modal({ children, title, onClose }) {
       onClick={onClose} // Fecha o modal ao clicar no fundo
     >
       <div 
-        className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4"
+        className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl mx-4"
         onClick={(e) => e.stopPropagation()} // Previne que o clique no card feche o modal
       >
         <div className="flex justify-between items-center mb-4 pb-4 border-b">

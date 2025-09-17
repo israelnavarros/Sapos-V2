@@ -16,14 +16,13 @@ export default function ConsultasDashboard() {
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- LÓGICA DE CARREGAMENTO DE DADOS ---
+
   const fetchEventos = () => {
     fetch('/api/consulta_estag')
       .then(res => res.json())
       .then(data => {
         const eventosMapeados = data.map(evento => ({
           ...evento,
-          // Adiciona classes para estilização (opcional, mas recomendado)
           className: evento.groupId ? 'fc-event-black' :
             evento.status === 'Realizado' ? 'fc-event-green' :
               evento.status === 'Cancelado' ? 'fc-event-red' : 'fc-event-blue'
@@ -33,20 +32,16 @@ export default function ConsultasDashboard() {
   };
 
   useEffect(() => {
-    // Carrega os cards
     fetch('/api/est_consulta_card').then(res => res.json()).then(data => {
       setConsultasHoje(data.hoje);
       setConsultasSemana(data.semana);
     });
 
-    // Carrega a lista de pacientes para o formulário
     fetch('/api/consulta_ids_pacientes').then(res => res.json()).then(data => setPacientes(data));
 
-    // Carrega os eventos do calendário
     fetchEventos();
   }, []);
 
-  // --- FUNÇÕES DE CALLBACK DO CALENDÁRIO ---
   const handleEventClick = (clickInfo) => {
     setModalState({ isOpen: true, mode: 'view', data: clickInfo.event });
   };
@@ -62,7 +57,6 @@ export default function ConsultasDashboard() {
     setModalState({ isOpen: true, mode: 'create', data: defaultData });
   };
 
-  // --- FUNÇÕES DE MANIPULAÇÃO DE DADOS (API) ---
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -82,7 +76,7 @@ export default function ConsultasDashboard() {
       if (!response.ok) throw new Error(result.message || 'Erro ao cadastrar.');
 
       alert(result.message);
-      fetchEventos(); // Re-carrega os eventos
+      fetchEventos(); 
       setModalState({ isOpen: false, mode: null, data: null });
     } catch (error) {
       alert(error.message);
@@ -91,7 +85,6 @@ export default function ConsultasDashboard() {
     }
   };
 
-  // Funções para editar, cancelar e realizar seriam semelhantes, usando o `modalState.data.id`
   const handleActionConsulta = async (actionUrl) => {
     if (!window.confirm(`Tem certeza que deseja ${actionUrl.split('_')[0]} esta consulta?`)) return;
 

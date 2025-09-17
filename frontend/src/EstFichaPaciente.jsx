@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import Header from './Header';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import Modal from './Modal';
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -28,7 +29,7 @@ function CampoEvolucao({ label, texto }) {
         className={`w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800 ${!hasText ? 'italic text-slate-400' : ''}`}
         value={hasText ? texto : 'Não informado'}
         readOnly
-        rows="4" // Define uma altura padrão, mas o conteúdo pode ser maior e terá barra de rolagem
+        rows="2"
       />
     </div>
   );
@@ -40,9 +41,10 @@ export default function EstFichaPaciente() {
   const [estat1, setEstat1] = useState(null);
   const [estat2, setEstat2] = useState(null);
   const [estat3, setEstat3] = useState(null);
-  const [tab, setTab] = useState('ficha'); // Controle das abas
+  const [tab, setTab] = useState('ficha');
   const [fichaTab, setFichaTab] = useState('atendimento');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [novaEvolucao, setNovaEvolucao] = useState({
     hipotese_diagnostica: '',
     sintomas_atuais: '',
@@ -167,6 +169,7 @@ export default function EstFichaPaciente() {
           plano_proxima_sessao: '',
           observacoes: ''
         });
+        setIsCreateModalOpen(false)
       } else {
         const errorData = await res.json();
         alert(`Erro: ${errorData.message || 'Não foi possível publicar.'}`);
@@ -179,7 +182,6 @@ export default function EstFichaPaciente() {
     }
   };
 
-  // DEPOIS
   const handleRemover = async (idFolha) => {
     if (!window.confirm("Tem certeza que deseja excluir esta folha?")) return;
 
@@ -190,7 +192,6 @@ export default function EstFichaPaciente() {
       });
       if (res.ok) {
         alert("Folha excluída com sucesso!");
-        // ATUALIZAÇÃO AUTOMÁTICA: Simplesmente removemos a folha do estado local.
         setFolhas(folhas.filter(folha => folha.id_folha !== idFolha));
       } else {
         alert("Erro ao excluir a folha.");
@@ -344,53 +345,19 @@ export default function EstFichaPaciente() {
             )}
             {tab === 'evolucao' && (
               <div className="pt-3">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
-                <p className="text-sm text-gray-500 mb-4">Visualize e valide as atualizações feitas pelos estagiários a cada sessão.</p>
-                <form onSubmit={handlePublicar} className="bg-slate-50 p-6 rounded-lg border border-slate-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Campo Hipótese Diagnóstica */}
-                    <div className="md:col-span-2">
-                      <label htmlFor="hipotese_diagnostica" className="block text-sm font-semibold text-slate-700">Hipótese Diagnóstica</label>
-                      <textarea id="hipotese_diagnostica" name="hipotese_diagnostica" value={novaEvolucao.hipotese_diagnostica} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
-                    </div>
-
-                    {/* Campo Sintomas Atuais */}
-                    <div>
-                      <label htmlFor="sintomas_atuais" className="block text-sm font-semibold text-slate-700">Sintomas Atuais</label>
-                      <textarea id="sintomas_atuais" name="sintomas_atuais" value={novaEvolucao.sintomas_atuais} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
-                    </div>
-
-                    {/* Campo Intervenções Realizadas */}
-                    <div>
-                      <label htmlFor="intervencoes_realizadas" className="block text-sm font-semibold text-slate-700">Intervenções Realizadas</label>
-                      <textarea id="intervencoes_realizadas" name="intervencoes_realizadas" value={novaEvolucao.intervencoes_realizadas} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
-                    </div>
-
-                    {/* Campo Evolução Clínica */}
-                    <div className="md:col-span-2">
-                      <label htmlFor="evolucao_clinica" className="block text-sm font-semibold text-slate-700">Evolução Clínica</label>
-                      <textarea id="evolucao_clinica" name="evolucao_clinica" value={novaEvolucao.evolucao_clinica} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
-                    </div>
-
-                    {/* Campo Plano para a Próxima Sessão */}
-                    <div className="md:col-span-2">
-                      <label htmlFor="plano_proxima_sessao" className="block text-sm font-semibold text-slate-700">Plano para a Próxima Sessão</label>
-                      <textarea id="plano_proxima_sessao" name="plano_proxima_sessao" value={novaEvolucao.plano_proxima_sessao} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
-                    </div>
-
-                    {/* Campo Observações */}
-                    <div className="md:col-span-2">
-                      <label htmlFor="observacoes" className="block text-sm font-semibold text-slate-700">Observações</label>
-                      <textarea id="observacoes" name="observacoes" value={novaEvolucao.observacoes} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
-                    </div>
+                <div className='flex mb-4'>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
+                    <p className="text-sm text-gray-500">Visualize e valide as atualizações feitas pelos estagiários sobre o paciente.</p>
                   </div>
+                  <button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="px-4 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors"
+                  >
+                    Adicionar Evolução
+                  </button>
+                </div>
 
-                  <div className="mt-6 text-right">
-                    <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors disabled:opacity-50">
-                      {isSubmitting ? 'Publicando...' : 'Publicar Evolução'}
-                    </button>
-                  </div>
-                </form>
 
                 <div id="ListaDeFolhas">
                   {folhas.length === 0 ? (
@@ -549,6 +516,49 @@ export default function EstFichaPaciente() {
 
         </div>
       </main>
+      {isCreateModalOpen && (
+        <Modal
+          onClose={() => setIsCreateModalOpen(false)}
+          title="Adicionar Nova Folha de Evolução"
+        >
+          <form onSubmit={handlePublicar} >
+            <div className="max-h-[60vh] overflow-y-auto p-1 pr-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label htmlFor="hipotese_diagnostica" className="block text-sm font-semibold text-slate-700">Hipótese Diagnóstica</label>
+                  <textarea id="hipotese_diagnostica" name="hipotese_diagnostica" value={novaEvolucao.hipotese_diagnostica} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                </div>
+                <div>
+                  <label htmlFor="sintomas_atuais" className="block text-sm font-semibold text-slate-700">Sintomas Atuais</label>
+                  <textarea id="sintomas_atuais" name="sintomas_atuais" value={novaEvolucao.sintomas_atuais} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                </div>
+                <div>
+                  <label htmlFor="intervencoes_realizadas" className="block text-sm font-semibold text-slate-700">Intervenções Realizadas</label>
+                  <textarea id="intervencoes_realizadas" name="intervencoes_realizadas" value={novaEvolucao.intervencoes_realizadas} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                </div>
+                <div className="md:col-span-2">
+                  <label htmlFor="evolucao_clinica" className="block text-sm font-semibold text-slate-700">Evolução Clínica</label>
+                  <textarea id="evolucao_clinica" name="evolucao_clinica" value={novaEvolucao.evolucao_clinica} onChange={handleEvolucaoChange} rows="4" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                </div>
+                <div className="md:col-span-2">
+                  <label htmlFor="plano_proxima_sessao" className="block text-sm font-semibold text-slate-700">Plano para a Próxima Sessão</label>
+                  <textarea id="plano_proxima_sessao" name="plano_proxima_sessao" value={novaEvolucao.plano_proxima_sessao} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                </div>
+                <div className="md:col-span-2">
+                  <label htmlFor="observacoes" className="block text-sm font-semibold text-slate-700">Observações</label>
+                  <textarea id="observacoes" name="observacoes" value={novaEvolucao.observacoes} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 text-right">
+              <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors disabled:opacity-50">
+                {isSubmitting ? 'Publicando...' : 'Publicar'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </>
   );
 }
