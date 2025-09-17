@@ -180,7 +180,7 @@ def api_meus_pacientes():
 
 
 @app.route('/api/ficha_paciente/<int:id>', methods=['GET'])
-# @cache.cached(timeout=3600, key_prefix='ficha_paciente_%s')
+@cache.cached(timeout=3600, key_prefix='ficha_paciente_%s')
 @login_required
 def api_ficha_paciente(id):
     dados_paciente = Pacientes.query.get_or_404(id)
@@ -225,9 +225,7 @@ def api_ficha_paciente(id):
     Supervisor = aliased(Usuarios)
 
     folhas_db = FolhaEvolucao.query.filter_by(id_paciente=id)\
-        .options(
-            # Simplesmente dizemos para carregar os relacionamentos
-            # O SQLAlchemy se encarrega de criar os JOINs corretos com os apelidos
+        .options(           
             joinedload(FolhaEvolucao.estagiario.of_type(Estagiario)),
             joinedload(FolhaEvolucao.supervisor.of_type(Supervisor))
         )\
@@ -235,10 +233,10 @@ def api_ficha_paciente(id):
         .all()
     folhas_pacientes = []
     for folha in folhas_db:
-        # def descriptografar_campo(campo_criptografado):
-        #     if not campo_criptografado: return ""
-        #     try: return crypt.decrypt(campo_criptografado.encode('utf-8')).decode('utf-8')
-        #     except Exception: return 'Erro na descriptografia.'
+        def descriptografar_campo(campo_criptografado):
+            if not campo_criptografado: return ""
+            try: return crypt.decrypt(campo_criptografado.encode('utf-8')).decode('utf-8')
+            except Exception: return 'Erro na descriptografia.'
         folha_json = {
             'id_folha': folha.id_folha,
             'nome_estagiario': folha.estagiario.nome if folha.estagiario else 'Desconhecido',
