@@ -6,6 +6,7 @@ from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 from flask_login import LoginManager
 from flask_simple_crypt import SimpleCrypt
+from flask_caching import Cache
 
 
 
@@ -19,6 +20,13 @@ login_manager = LoginManager(app)
 bcrypt = Bcrypt(app)
 mail = Mail(app)
 crypt = SimpleCrypt(app)
+config = {
+    "DEBUG": True,          
+    "CACHE_TYPE": "SimpleCache",  
+    "CACHE_DEFAULT_TIMEOUT": 300 
+}
+app.config.from_mapping(config)
+cache = Cache(app)
 
 from views_user import *
 from views_coordenador_spa import *

@@ -158,6 +158,8 @@ class FolhaEvolucao(db.Model):
     feedback = db.Column(db.Text, nullable=True)
     data_status = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
     numero_sessao = db.Column(db.Integer)
+    estagiario = db.relationship('Usuarios', foreign_keys=[id_estagiario])
+    supervisor = db.relationship('Usuarios', foreign_keys=[id_supervisor])
     
 
 
