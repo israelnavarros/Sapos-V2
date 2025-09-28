@@ -213,6 +213,89 @@ def api_atualizar_grupo():
     return jsonify({'success': True})
 
 # Administração de pacientes
+# No seu arquivo de rotas Flask
+
+@app.route('/api/adicionar_paciente_secretaria', methods=['POST'])
+@login_required
+def adicionar_paciente_secretaria():
+    data = request.get_json()
+
+    # 1. Validar os campos que são realmente obrigatórios
+    if not all(data.get(key) for key in ['nome_completo', 'idade', 'celular1']):
+        return jsonify({'message': 'Nome completo, idade e celular 1 são obrigatórios.'}), 400
+    
+    # --- Funções auxiliares para conversão segura (garantem que "" vire None) ---
+    def to_int_or_none(value):
+        if value is None or str(value).strip() == '': return None
+        return int(value)
+        
+    def to_numeric_or_none(value):
+        if value is None or str(value).strip() == '': return None
+        return float(value)
+
+    def to_date_or_none(value_str):
+        if not value_str: return None
+        try: return datetime.strptime(value_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError): return None
+
+    def to_bool_or_none(value_str):
+        if value_str is None or str(value_str).strip() == '': return None
+        return str(value_str).lower() == 'true'
+    
+    # 2. Criar o objeto Pacientes aplicando a conversão para TODOS os campos
+    try:
+        novo_paciente = Pacientes(
+            # Obrigatórios
+            nome_completo=data.get('nome_completo'),
+            idade=to_int_or_none(data.get('idade')),
+            celular1=data.get('celular1'),
+            
+            # Opcionais (convertendo "" e valores ausentes para None/NULL)
+            id_supervisor=to_int_or_none(data.get('id_supervisor')),
+            nome_responsavel=data.get('nome_responsavel') or None,
+            grau_parentesco=data.get('grau_parentesco') or None,
+            data_nascimento=to_date_or_none(data.get('data_nascimento')),
+            sexo=data.get('sexo') or None,
+            escolaridade=data.get('escolaridade') or None,
+            profissao=data.get('profissao') or None,
+            ocupacao=data.get('ocupacao') or None,
+            salario=to_numeric_or_none(data.get('salario')),
+            renda_familiar=to_numeric_or_none(data.get('renda_familiar')),
+            email=data.get('email') or None,
+            cep=to_int_or_none(data.get('cep')),
+            cidade=data.get('cidade') or None,
+            bairro=data.get('bairro') or None,
+            logradouro=data.get('logradouro') or None,
+            complemento=data.get('complemento') or None,
+            telefone=data.get('telefone') or None,
+            celular2=data.get('celular2') or None,
+            origem_encaminhamento=data.get('origem_encaminhamento') or None,
+            nome_instituicao=data.get('nome_instituicao') or None,
+            nome_resp_encaminhamento=data.get('nome_resp_encaminhamento') or None,
+            motivo=data.get('motivo') or None,
+            medicamentos=data.get('medicamentos') or None,
+            intervalo_sessoes=data.get('intervalo_sessoes') or None,
+            hipotese_diagnostica=data.get('hipotese_diagnostica') or None,
+            ja_fez_terapia=to_bool_or_none(data.get('ja_fez_terapia')),
+            etnia=data.get('etnia') or None,
+            genero=data.get('genero') or None,
+            classe_social=data.get('classe_social') or None,
+
+            # Campos com valores padrão (id_estagiario será NULL por padrão)
+            status=True,
+            data_criacao=date.today(),
+        )
+
+        db.session.add(novo_paciente)
+        db.session.commit()
+
+        return jsonify({'status': 'success', 'id_paciente': novo_paciente.id_paciente})
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERRO AO CRIAR PACIENTE: {e}")
+        return jsonify({'message': f'Ocorreu um erro interno: {e}'}), 500
+
 @app.route('/api/pacientes', methods=['GET'])
 @login_required
 def api_pacientes():
