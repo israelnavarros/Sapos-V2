@@ -221,7 +221,7 @@ export default function EstFichaPaciente() {
             <p className="text-sm text-gray-600 mb-4">
               Status
             </p>
-            <h2 className="text-xl font-semibold text-gray-800">{paciente.status = "true" ? 'Ativo' : 'Desativado'}</h2>
+            <h2 className="text-xl font-semibold text-gray-800">{String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}</h2>
 
             <div className="flex flex-col ">
               <button

@@ -87,7 +87,7 @@ class Pacientes(db.Model):
     id_estagiario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
     id_supervisor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
     status = db.Column(db.Boolean, nullable=True) 
-    data_criacao = db.Column(db.Date, nullable=True) 
+    data_criacao = db.Column(db.Date, nullable=False) 
 
     # Campos Obrigatórios
     nome_completo = db.Column(db.String(100), nullable=False)
@@ -130,6 +130,8 @@ class Pacientes(db.Model):
 
     # Relacionamento com tags via tabela intermediária
     tags_rel = db.relationship('PacienteTag', backref='paciente', lazy='dynamic')
+    estagiario = db.relationship('Usuarios', foreign_keys=[id_estagiario])
+    supervisor = db.relationship('Usuarios', foreign_keys=[id_supervisor])
 
     def get_tags(self):
         return [pt.tag.nome for pt in self.tags_rel]

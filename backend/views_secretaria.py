@@ -11,6 +11,7 @@ from datetime import datetime, date, timedelta
 import base64
 import re
 import os
+from sqlalchemy.orm import joinedload, aliased
 
 # Consultas da secretaria
 @app.route('/api/consulta_secretaria', methods=['GET'])
@@ -303,22 +304,83 @@ def adicionar_paciente_secretaria():
         print(f"ERRO AO CRIAR PACIENTE: {e}")
         return jsonify({'message': f'Ocorreu um erro interno: {e}'}), 500
 
+# Rota para buscar todos os SUPERVISORES disponíveis
+@app.route('/api/lista_supervisores', methods=['GET'])
+@login_required
+def lista_supervisores():
+    # Supondo que cargo '1' é Supervisor
+    supervisores = Usuarios.query.filter_by(cargo='1', status='true').all()
+    lista = [{'id': user.id_usuario, 'nome': user.nome} for user in supervisores]
+    return jsonify(lista)
+
+# Rota para buscar ESTAGIÁRIOS de um SUPERVISOR específico
+@app.route('/api/lista_estagiarios_por_supervisor/<int:id_supervisor>', methods=['GET'])
+@login_required
+def lista_estagiarios_por_supervisor(id_supervisor):
+    # Supondo que cargo '2' é Estagiário e 'grupo' liga estagiário ao supervisor
+    supervisor = Usuarios.query.get(id_supervisor)
+    if not supervisor:
+        return jsonify([])
+    
+    estagiarios = Usuarios.query.filter_by(grupo=supervisor.grupo, cargo='2', status='true').all()
+    lista = [{'id': user.id_usuario, 'nome': user.nome} for user in estagiarios]
+    return jsonify(lista)
+
+# Rota para ATRIBUIR um supervisor ou estagiário a um paciente
+@app.route('/api/atribuir_paciente/<int:id_paciente>', methods=['POST'])
+@login_required
+def atribuir_paciente(id_paciente):
+    paciente = Pacientes.query.get_or_404(id_paciente)
+    data = request.get_json()
+    
+    if 'id_supervisor' in data:
+        paciente.id_supervisor = data['id_supervisor']
+    
+    if 'id_estagiario' in data:
+        paciente.id_estagiario = data['id_estagiario']
+    
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': 'Atribuição realizada com sucesso!'})
+
+# @app.route('/api/pacientes', methods=['GET'])
+# @login_required
+# # Garanta que 'aliased' e 'joinedload' estão importados no topo do arquivo
+
+
 @app.route('/api/pacientes', methods=['GET'])
 @login_required
 def api_pacientes():
-    pacientes = Pacientes.query.all()
+    # Criamos "apelidos" para a tabela Usuarios para fazer o JOIN duas vezes
+    Estagiario = aliased(Usuarios)
+    Supervisor = aliased(Usuarios)
+
+    # Query otimizada que busca Pacientes e faz JOIN com Usuarios para pegar os nomes
+    # Usamos outerjoin para garantir que pacientes sem estagiário/supervisor ainda apareçam
+    pacientes_db = Pacientes.query\
+    .options(
+        # O joinedload já vai criar os LEFT OUTER JOINs necessários
+        joinedload(Pacientes.estagiario.of_type(Estagiario)),
+        joinedload(Pacientes.supervisor.of_type(Supervisor))
+    )\
+    .order_by(Pacientes.nome_completo)\
+    .all()
+    
     lista_pacientes = []
-    for paciente in pacientes:
-        estagiario = Usuarios.query.filter_by(id_usuario=paciente.id_estagiario).first()
-        coordenador = Usuarios.query.filter_by(id_usuario=paciente.id_supervisor).first()
+    for paciente in pacientes_db:
         lista_pacientes.append({
             'id_paciente': paciente.id_paciente,
             'nome_completo': paciente.nome_completo,
-            'estagiario_nome': estagiario.nome if estagiario else 'N/A',
-            'coordenador_nome': coordenador.nome if coordenador else 'N/A',
             'status': paciente.status,
-            'data_criacao': str(paciente.data_criacao)
+            'data_criacao': str(paciente.data_criacao.strftime('%Y-%m-%d')),
+            
+            # Agora os nomes e IDs estão disponíveis através dos relacionamentos
+            'id_estagiario': paciente.id_estagiario,
+            'estagiario_nome': paciente.estagiario.nome if paciente.estagiario else None,
+            
+            'id_supervisor': paciente.id_supervisor, # <-- CORRIGIDO: ID do supervisor adicionado
+            'supervisor_nome': paciente.supervisor.nome if paciente.supervisor else None,
         })
+    
     return jsonify(lista_pacientes)
 
 

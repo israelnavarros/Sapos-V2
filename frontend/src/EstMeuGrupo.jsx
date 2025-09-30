@@ -91,13 +91,17 @@ export default function EstMeuPacientes() {
                         {new Date(paciente.data_criacao).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${paciente.status = "true" ? 'bg-green text-white' : 'bg-gray-100 text-gray-800'}`}>
-                          {paciente.status = "true" ? 'Ativo' : 'Inativo'}
-                        </span>
-                      </td>
+                                                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                    String(paciente.status).toLowerCase() === 'true'
+                                                        ? 'bg-green-100 text-green-800' 
+                                                        : 'bg-red-100 text-red-800'
+                                                    }`}>
+                                                    {String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}
+                                                </span>
+                                            </td>
                       
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {paciente.atividade_recente || 'N/A'} {/* Assumindo que essa info virá da API */}
+                        {paciente.atividade_recente || 'N/A'}
                       </td>
                     </tr>
                   ))

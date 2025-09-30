@@ -162,6 +162,7 @@ def est_consulta_card():
 @login_required
 def api_meus_pacientes():
     pacientes = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario, status='True').order_by(Pacientes.nome_completo).all()
+    #pacientes = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario).order_by(Pacientes.nome_completo).all()
     
     lista = []
     for paciente in pacientes:

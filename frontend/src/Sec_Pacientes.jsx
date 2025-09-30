@@ -1,61 +1,88 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; 
+import { useNavigate, Link } from 'react-router-dom';
 import Header from './Header';
+import Modal from './Modal';
 
-function ActionsDropdown({ paciente }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-   return (
-    <div className="relative" ref={dropdownRef}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
-        className="p-2 rounded-full hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-        </svg>
-      </button>
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        }
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isOpen]);
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 border">
-          <div className="py-1">
-            <Link to={`/sec_ficha_paciente/${paciente.id_paciente}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setIsOpen(false)}>
-              Editar Informações
-            </Link>
-            <Link to={`/adm_editar_paciente/${paciente.id_paciente}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setIsOpen(false)}>
-              Alterar status
-            </Link>
-            <Link to={`/adm_editar_paciente/${paciente.id_paciente}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setIsOpen(false)}>
-              Alterar responsável
-            </Link>
-          </div>
+    // Estilo base para todos os itens do menu, para manter a consistência
+    const itemStyle = "group flex w-full items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-green hover:text-white transition-colors cursor-pointer";
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            {/* Botão de ícone (sem grandes alterações) */}
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+            </button>
+
+            {/* Menu Dropdown Estilizado */}
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-64 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
+                    <div className="p-1">
+                        {/* Grupo de Ações de Navegação */}
+                        <Link to={`/sec_ficha_paciente/${paciente.id_paciente}`} className={itemStyle} onClick={() => setIsOpen(false)}>
+                            <i className="bi bi-file-earmark-person mr-3 h-5 w-5 text-slate-400 group-hover:text-green-700"></i>
+                            Ver Ficha Completa
+                        </Link>
+
+                        <div className="my-1 h-px bg-slate-100" />
+
+                        {/* Grupo de Ações de Atribuição */}
+                        <button onClick={() => { onAssignSupervisor(paciente); setIsOpen(false); }} className={itemStyle}>
+                             <i className="bi bi-person-check mr-3 h-5 w-5 text-slate-400 group-hover:text-green-700"></i>
+                            Alterar Supervisor
+                        </button>
+                        <button onClick={() => { onAssignIntern(paciente); setIsOpen(false); }} className={itemStyle}>
+                             <i className="bi bi-person-plus mr-3 h-5 w-5 text-slate-400 group-hover:text-green-700"></i>
+                            Alterar Estagiário
+                        </button>
+                        
+                        {/* Divisória */}
+                        <div className="my-1 h-px bg-slate-100" />
+                        
+                        {/* Grupo de Ações de Status */}
+                         <button onClick={() => { /* Lógica para alterar status aqui */ setIsOpen(false); }} className={itemStyle}>
+                             <i className="bi bi-toggles mr-3 h-5 w-5 text-slate-400 group-hover:text-green-700"></i>
+                            Alterar Status
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
 
 export default function SecPacientes() {
     const [pacientes, setPacientes] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const [modalState, setModalState] = useState({ isOpen: false, mode: null, paciente: null });
+    const [userList, setUserList] = useState([]); // Lista de estagiários ou supervisores
+    const [selectedUserId, setSelectedUserId] = useState('');
 
-    useEffect(() => {
-        // Use a rota correta para buscar os pacientes da secretaria
+    const fetchPacientes = () => {
+        setLoading(true);
         fetch("/api/pacientes", { credentials: "include" })
             .then(res => res.json())
             .then(data => {
@@ -63,7 +90,60 @@ export default function SecPacientes() {
             })
             .catch(err => console.error("Erro ao carregar pacientes:", err))
             .finally(() => setLoading(false));
+    };
+    useEffect(() => {
+        fetchPacientes();
     }, []);
+
+    const handleAssignSupervisor = (paciente) => {
+        setModalState({ isOpen: true, mode: 'supervisor', paciente: paciente });
+        fetch('/api/lista_supervisores', { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                setUserList(data);
+                setSelectedUserId(paciente.id_supervisor || '');
+            });
+    };
+
+    const handleAssignIntern = (paciente) => {
+        console.log(paciente);
+        if (!paciente.id_supervisor) {
+            alert('Atribua um supervisor a este paciente primeiro!');
+            return;
+        }
+        setModalState({ isOpen: true, mode: 'intern', paciente: paciente });
+        fetch(`/api/lista_estagiarios_por_supervisor/${paciente.id_supervisor}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                setUserList(data);
+                setSelectedUserId(paciente.id_estagiario || '');
+            });
+    };
+
+    // --- FUNÇÃO PARA SALVAR A ATRIBUIÇÃO ---
+    const handleSaveAssignment = async () => {
+        const { mode, paciente } = modalState;
+        const payload = mode === 'supervisor'
+            ? { id_supervisor: selectedUserId }
+            : { id_estagiario: selectedUserId };
+
+        try {
+            const response = await fetch(`/api/atribuir_paciente/${paciente.id_paciente}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+
+            alert('Atribuição salva com sucesso!');
+            setModalState({ isOpen: false, mode: null, paciente: null });
+            fetchPacientes(); // Recarrega a lista de pacientes para mostrar a mudança
+        } catch (error) {
+            alert(`Erro: ${error.message}`);
+        }
+    };
 
     // Componente para o "esqueleto" da tabela durante o carregamento
     const SkeletonRow = () => (
@@ -84,7 +164,7 @@ export default function SecPacientes() {
                 <div className="h-4 bg-gray-300 rounded w-3/4"></div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                 <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="h-8 w-24 bg-gray-300 rounded-md"></div>
@@ -151,7 +231,11 @@ export default function SecPacientes() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${String(paciente.status).toLowerCase() === 'true' ? 'bg-green text-white' : 'bg-gray-100 text-gray-800'}`}>
+                                                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                    String(paciente.status).toLowerCase() === 'true'
+                                                        ? 'bg-green-100 text-green-800' 
+                                                        : 'bg-red-100 text-red-800'
+                                                    }`}>
                                                     {String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}
                                                 </span>
                                             </td>
@@ -160,7 +244,10 @@ export default function SecPacientes() {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paciente.estagiario_nome || 'Não atribuído'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 {/* Usando o componente definido neste mesmo arquivo */}
-                                                <ActionsDropdown paciente={paciente} />
+                                                <ActionsDropdown
+                                                    paciente={paciente}
+                                                    onAssignSupervisor={handleAssignSupervisor}
+                                                    onAssignIntern={handleAssignIntern} />
                                             </td>
                                         </tr>
                                     ))
@@ -177,6 +264,34 @@ export default function SecPacientes() {
                     </div>
                 </div>
             </main>
+            {/* --- MODAL DE ATRIBUIÇÃO --- */}
+            {modalState.isOpen && (
+                <Modal
+                    onClose={() => setModalState({ isOpen: false, mode: null, paciente: null })}
+                    title={`Alterar ${modalState.mode === 'supervisor' ? 'Supervisor' : 'Estagiário'} de ${modalState.paciente.nome_completo}`}
+                >
+                    <div className="space-y-4">
+                        <label htmlFor="user-select" className="block text-sm font-medium text-gray-700">
+                            Selecione o novo {modalState.mode === 'supervisor' ? 'supervisor' : 'estagiário'}:
+                        </label>
+                        <select
+                            id="user-select"
+                            value={selectedUserId}
+                            onChange={(e) => setSelectedUserId(e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm ..."
+                        >
+                            <option value="">{userList.length > 0 ? `Selecione um ${modalState.mode}` : 'Carregando...'}</option>
+                            {userList.map(user => (
+                                <option key={user.id} value={user.id}>{user.nome}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="mt-6 pt-4 border-t flex justify-end gap-3">
+                        <button type="button" onClick={() => setModalState({ isOpen: false, mode: null, paciente: null })}>Cancelar</button>
+                        <button type="button" onClick={handleSaveAssignment}>Salvar Alteração</button>
+                    </div>
+                </Modal>
+            )}
         </>
     );
 }
