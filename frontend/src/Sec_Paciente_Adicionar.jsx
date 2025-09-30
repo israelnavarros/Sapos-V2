@@ -4,11 +4,12 @@ import Header from "./Header";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.min.css";
 
-function FormField({ label, htmlFor, children }) {
+function FormField({ label, htmlFor, children, required = false }) {
     return (
         <div>
             <label htmlFor={htmlFor} className="block text-sm font-semibold text-slate-700 mb-1">
                 {label}
+                {required && <span className="text-red-500 ml-1">*</span>}
             </label>
             {children}
         </div>
@@ -152,7 +153,7 @@ export default function SecAdicionarPaciente() {
 
                     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md space-y-6">
                         {/* --- SEÇÃO DE FOTO DO PACIENTE --- */}
-                        <div className="flex flex-col items-center gap-4 border-b pb-6">
+                        <div className="flex flex-col items-center gap-4 pb-6">
                             <img
                                 src={finalPreviewUrl}
                                 alt="Preview do Paciente"
@@ -177,13 +178,13 @@ export default function SecAdicionarPaciente() {
                         <div className="border-t pt-6">
                             <h2 className="text-lg font-semibold text-slate-800 mb-4">Dados Pessoais</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormField label="Nome Completo" htmlFor="nome_completo" className="md:col-span-2">
+                                <FormField label="Nome Completo" htmlFor="nome_completo" className="md:col-span-2"  required>
                                     <input id="nome_completo" name="nome_completo" required value={formData.nome_completo} onChange={handleChange} className={inputStyle} />
                                 </FormField>
                                 <FormField label="Data de Nascimento" htmlFor="data_nascimento">
                                     <input id="data_nascimento" name="data_nascimento" type="date" value={formData.data_nascimento} onChange={handleChange} className={inputStyle} />
                                 </FormField>
-                                <FormField label="Idade" htmlFor="idade">
+                                <FormField label="Idade" htmlFor="idade"  required>
                                     <input id="idade" name="idade" type="number" required value={formData.idade} onChange={handleChange} className={inputStyle} />
                                 </FormField>
                                 <FormField label="Sexo" htmlFor="sexo">
@@ -204,7 +205,7 @@ export default function SecAdicionarPaciente() {
                         <div className="border-t pt-6">
                             <h2 className="text-lg font-semibold text-slate-800 mb-4">Contato</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormField label="Celular 1 (Obrigatório)" htmlFor="celular1">
+                                <FormField label="Celular 1" htmlFor="celular1"  required>
                                     <input id="celular1" name="celular1" required value={formData.celular1} onChange={handleChange} className={inputStyle} />
                                 </FormField>
                                 <FormField label="Celular 2" htmlFor="celular2">
