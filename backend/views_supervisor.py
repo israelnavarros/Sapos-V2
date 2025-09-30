@@ -8,6 +8,7 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_mail import Message
 import random, json, time, os, base64
 from datetime import datetime, date, timedelta
+from sqlalchemy.orm import joinedload, aliased
 
 # Inicio Consultas dos estagiários
 @app.route('/api/consulta_supervisor', methods=['GET'])
@@ -304,7 +305,7 @@ def api_sup_ficha_paciente(id):
         'id_estagiario': estagiario.id_usuario if estagiario else None,
         'nome_estagiario': estagiario.nome if estagiario else None,
         'id_supervisor': supervisor.id_usuario if supervisor else None,
-        'nome_supervisor': supervisor.nome if estagiario else None,
+        'nome_supervisor': supervisor.nome if supervisor else None,
         'status': dados_paciente.status,
         'data_criacao': str(dados_paciente.data_criacao),
         'hipotese_diagnostica': dados_paciente.hipotese_diagnostica or None,
@@ -314,41 +315,40 @@ def api_sup_ficha_paciente(id):
         'classe_social':dados_paciente.classe_social,
     }
 
-    aux_folhas_pacientes = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()
+    Estagiario = aliased(Usuarios)
+    Supervisor = aliased(Usuarios)
+
+    folhas_db = FolhaEvolucao.query.filter_by(id_paciente=id)\
+        .options(
+            joinedload(FolhaEvolucao.estagiario.of_type(Estagiario)),
+            joinedload(FolhaEvolucao.supervisor.of_type(Supervisor))
+        )\
+        .order_by(FolhaEvolucao.data_postagem.desc())\
+        .all()
+    
+    # 3. Monta o JSON das folhas SEM TENTAR DESCRIPTOGRAFAR
     folhas_pacientes = []
-    for folha in aux_folhas_pacientes:
-        estagiario_folha = Usuarios.query.get(folha.id_estagiario)
-        supervisor_folha = Usuarios.query.get(folha.id_supervisor)
-        try:
-            postagem_descriptografada = crypt.decrypt(folha.postagem.encode('utf-8')).decode('utf-8')
-            folha_json = {
-                'id_folha': folha.id_folha,
-                'postagem': postagem_descriptografada,
-                'id_paciente': folha.id_paciente,
-                'id_estagiario': folha.id_estagiario,
-                'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
-                'id_supervisor': folha.id_supervisor,
-                'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                'data_postagem': str(folha.data_postagem),
-                'data_postagem': str(folha.data_postagem),
-                'numero_sessao': folha.numero_sessao,
-                'status_validacao': folha.status_validacao,
-            }
-            folhas_pacientes.append(folha_json)
-        except Exception as e:
-            folhas_pacientes.append({
-                'id_folha': folha.id_folha,
-                'postagem': 'Erro na descriptografia',
-                'id_paciente': folha.id_paciente,
-                'id_estagiario': folha.id_estagiario,
-                'nome_estagiario': estagiario_folha.nome if estagiario_folha else 'Desconhecido',
-                'id_supervisor': folha.id_supervisor,
-                'nome_supervisor': supervisor_folha.nome if supervisor_folha else 'Desconhecido',
-                'data_postagem': str(folha.data_postagem),
-                'data_postagem': str(folha.data_postagem),
-                'numero_sessao': folha.numero_sessao,
-                'status_validacao': folha.status_validacao,
-            })
+    for folha in folhas_db:
+        folha_json = {
+            'id_folha': folha.id_folha,
+            'id_paciente': folha.id_paciente,
+            'id_estagiario': folha.id_estagiario,
+            'nome_estagiario': folha.estagiario.nome if folha.estagiario else 'Desconhecido',
+            'id_supervisor': folha.id_supervisor,
+            'nome_supervisor': folha.supervisor.nome if folha.supervisor else 'Desconhecido',
+            'data_postagem': str(folha.data_postagem),
+            'numero_sessao': folha.numero_sessao,
+            'status_validacao': folha.status_validacao,
+            
+            # Lendo os campos diretamente do banco (agora em texto plano)
+            'hipotese_diagnostica': folha.hipotese_diagnostica,
+            'sintomas_atuais': folha.sintomas_atuais,
+            'intervencoes_realizadas': folha.intervencoes_realizadas,
+            'evolucao_clinica': folha.evolucao_clinica,
+            'plano_proxima_sessao': folha.plano_proxima_sessao,
+            'observacoes': folha.observacoes,
+        }
+        folhas_pacientes.append(folha_json)
 
     return jsonify({
         'paciente': paciente_json,

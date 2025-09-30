@@ -18,6 +18,21 @@ function InfoCampo({ label, value }) {
     </div>
   );
 }
+function CampoEvolucao({ label, texto }) {
+  const hasText = texto && texto.trim() !== '';
+
+  return (
+    <div className="w-full">
+      <label className="block text-sm font-medium text-gray-500">{label}</label>
+      <textarea
+        className={`w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800 ${!hasText ? 'italic text-slate-400' : ''}`}
+        value={hasText ? texto : 'Não informado'}
+        readOnly
+        rows="2"
+      />
+    </div>
+  );
+}
 
 export default function FichaPaciente() {
   const { id_paciente } = useParams();
@@ -382,8 +397,29 @@ export default function FichaPaciente() {
                             <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
                           </div>
 
-                          <div className="mt-3">
-                            <p className="text-dark">{folha.postagem}</p>
+                          <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div className="p-4 md:p-6">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />
+                                </div>
+                                <div>
+                                  <CampoEvolucao label="Sintomas Atuais" texto={folha.sintomas_atuais} />
+                                </div>
+                                <div>
+                                  <CampoEvolucao label="Intervenções Realizadas" texto={folha.intervencoes_realizadas} />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Evolução Clínica" texto={folha.evolucao_clinica} />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Plano para a Próxima Sessão" texto={folha.plano_proxima_sessao} />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <CampoEvolucao label="Observações" texto={folha.observacoes} />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
