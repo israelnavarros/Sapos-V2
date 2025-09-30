@@ -225,8 +225,16 @@ export default function FichaPaciente() {
                       <InfoCampo label="Nome do Estagiário" value={paciente.nome_estagiario} />
                       <InfoCampo label="Nome do Supervisor" value={paciente.nome_supervisor} />
                       <InfoCampo label="Data da Criação" value={paciente.data_criacao} />
-                      <InfoCampo label="Já fez terapia anteriormente?" value={paciente.ja_fez_terapia} />
-                      <div className="md:col-span-2">
+                      
+                      <div className="flex md:col-span-2 gap-4">
+                        <InfoCampo
+                          label="Já fez terapia anteriormente?"
+                          value={
+                            paciente.ja_fez_terapia == null
+                              ? 'Não informado'
+                              : (paciente.ja_fez_terapia ? 'Sim' : 'Não')
+                          }
+                        />
                         <InfoCampo label="Hipótese Diagnóstica" value={paciente.hipotese_diagnostica} />
                       </div>
                       <div className="md:col-span-2">
@@ -241,6 +249,8 @@ export default function FichaPaciente() {
                       <InfoCampo label="Data de Nascimento" value={paciente.data_nascimento} />
                       <InfoCampo label="Idade" value={paciente.idade} />
                       <InfoCampo label="Sexo" value={paciente.sexo} />
+                      <InfoCampo label="Etnia" value={paciente.etnia} />
+                      <InfoCampo label="Gênero" value={paciente.genero} />
                       <InfoCampo label="Telefone" value={paciente.telefone} />
                       <InfoCampo label="Celular 1" value={paciente.celular1} />
                       <InfoCampo label="Celular 2" value={paciente.celular2} />
@@ -248,6 +258,7 @@ export default function FichaPaciente() {
                       <InfoCampo label="Nome do Responsável" value={paciente.nome_responsavel} />
                       <InfoCampo label="Grau de Parentesco" value={paciente.grau_parentesco} />
                       <InfoCampo label="Escolaridade" value={paciente.escolaridade} />
+                      <InfoCampo label="Classe Social" value={paciente.classe_social} />
                       <InfoCampo label="Profissão" value={paciente.profissao} />
                       <InfoCampo label="Ocupação" value={paciente.ocupacao} />
                       <InfoCampo label="Salário" value={paciente.salario} />

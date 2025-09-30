@@ -220,7 +220,12 @@ def api_ficha_paciente(id):
         'id_supervisor': supervisor.id_usuario if supervisor else None,
         'nome_supervisor': supervisor.nome if supervisor else None,
         'status': dados_paciente.status,
-        'data_criacao': str(dados_paciente.data_criacao)
+        'data_criacao': str(dados_paciente.data_criacao),
+        'hipotese_diagnostica': dados_paciente.hipotese_diagnostica or None,
+        'ja_fez_terapia':dados_paciente.ja_fez_terapia,
+        'etnia':dados_paciente.etnia,
+        'genero':dados_paciente.genero,
+        'classe_social':dados_paciente.classe_social,
     }
     Estagiario = aliased(Usuarios)
     Supervisor = aliased(Usuarios)

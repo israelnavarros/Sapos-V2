@@ -306,7 +306,12 @@ def api_sup_ficha_paciente(id):
         'id_supervisor': supervisor.id_usuario if supervisor else None,
         'nome_supervisor': supervisor.nome if estagiario else None,
         'status': dados_paciente.status,
-        'data_criacao': str(dados_paciente.data_criacao)
+        'data_criacao': str(dados_paciente.data_criacao),
+        'hipotese_diagnostica': dados_paciente.hipotese_diagnostica or None,
+        'ja_fez_terapia':dados_paciente.ja_fez_terapia,
+        'etnia':dados_paciente.etnia,
+        'genero':dados_paciente.genero,
+        'classe_social':dados_paciente.classe_social,
     }
 
     aux_folhas_pacientes = FolhaEvolucao.query.filter_by(id_paciente=id).order_by(FolhaEvolucao.id_folha.asc()).all()

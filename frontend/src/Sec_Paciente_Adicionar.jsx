@@ -173,61 +173,115 @@ export default function SecAdicionarPaciente() {
                                 Selecionar Imagem
                             </button>
                         </div>
-                        {/* --- DADOS PESSOAIS E CONTATO --- */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b pb-6">
-                            <FormField label="Nome Completo" htmlFor="nome_completo" className="block text-sm font-semibold text-slate-700">
-                                <input id="nome_completo" name="nome_completo" required value={formData.nome_completo} onChange={handleChange} className={inputStyle} placeholder="Nome completo do paciente" />
-                            </FormField>
-                            <FormField label="Data de Nascimento" htmlFor="data_nascimento">
-                                <input id="data_nascimento" name="data_nascimento" type="date" value={formData.data_nascimento} onChange={handleChange} className={inputStyle} />
-                            </FormField>
-                            <FormField label="Idade" htmlFor="idade">
-                                <input id="idade" name="idade" type="number" required value={formData.idade} onChange={handleChange} className={inputStyle} placeholder="0" />
-                            </FormField>
-                            <FormField label="Sexo" htmlFor="sexo">
-                                <select id="sexo" name="sexo" value={formData.sexo} onChange={handleChange} className={inputStyle}>
-                                    <option value="">Selecione...</option>
-                                    <option value="M">Masculino</option>
-                                    <option value="F">Feminino</option>
-                                    <option value="O">Outro</option>
-                                </select>
-                            </FormField>
-                            <FormField label="Celular 1" htmlFor="celular1">
-                                <input id="celular1" name="celular1" required value={formData.celular1} onChange={handleChange} className={inputStyle} placeholder="(XX) XXXXX-XXXX" />
-                            </FormField>
-                            <FormField label="Email" htmlFor="email">
-                                <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} className={inputStyle} placeholder="email@exemplo.com" />
-                            </FormField>
-                        </div>
-
-                        {/* --- ENDEREÇO --- */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-b pb-6">
-                            <FormField label="CEP" htmlFor="cep">
-                                <input id="cep" name="cep" value={formData.cep} onChange={handleChange} className={inputStyle} placeholder="00000-000" />
-                            </FormField>
-                            <div className="md:col-span-2">
-                                <FormField label="Logradouro (Rua, Av.)" htmlFor="logradouro">
-                                    <input id="logradouro" name="logradouro" value={formData.logradouro} onChange={handleChange} className={inputStyle} />
+                        {/* --- DADOS PESSOAIS --- */}
+                        <div className="border-t pt-6">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-4">Dados Pessoais</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField label="Nome Completo" htmlFor="nome_completo" className="md:col-span-2">
+                                    <input id="nome_completo" name="nome_completo" required value={formData.nome_completo} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Data de Nascimento" htmlFor="data_nascimento">
+                                    <input id="data_nascimento" name="data_nascimento" type="date" value={formData.data_nascimento} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Idade" htmlFor="idade">
+                                    <input id="idade" name="idade" type="number" required value={formData.idade} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Sexo" htmlFor="sexo">
+                                    <select id="sexo" name="sexo" value={formData.sexo} onChange={handleChange} className={inputStyle}>
+                                        <option value="">Selecione...</option><option value="M">Masculino</option><option value="F">Feminino</option><option value="O">Outro</option>
+                                    </select>
+                                </FormField>
+                                <FormField label="Gênero (Autodeclaração)" htmlFor="genero">
+                                    <input id="genero" name="genero" value={formData.genero} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Etnia/Cor (Autodeclaração)" htmlFor="etnia">
+                                    <input id="etnia" name="etnia" value={formData.etnia} onChange={handleChange} className={inputStyle} />
                                 </FormField>
                             </div>
-                            <FormField label="Bairro" htmlFor="bairro">
-                                <input id="bairro" name="bairro" value={formData.bairro} onChange={handleChange} className={inputStyle} />
-                            </FormField>
-                            <FormField label="Cidade" htmlFor="cidade">
-                                <input id="cidade" name="cidade" value={formData.cidade} onChange={handleChange} className={inputStyle} />
-                            </FormField>
                         </div>
 
-                        {/* --- INFORMAÇÕES CLÍNICAS --- */}
-                        <div className="grid grid-cols-1 gap-6">
-                            <FormField label="Motivo do Encaminhamento / Queixa Principal" htmlFor="motivo">
-                                <textarea id="motivo" name="motivo" value={formData.motivo} onChange={handleChange} rows="4" className={inputStyle}></textarea>
-                            </FormField>
-                            <FormField label="Medicamentos em Uso" htmlFor="medicamentos">
-                                <textarea id="medicamentos" name="medicamentos" value={formData.medicamentos} onChange={handleChange} rows="3" className={inputStyle}></textarea>
-                            </FormField>
+                        {/* --- CONTATO --- */}
+                        <div className="border-t pt-6">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-4">Contato</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField label="Celular 1 (Obrigatório)" htmlFor="celular1">
+                                    <input id="celular1" name="celular1" required value={formData.celular1} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Celular 2" htmlFor="celular2">
+                                    <input id="celular2" name="celular2" value={formData.celular2} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Telefone Fixo" htmlFor="telefone">
+                                    <input id="telefone" name="telefone" value={formData.telefone} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Email" htmlFor="email">
+                                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                            </div>
                         </div>
 
+                        {/* --- RESPONSÁVEL (SE APLICÁVEL) --- */}
+                        <div className="border-t pt-6">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-4">Responsável (se aplicável)</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField label="Nome do Responsável" htmlFor="nome_responsavel">
+                                    <input id="nome_responsavel" name="nome_responsavel" value={formData.nome_responsavel} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Grau de Parentesco" htmlFor="grau_parentesco">
+                                    <input id="grau_parentesco" name="grau_parentesco" value={formData.grau_parentesco} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                            </div>
+                        </div>
+
+                        {/* --- DADOS SOCIOECONÔMICOS --- */}
+                        <div className="border-t pt-6">
+                             <h2 className="text-lg font-semibold text-slate-800 mb-4">Dados Socioeconômicos</h2>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField label="Escolaridade" htmlFor="escolaridade">
+                                    <input id="escolaridade" name="escolaridade" value={formData.escolaridade} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Profissão" htmlFor="profissao">
+                                    <input id="profissao" name="profissao" value={formData.profissao} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Ocupação" htmlFor="ocupacao">
+                                    <input id="ocupacao" name="ocupacao" value={formData.ocupacao} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Classe Social" htmlFor="classe_social">
+                                    <input id="classe_social" name="classe_social" value={formData.classe_social} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                                <FormField label="Salário" htmlFor="salario">
+                                    <input id="salario" name="salario" type="number" step="0.01" value={formData.salario} onChange={handleChange} className={inputStyle} placeholder="Ex: 1500.00" />
+                                </FormField>
+                                <FormField label="Renda Familiar" htmlFor="renda_familiar">
+                                    <input id="renda_familiar" name="renda_familiar" type="number" step="0.01" value={formData.renda_familiar} onChange={handleChange} className={inputStyle} placeholder="Ex: 3000.00" />
+                                </FormField>
+                             </div>
+                        </div>
+
+                        {/* --- INFORMAÇÕES CLÍNICAS E ENCAMINHAMENTO --- */}
+                        <div className="border-t pt-6">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-4">Informações Clínicas e de Encaminhamento</h2>
+                            <div className="space-y-6">
+                                <FormField label="Motivo do Encaminhamento / Queixa Principal" htmlFor="motivo">
+                                    <textarea id="motivo" name="motivo" value={formData.motivo} onChange={handleChange} rows="4" className={inputStyle}></textarea>
+                                </FormField>
+                                <FormField label="Hipótese Diagnóstica Inicial" htmlFor="hipotese_diagnostica">
+                                    <textarea id="hipotese_diagnostica" name="hipotese_diagnostica" value={formData.hipotese_diagnostica} onChange={handleChange} rows="3" className={inputStyle}></textarea>
+                                </FormField>
+                                <FormField label="Medicamentos em Uso" htmlFor="medicamentos">
+                                    <textarea id="medicamentos" name="medicamentos" value={formData.medicamentos} onChange={handleChange} rows="3" className={inputStyle}></textarea>
+                                </FormField>
+                                <FormField label="Já fez terapia anteriormente?" htmlFor="ja_fez_terapia">
+                                     <select id="ja_fez_terapia" name="ja_fez_terapia" value={formData.ja_fez_terapia} onChange={handleChange} className={inputStyle}>
+                                        <option value="">Selecione...</option>
+                                        <option value="true">Sim</option>
+                                        <option value="false">Não</option>
+                                    </select>
+                                </FormField>
+                                <FormField label="Origem do Encaminhamento" htmlFor="origem_encaminhamento">
+                                    <input id="origem_encaminhamento" name="origem_encaminhamento" value={formData.origem_encaminhamento} onChange={handleChange} className={inputStyle} />
+                                </FormField>
+                            </div>
+                        </div>
                         <div className="pt-6 border-t text-right">
                             <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors disabled:opacity-50">
                                 {isSubmitting ? "Cadastrando..." : "Cadastrar Paciente"}
