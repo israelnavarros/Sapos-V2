@@ -1,84 +1,68 @@
 import { Link } from "react-router-dom";
 import Header from "./Header";
 
+// --- Componente Reutilizável para os Cards de Navegação ---
+// Ele recebe um ícone (como JSX), um título e o link de destino
+function AdminCard({ icon, title, to }) {
+    return (
+        <Link 
+            to={to} 
+            className="group block h-full bg-green p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+        >
+            <div className="flex flex-col items-center text-center">
+                <div className="flex-shrink-0 bg-green-100 p-4 rounded-full group-hover:bg-green-400 transition-colors duration-300">
+                    {icon}
+                </div>
+                <h3 className="mt-4 text-xl font-bold text-white">
+                    {title}
+                </h3>
+            </div>
+        </Link>
+    );
+}
+
+
 export default function SecAdministracao() {
-  return (
-    <>
-      <Header />
-      <style>
-        {`
-        .icon-box{
-            padding: 60px 30px;
-            position: relative;
-            overflow: hidden;
-            background: #008d7d;
-            box-shadow: 0 0 29px 0 rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease-in-out;
-            border-radius: 8px;
-            z-index: 1;
-            height: 100%;
-            width: 100%;
-            text-align: center;
-        }
-        .icon-box i {
-            margin-bottom: 20px;
-            padding-top: 10px;
-            display: inline-block;
-            transition: all 0.3s ease-in-out;
-            font-size: 48px;
-            line-height: 1;
-            color: rgba(255, 255, 255, 0.9);
-        }
-        .icon-box h4 {
-            font-weight: 700;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-        .icon-box a {
-            color: #ffffff;
-            transition: 0.3s;
-            text-decoration: none;
-        }
-        `}
-      </style>
-      <div className="icon-boxes position-relative">
-        <div className="container position-relative">
-          <div className="row gy-4 mt-5">
-            <div className="col-xl-3 col-md-6">
-              <div className="icon-box">
-                <div className="icon"><i className="bi bi-clipboard2-pulse"></i></div>
-                <h4 className="title">
-                  <Link to="/sec_pacientes" className="stretched-link">Pacientes</Link>
-                </h4>
-              </div>
-            </div>
-            <div className="col-xl-3 col-md-6">
-              <div className="icon-box">
-                <div className="icon"><i className="bi bi-diagram-2"></i></div>
-                <h4 className="title">
-                  <Link to="/sec_grupos" className="stretched-link">Grupos</Link>
-                </h4>
-              </div>
-            </div>
-            <div className="col-xl-3 col-md-6">
-              <div className="icon-box">
-                <div className="icon"><i className="bi bi-people"></i></div>
-                <h4 className="title">
-                  <Link to="/sec_usuarios" className="stretched-link">Usuários</Link>
-                </h4>
-              </div>
-            </div>
-            <div className="col-xl-3 col-md-6">
-              <div className="icon-box">
-                <div className="icon"><i className="bi bi-exclamation-triangle"></i></div>
-                <h4 className="title">
-                  <Link to="/sec_alertas" className="stretched-link">Alertas</Link>
-                </h4>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+    return (
+        <>
+            <Header />
+            <main className="bg-slate-50 min-h-screen pt-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="text-center mb-12">
+                        <h1 className="text-4xl font-bold text-slate-900">Painel de Administração</h1>
+                        <p className="mt-2 text-lg text-slate-600">Selecione uma área para gerenciar.</p>
+                    </div>
+
+                    {/* Grid responsivo para os cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        
+                        <AdminCard 
+                            to="/sec_pacientes"
+                            title="Pacientes"
+                            icon={<i className="bi bi-clipboard2-pulse text-3xl text-green"></i>}
+                        />
+
+                        <AdminCard 
+                            to="/sec_grupos"
+                            title="Grupos"
+                            icon={<i className="bi bi-diagram-2 text-3xl text-green"></i>}
+                        />
+
+                        <AdminCard 
+                            to="/sec_usuarios"
+                            title="Usuários"
+                            icon={<i className="bi bi-people text-3xl text-green"></i>}
+                        />
+
+                        <AdminCard 
+                            to="/sec_alertas"
+                            title="Alertas"
+                            icon={<i className="bi bi-exclamation-triangle text-3xl text-green"></i>}
+                        />
+
+                    </div>
+                </div>
+            </main>
+        </>
+    );
 }
