@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
+import Cropper from "cropperjs";
+import "cropperjs/dist/cropper.min.css";
 
 function FormField({ label, htmlFor, children }) {
     return (
@@ -43,6 +45,56 @@ export default function SecAdicionarPaciente() {
         nome_instituicao: "",
         nome_resp_encaminhamento: "",
     });
+    const [imgPreview, setImgPreview] = useState(null);
+    const [showCropModal, setShowCropModal] = useState(false);
+    const [croppedImgBlob, setCroppedImgBlob] = useState(null);
+    const [finalPreviewUrl, setFinalPreviewUrl] = useState('/src/assets/capa_padrao.jpg');
+
+    const fileInputRef = useRef(null);
+    const cropperRef = useRef(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImgPreview(reader.result);
+            setShowCropModal(true);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    useEffect(() => {
+        if (showCropModal && imgPreview) {
+            const imageElement = document.getElementById('crop-image-paciente');
+            if (imageElement) {
+                if (cropperRef.current) {
+                    cropperRef.current.destroy();
+                }
+                cropperRef.current = new Cropper(imageElement, {
+                    aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false, responsive: true,
+                });
+            }
+        }
+        return () => {
+            if (cropperRef.current) {
+                cropperRef.current.destroy();
+                cropperRef.current = null;
+            }
+        };
+    }, [showCropModal, imgPreview]);
+
+    const confirmCrop = () => {
+        if (cropperRef.current) {
+            const canvas = cropperRef.current.getCroppedCanvas({ width: 256, height: 256 });
+            canvas.toBlob((blob) => {
+                setCroppedImgBlob(blob);
+                setFinalPreviewUrl(URL.createObjectURL(blob));
+                setShowCropModal(false);
+            }, 'image/jpeg');
+        }
+    };
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -51,33 +103,43 @@ export default function SecAdicionarPaciente() {
             [name]: value
         }));
     }
-
+    
     async function handleSubmit(e) {
-        e.preventDefault();
-        setIsSubmitting(true); 
-        try {
-            const response = await fetch("/api/adicionar_paciente_secretaria", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(formData)
-            });
+    e.preventDefault();
+    setIsSubmitting(true);
 
-            const data = await response.json();
+    const finalFormData = new FormData();
 
-            if (response.ok && data.status === "success") {
-                alert("Paciente cadastrado com sucesso!");
-                navigate(-1); 
-            } else {
-                throw new Error(data.message || "Ocorreu um erro ao cadastrar o paciente.");
-            }
-        } catch (error) {
-            alert(error.message);
-            console.error("Falha no cadastro:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
+    for (const key in formData) {
+        finalFormData.append(key, formData[key]);
     }
+
+    if (croppedImgBlob) {
+        finalFormData.append('imagem_paciente', croppedImgBlob, 'avatar.jpg');
+    }
+
+    try {
+        const response = await fetch("/api/adicionar_paciente_secretaria", {
+            method: "POST",
+            credentials: "include",
+            body: finalFormData 
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === "success") {
+            alert("Paciente cadastrado com sucesso!");
+            navigate(-1);
+        } else {
+            throw new Error(data.message || "Ocorreu um erro ao cadastrar o paciente.");
+        }
+    } catch (error) {
+        alert(error.message);
+        console.error("Falha no cadastro:", error);
+    } finally {
+        setIsSubmitting(false);
+    }
+}
 
     const inputStyle = "mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green focus:border-green";
 
@@ -89,6 +151,28 @@ export default function SecAdicionarPaciente() {
                     <h1 className="text-3xl font-bold text-slate-800 mb-6">Cadastrar Novo Paciente</h1>
 
                     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md space-y-6">
+                        {/* --- SEÇÃO DE FOTO DO PACIENTE --- */}
+                        <div className="flex flex-col items-center gap-4 border-b pb-6">
+                            <img
+                                src={finalPreviewUrl}
+                                alt="Preview do Paciente"
+                                className="w-32 h-32 rounded-full object-cover bg-slate-200"
+                            />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleImageChange}
+                                className="hidden"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current.click()}
+                                className="px-4 py-2 bg-slate-100 text-slate-800 text-sm font-semibold rounded-lg hover:bg-slate-200"
+                            >
+                                Selecionar Imagem
+                            </button>
+                        </div>
                         {/* --- DADOS PESSOAIS E CONTATO --- */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b pb-6">
                             <FormField label="Nome Completo" htmlFor="nome_completo" className="block text-sm font-semibold text-slate-700">
@@ -152,6 +236,22 @@ export default function SecAdicionarPaciente() {
                     </form>
                 </div>
             </main>
+             {/* MODAL DO CROPPER ATUALIZADO */}
+            {showCropModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-4">
+                        <h3 className="text-lg font-medium text-slate-800 mb-4">Ajustar Imagem</h3>
+                        <div className="max-h-[60vh]">
+                            {/* Imagem com o ID adicionado */}
+                            <img id="crop-image-paciente" src={imgPreview} alt="Para cortar" className="max-w-full" />
+                        </div>
+                        <div className="flex justify-end gap-3 mt-4">
+                            <button type="button" onClick={() => setShowCropModal(false)} className="px-4 py-2 bg-slate-100 rounded-lg">Cancelar</button>
+                            <button type="button" onClick={confirmCrop} className="px-4 py-2 bg-green text-white rounded-lg">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

@@ -10,6 +10,7 @@ import random, json, time, os, base64
 from datetime import datetime, date, timedelta
 import base64
 import re
+import os
 
 # Consultas da secretaria
 @app.route('/api/consulta_secretaria', methods=['GET'])
@@ -218,13 +219,11 @@ def api_atualizar_grupo():
 @app.route('/api/adicionar_paciente_secretaria', methods=['POST'])
 @login_required
 def adicionar_paciente_secretaria():
-    data = request.get_json()
+    data = request.form
 
-    # 1. Validar os campos que são realmente obrigatórios
     if not all(data.get(key) for key in ['nome_completo', 'idade', 'celular1']):
         return jsonify({'message': 'Nome completo, idade e celular 1 são obrigatórios.'}), 400
     
-    # --- Funções auxiliares para conversão segura (garantem que "" vire None) ---
     def to_int_or_none(value):
         if value is None or str(value).strip() == '': return None
         return int(value)
@@ -242,15 +241,12 @@ def adicionar_paciente_secretaria():
         if value_str is None or str(value_str).strip() == '': return None
         return str(value_str).lower() == 'true'
     
-    # 2. Criar o objeto Pacientes aplicando a conversão para TODOS os campos
     try:
         novo_paciente = Pacientes(
-            # Obrigatórios
             nome_completo=data.get('nome_completo'),
             idade=to_int_or_none(data.get('idade')),
             celular1=data.get('celular1'),
             
-            # Opcionais (convertendo "" e valores ausentes para None/NULL)
             id_supervisor=to_int_or_none(data.get('id_supervisor')),
             nome_responsavel=data.get('nome_responsavel') or None,
             grau_parentesco=data.get('grau_parentesco') or None,
@@ -281,12 +277,23 @@ def adicionar_paciente_secretaria():
             genero=data.get('genero') or None,
             classe_social=data.get('classe_social') or None,
 
-            # Campos com valores padrão (id_estagiario será NULL por padrão)
             status=True,
             data_criacao=date.today(),
         )
 
         db.session.add(novo_paciente)
+        db.session.flush()
+
+        if 'imagem_paciente' in request.files:
+            imagem = request.files['imagem_paciente']
+            if imagem.filename != '':
+                upload_path = app.config['UPLOAD_PACIENTES_PATH']
+                filename = f'paciente_{novo_paciente.id_paciente}.jpg'
+                
+                deleta_imagem_pacientes(novo_paciente.id_paciente)
+                
+                imagem.save(os.path.join(upload_path, filename))
+
         db.session.commit()
 
         return jsonify({'status': 'success', 'id_paciente': novo_paciente.id_paciente})

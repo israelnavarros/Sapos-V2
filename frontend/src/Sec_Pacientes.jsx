@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Adicione Link
+import { useNavigate, Link } from 'react-router-dom'; 
 import Header from './Header';
 
 function ActionsDropdown({ paciente }) {
