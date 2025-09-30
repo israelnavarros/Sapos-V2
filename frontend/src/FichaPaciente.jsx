@@ -163,8 +163,9 @@ export default function FichaPaciente() {
             <h2 className="text-xl font-semibold text-gray-800">{paciente.nome_completo}</h2>
             <p className="text-sm text-gray-600">Idade: {paciente.idade}</p>
             <p className="text-sm text-gray-600 mb-4">
-              Status: {paciente.status === "true" ? 'Ativo' : 'Desativado'}
+              Status:
             </p>
+            <h2 className="text-xl font-semibold text-gray-800">{String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}</h2>
 
             <div className="flex flex-col">
               <button
