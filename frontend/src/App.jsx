@@ -15,6 +15,7 @@ import SecAlertas from './Sec_Alertas';
 import EstMeuGrupo from './EstMeuGrupo';
 import EstFichaPaciente from './EstFichaPaciente';
 import SecAdicionarPaciente from './Sec_Paciente_Adicionar';
+import EstEditarPaciente from './EstFichaPaciente_Editar';
 import { AuthProvider } from './AuthContext';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
           <Route path="/meuspacientes" element={<EstMeuGrupo />} />
           <Route path="/est_ficha_paciente/:id_paciente" element={<EstFichaPaciente />} />
           <Route path="/sec_adicionar_paciente" element={<SecAdicionarPaciente />} />
+          <Route path="/est_editar_paciente/:id_paciente" element={<EstEditarPaciente />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

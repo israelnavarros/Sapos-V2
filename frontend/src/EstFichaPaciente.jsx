@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+
+import { useParams, Link } from 'react-router-dom';
 import Header from './Header';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
@@ -242,7 +243,19 @@ export default function EstFichaPaciente() {
           <div className="painel-direito">
             {tab === 'ficha' && (
               <div className="pt-3">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Ficha de Atendimento</h3>
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                        <h1 className="text-3xl font-bold text-gray-900">Administração de Pacientes</h1>                        
+                        <Link
+                            to={`/est_editar_paciente/${paciente.id_paciente}`}
+                            className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                            </svg>
+                            Editar Ficha do Paciente
+                        </Link>
+                    </div>
+                {/* <h3 className="text-xl font-bold text-gray-800 mb-4">Ficha de Atendimento</h3> */}
 
 
                 <div className="flex border-b border-gray-200 mb-4">

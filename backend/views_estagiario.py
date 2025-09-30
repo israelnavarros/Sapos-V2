@@ -273,6 +273,88 @@ def api_ficha_paciente(id):
         'folhas_pacientes': folhas_pacientes
     })
 
+@app.route('/api/est_editar_paciente/<int:id>', methods=['POST'])
+@login_required
+def est_editar_paciente(id):
+    paciente_para_atualizar = Pacientes.query.get_or_404(id)
+    data = request.form
+    try:
+        if not all(data.get(key) for key in ['nome_completo', 'idade', 'celular1']):
+            return jsonify({'message': 'Nome completo, idade e celular 1 são obrigatórios.'}), 400
+        
+        def to_int_or_none(value):
+            if value is None or str(value).strip() == '': return None
+            return int(value)
+            
+        def to_numeric_or_none(value):
+            if value is None or str(value).strip() == '': return None
+            return float(value)
+
+        def to_date_or_none(value_str):
+            if not value_str: return None
+            try: return datetime.strptime(value_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError): return None
+
+        def to_bool_or_none(value_str):
+            if value_str is None or str(value_str).strip() == '': return None
+            return str(value_str).lower() == 'true'
+        
+        
+        paciente_para_atualizar.nome_completo=data.get('nome_completo')
+        paciente_para_atualizar.idade=to_int_or_none(data.get('idade'))
+        paciente_para_atualizar.celular1=data.get('celular1')
+        
+        paciente_para_atualizar.id_supervisor=to_int_or_none(data.get('id_supervisor'))
+        paciente_para_atualizar.nome_responsavel=data.get('nome_responsavel') or None
+        paciente_para_atualizar.grau_parentesco=data.get('grau_parentesco') or None
+        paciente_para_atualizar.data_nascimento=to_date_or_none(data.get('data_nascimento'))
+        paciente_para_atualizar.sexo=data.get('sexo') or None
+        paciente_para_atualizar.escolaridade=data.get('escolaridade') or None
+        paciente_para_atualizar.profissao=data.get('profissao') or None
+        paciente_para_atualizar.ocupacao=data.get('ocupacao') or None
+        paciente_para_atualizar.salario=to_numeric_or_none(data.get('salario')),
+        paciente_para_atualizar.renda_familiar=to_numeric_or_none(data.get('renda_familiar'))
+        paciente_para_atualizar.email=data.get('email') or None
+        paciente_para_atualizar.cep=to_int_or_none(data.get('cep'))
+        paciente_para_atualizar.cidade=data.get('cidade') or None
+        paciente_para_atualizar.bairro=data.get('bairro') or None
+        paciente_para_atualizar.logradouro=data.get('logradouro') or None
+        paciente_para_atualizar.complemento=data.get('complemento') or None
+        paciente_para_atualizar.telefone=data.get('telefone') or None
+        paciente_para_atualizar.celular2=data.get('celular2') or None
+        paciente_para_atualizar.origem_encaminhamento=data.get('origem_encaminhamento') or None
+        paciente_para_atualizar.nome_instituicao=data.get('nome_instituicao') or None
+        paciente_para_atualizar.nome_resp_encaminhamento=data.get('nome_resp_encaminhamento') or None
+        paciente_para_atualizar.motivo=data.get('motivo') or None
+        paciente_para_atualizar.medicamentos=data.get('medicamentos') or None
+        paciente_para_atualizar.intervalo_sessoes=data.get('intervalo_sessoes') or None
+        paciente_para_atualizar.hipotese_diagnostica=data.get('hipotese_diagnostica') or None
+        paciente_para_atualizar.ja_fez_terapia=to_bool_or_none(data.get('ja_fez_terapia'))
+        paciente_para_atualizar.etnia=data.get('etnia') or None
+        paciente_para_atualizar.genero=data.get('genero') or None
+        paciente_para_atualizar.classe_social=data.get('classe_social') or None
+        paciente_para_atualizar.status=True
+        paciente_para_atualizar.data_criacao=date.today()
+
+        if 'imagem_paciente' in request.files:
+            imagem = request.files['imagem_paciente']
+            if imagem.filename != '':
+                upload_path = app.config['UPLOAD_PACIENTES_PATH']
+                filename = f'paciente_{paciente_para_atualizar.id_paciente}.jpg'
+                
+                deleta_imagem_pacientes(paciente_para_atualizar.id_paciente)
+                
+                imagem.save(os.path.join(upload_path, filename))
+
+        db.session.commit()
+        cache.delete(f'ficha_paciente_{id}')
+
+        return jsonify({'status': 'success', 'id_paciente': paciente_para_atualizar.id_paciente})
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERRO AO CRIAR PACIENTE: {e}")
+        return jsonify({'message': f'Ocorreu um erro interno: {e}'}), 500
+    
 @app.route('/api/adicionar_paciente', methods=['POST'])
 @login_required
 def api_adicionar_paciente():
