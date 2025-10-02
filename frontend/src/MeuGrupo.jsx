@@ -1,8 +1,67 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { AuthContext } from './AuthContext';
 import Header from './Header';
 import AdicionarEstagiario from './AdicionarEstagiario';
 import { Link } from 'react-router-dom';
+
+function ActionsDropdown({ paciente, onAtribuir }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownRef]);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full hover:bg-slate-200">
+        <i className="bi bi-three-dots-vertical text-slate-600"></i>
+      </button>
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 ring-1 ring-slate-200">
+          <div className="py-1">
+            <Link to={`/sup_ficha_paciente/${paciente.id_paciente}`} className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Ver Ficha</Link>
+            <button onClick={() => { onAtribuir(paciente); setIsOpen(false); }} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+              Atribuir/Trocar Estagiário
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const SkeletonRow = () => (
+  <tr className="animate-pulse">
+    {/* Coluna 1: Paciente (imitação da foto + nome) */}
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="flex items-center">
+        <div className="h-10 w-10 bg-slate-200 rounded-full"></div>
+        <div className="ml-4 space-y-2">
+          <div className="h-4 bg-slate-200 rounded w-48"></div>
+        </div>
+      </div>
+    </td>
+
+    {/* Coluna 2: Status (imitação do badge) */}
+    <td className="px-6 py-4 whitespace-nowrap text-center">
+      <div className="h-6 w-20 bg-slate-200 rounded-full mx-auto"></div>
+    </td>
+
+    {/* Coluna 3: Estagiário Responsável (imitação de uma linha de texto) */}
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+    </td>
+
+    {/* Coluna 4: Ações (imitação do botão de 3 pontos) */}
+    <td className="px-6 py-4 whitespace-nowrap text-right">
+      <div className="h-8 w-8 bg-slate-200 rounded-full ml-auto"></div>
+    </td>
+  </tr>
+);
 
 export default function MeuGrupo() {
   const { user } = useContext(AuthContext);
@@ -16,30 +75,71 @@ export default function MeuGrupo() {
   const [showAdicionar, setShowAdicionar] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState('visaoGeral');
 
-  // Carrega dados do grupo ao montar
-  useEffect(() => {
-    async function fetchGrupo() {
-      try {
-        const grupoRes = await fetch('/api/meu_grupo', {
-          credentials: 'include' // <-- Adicione esta linha!
-        });
-        if (!grupoRes.ok) throw new Error('Erro ao buscar grupo');
-        const grupoData = await grupoRes.json();
+  const [pacientes, setPacientes] = useState([]);
+  const [loadingPacientes, setLoadingPacientes] = useState(true);
+  const [modalState, setModalState] = useState({ isOpen: false, paciente: null });
+  const [listaEstagiariosModal, setListaEstagiariosModal] = useState([]);
+  const [selectedEstagiarioId, setSelectedEstagiarioId] = useState('');
+
+  const fetchGrupoData = () => {
+    fetch('/api/meu_grupo', { credentials: 'include' })
+      .then(res => res.json())
+      .then(grupoData => {
         setGrupoInfo(grupoData.grupo_info);
         setCoordenadores(grupoData.coordenadores);
         setEstagiarios(grupoData.estagiarios);
         setReunioes(grupoData.reunioes);
         setVagas({ ocupadas: grupoData.estagiarios_count, total: grupoData.grupo_info.vagas_estagiarios });
-      } catch (err) {
-        setGrupoInfo(null);
-        alert('Erro ao carregar dados do grupo.');
-        console.error(err);
-      }
-    }
-    fetchGrupo();
-  }, []);
+      })
+      .catch(err => console.error(err));
+  };
 
-  // Adicionar reunião
+  const fetchPacientes = () => {
+    setLoadingPacientes(true);
+    fetch("/api/sup_pacientes_supervisionados", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => setPacientes(data || []))
+      .catch(err => console.error("Erro ao carregar pacientes:", err))
+      .finally(() => setLoadingPacientes(false));
+  };
+  useEffect(() => {
+    fetchGrupoData();
+  }, []);
+  useEffect(() => {
+    if (abaAtiva === 'dashboard' && pacientes.length === 0) {
+      fetchPacientes();
+    }
+  }, [abaAtiva, pacientes.length]);
+
+  const handleOpenAssignModal = (paciente) => {
+    fetch('/api/sup_estagiarios_do_grupo', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setEstagiarios(data);
+        setSelectedEstagiarioId(paciente.id_estagiario || '');
+        setModalState({ isOpen: true, paciente: paciente });
+      });
+  };
+
+  const handleSaveAssignment = async () => {
+    const { paciente } = modalState;
+    try {
+      const response = await fetch(`/api/sup_atribuir_estagiario/${paciente.id_paciente}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id_estagiario: selectedEstagiarioId })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message);
+
+      alert('Atribuição salva com sucesso!');
+      setModalState({ isOpen: false, paciente: null });
+      fetchPacientes(); // Recarrega a lista de pacientes
+    } catch (error) {
+      alert(`Erro: ${error.message}`);
+    }
+  };
   const handleAddReuniao = async () => {
     if (!novoReuniao.dia || !novoReuniao.horaini || !novoReuniao.horafim) {
       alert('Preencha todos os campos!');
@@ -109,127 +209,6 @@ export default function MeuGrupo() {
     </button>
   );
 
-
-  //       <section className="bg-white shadow-md rounded-lg p-6 mb-6">
-  //         <h2 className="text-xl font-semibold text-gray-800 mb-4">Reuniões</h2>
-
-  //         {/* Formulário de nova reunião */}
-  //         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">Dia da semana</label>
-  //             <select
-  //               className="w-full border rounded px-3 py-2"
-  //               value={novoReuniao.dia}
-  //               onChange={e => setNovoReuniao({ ...novoReuniao, dia: e.target.value })}
-  //             >
-  //               <option value="">Escolha</option>
-  //               {DIAS_DA_SEMANA.map((dia, idx) => (
-  //                 <option key={idx} value={idx}>{dia}</option>
-  //               ))}
-  //             </select>
-  //           </div>
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">Horário de início</label>
-  //             <input
-  //               type="time"
-  //               className="w-full border rounded px-3 py-2"
-  //               value={novoReuniao.horaini}
-  //               onChange={e => setNovoReuniao({ ...novoReuniao, horaini: e.target.value })}
-  //             />
-  //           </div>
-  //           <div>
-  //             <label className="block text-sm font-medium text-gray-700 mb-1">Horário de fim</label>
-  //             <input
-  //               type="time"
-  //               className="w-full border rounded px-3 py-2"
-  //               value={novoReuniao.horafim}
-  //               onChange={e => setNovoReuniao({ ...novoReuniao, horafim: e.target.value })}
-  //             />
-  //           </div>
-  //           <div className="flex items-end">
-  //             <button
-  //               type="button"
-  //               className="bg-green text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer transition w-full"
-  //               onClick={handleAddReuniao}
-  //             >
-  //               Adicionar
-  //             </button>
-  //           </div>
-  //         </div>
-
-  //         {/* Tabela de reuniões */}
-  //         <table className="min-w-full divide-y divide-gray-200">
-  //           <thead className="bg-gray-100">
-  //             <tr>
-  //               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Dia</th>
-  //               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Início</th>
-  //               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fim</th>
-  //               <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">Ações</th>
-  //             </tr>
-  //           </thead>
-  //           <tbody className="divide-y divide-gray-200">
-  //             {reunioes.map(reuniao => (
-  //               <tr key={reuniao.id_reuniaogrupos} className="hover:bg-gray-50">
-  //                 <td className="px-4 py-2">{DIAS_DA_SEMANA[reuniao.dia]}</td>
-  //                 <td className="px-4 py-2">{reuniao.hora_inicio}</td>
-  //                 <td className="px-4 py-2">{reuniao.hora_fim}</td>
-  //                 <td className="px-4 py-2 text-center">
-  //                   <button
-  //                     className="text-red-600 hover:text-red-800"
-  //                     onClick={() => handleRemoveReuniao(reuniao.id_reuniaogrupos)}
-  //                   >
-  //                     <i className="bi bi-trash"></i>
-  //                   </button>
-  //                 </td>
-  //               </tr>
-  //             ))}
-  //           </tbody>
-  //         </table>
-  //       </section>
-
-
-  //       {/* Informações do grupo */}
-  //       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-  //         {/* Local do Estágio */}
-  //         <div className="bg-white shadow-md rounded-lg p-4">
-  //           <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Local do Estágio</h2>
-  //           <p className="text-gray-700 text-justify">{grupoInfo.local}</p>
-  //         </div>
-
-  //         {/* Convênio */}
-  //         <div className="bg-white shadow-md rounded-lg p-4">
-  //           <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Convênio</h2>
-  //           <p className="text-gray-700 text-justify">{grupoInfo.convenio || 'Não possui convênio'}</p>
-  //         </div>
-
-  //         {/* Resumo */}
-  //         <div className="bg-white shadow-md rounded-lg p-4">
-  //           <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Resumo</h2>
-  //           <p className="text-gray-700 text-justify">{grupoInfo.resumo}</p>
-  //         </div>
-
-  //         {/* Objetivos */}
-  //         <div className="bg-white shadow-md rounded-lg p-4">
-  //           <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Objetivos</h2>
-  //           <p className="text-gray-700 text-justify">{grupoInfo.objetivos}</p>
-  //         </div>
-
-  //         {/* Atividades */}
-  //         <div className="bg-white shadow-md rounded-lg p-4">
-  //           <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Atividades</h2>
-  //           <p className="text-gray-700 text-justify">{grupoInfo.atividades}</p>
-  //         </div>
-
-  //         {/* Bibliografia */}
-  //         <div className="bg-white shadow-md rounded-lg p-4">
-  //           <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">Bibliografia</h2>
-  //           <p className="text-gray-700 text-justify">{grupoInfo.bibliografia}</p>
-  //         </div>
-  //       </section>
-
-  //     </div>
-  //   </>
-  // );
   return (
     <>
       <Header />
@@ -408,8 +387,55 @@ export default function MeuGrupo() {
             {abaAtiva === 'dashboard' && (
               <div className="bg-white p-6 rounded-xl shadow-md text-center">
                 <h2 className="text-xl font-semibold text-slate-800">Dashboard de Pacientes</h2>
-                <p className="mt-2 text-slate-500">Esta área exibirá gráficos e estatísticas sobre os pacientes do seu grupo.</p>
-                {/* Você pode adicionar seus componentes de gráfico aqui no futuro */}
+                <p className="mt-2 text-slate-500">Esta área mostra os pacientes do seu grupo.</p>
+                <div className="overflow-x-auto bg-white shadow-lg rounded-xl">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-100">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Paciente</th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Estagiário Responsável</th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {loadingPacientes ? (
+                        <><SkeletonRow /><SkeletonRow /><SkeletonRow /></>
+                      ) : pacientes.length > 0 ? (
+                        pacientes.map(paciente => (
+                          <tr key={paciente.id_paciente} className="hover:bg-slate-50">
+                            {/* Célula do Paciente */}
+                            <td className="px-6 py-4 ...">
+                              <div className="flex items-center">
+                                <img className="h-10 w-10 ..." src={`/api/uploads/pacientes/${paciente.id_paciente}`} alt="" />
+                                <div className="ml-4 ...">{paciente.nome_completo}</div>
+                              </div>
+                            </td>
+                            {/* Célula do Status */}
+                            <td className="px-6 py-4 ...">
+                              <span className={`...`}>{String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}</span>
+                            </td>
+                            {/* Célula do Estagiário */}
+                            <td className="px-6 py-4 ...">
+                              {paciente.estagiario_nome ? (
+                                <span>{paciente.estagiario_nome}</span>
+                              ) : (
+                                <span className="font-semibold text-orange-600">Não Atribuído</span>
+                              )}
+                            </td>
+                            {/* Célula de Ações */}
+                            <td className="px-6 py-4 text-right">
+                              <ActionsDropdown paciente={paciente} onAtribuir={handleOpenAssignModal} />
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr><td colSpan="4" className="text-center ...">Nenhum paciente sob sua supervisão.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
               </div>
             )}
           </div>

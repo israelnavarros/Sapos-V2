@@ -412,7 +412,8 @@ def api_sup_check_ficha(id):
 @app.route('/api/sup_pacientes_supervisionados', methods=['GET'])
 @login_required
 def sup_pacientes_supervisionados():
-    if current_user.cargo != '1': # Garante que apenas supervisores acessem
+    print("Acessando sup_pacientes_supervisionados com usuário:", current_user.cargo, current_user.id_usuario)
+    if current_user.cargo != 1: # Garante que apenas supervisores acessem
         return jsonify({'message': 'Acesso não autorizado'}), 403
 
     # Usamos a query otimizada com 'aliased' e 'joinedload'
@@ -420,11 +421,12 @@ def sup_pacientes_supervisionados():
     
     # Busca pacientes que pertencem a este supervisor
     pacientes_db = Pacientes.query\
-        .filter_by(id_supervisor=current_user.id_usuario)\
-        .outerjoin(Estagiario, Pacientes.id_estagiario == Estagiario.id_usuario)\
-        .options(joinedload(Pacientes.estagiario.of_type(Estagiario)))\
-        .order_by(Pacientes.nome_completo)\
-        .all()
+    .filter_by(id_supervisor=current_user.id_usuario)\
+    .options(
+        joinedload(Pacientes.estagiario.of_type(Estagiario))
+    )\
+    .order_by(Pacientes.nome_completo)\
+    .all()
     
     lista_pacientes = []
     for paciente in pacientes_db:
