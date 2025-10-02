@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from main import app, db, mail, crypt
+from main import app, db, mail, crypt, cache
 from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func
@@ -366,6 +366,77 @@ def api_sup_check_ficha(id):
         'revisor': current_user.nome,
         'data_revisao': folha.data_check_supervisor.strftime('%d/%m/%Y %H:%M:%S')
     })
+
+# @app.route('/api/sup_estagiarios_do_grupo', methods=['GET'])
+# @login_required
+# def sup_estagiarios_do_grupo():
+#     # Garante que apenas supervisores (cargo '1') possam acessar
+#     if current_user.cargo != '1':
+#         return jsonify({'message': 'Acesso não autorizado'}), 403
+
+#     # Busca todos os usuários com cargo '2' (Estagiário) que pertencem ao mesmo grupo do supervisor
+#     estagiarios = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status='true').all()
+#     lista = [{'id': user.id_usuario, 'nome': user.nome} for user in estagiarios]
+#     return jsonify(lista)
+
+# @app.route('/api/sup/atribuir_estagiario/<int:id_paciente>', methods=['POST'])
+# @login_required
+# def sup_atribuir_estagiario(id_paciente):
+#     # Garante que apenas supervisores (cargo '1') possam acessar
+#     if current_user.cargo != '1':
+#         return jsonify({'message': 'Acesso não autorizado'}), 403
+
+#     paciente = Pacientes.query.get_or_404(id_paciente)
+    
+#     # Regra de negócio: Supervisor só pode atribuir pacientes do seu próprio grupo
+#     if paciente.id_supervisor != current_user.id_usuario:
+#         return jsonify({'message': 'Este paciente não pertence ao seu grupo.'}), 403
+
+#     data = request.get_json()
+#     id_estagiario_novo = data.get('id_estagiario')
+
+#     # Valida se o estagiário a ser atribuído pertence ao mesmo grupo
+#     if id_estagiario_novo:
+#         estagiario = Usuarios.query.get(id_estagiario_novo)
+#         if not estagiario or estagiario.grupo != current_user.grupo:
+#             return jsonify({'message': 'Estagiário inválido ou não pertence ao seu grupo.'}), 400
+
+#     paciente.id_estagiario = id_estagiario_novo or None
+#     db.session.commit()
+
+#     # Limpa o cache para que a mudança apareça na próxima recarga
+#     cache.delete(f'ficha_paciente_{id_paciente}')
+
+#     return jsonify({'status': 'success', 'message': 'Estagiário atribuído com sucesso!'})
+
+@app.route('/api/sup_pacientes_supervisionados', methods=['GET'])
+@login_required
+def sup_pacientes_supervisionados():
+    if current_user.cargo != '1': # Garante que apenas supervisores acessem
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    # Usamos a query otimizada com 'aliased' e 'joinedload'
+    Estagiario = aliased(Usuarios)
+    
+    # Busca pacientes que pertencem a este supervisor
+    pacientes_db = Pacientes.query\
+        .filter_by(id_supervisor=current_user.id_usuario)\
+        .outerjoin(Estagiario, Pacientes.id_estagiario == Estagiario.id_usuario)\
+        .options(joinedload(Pacientes.estagiario.of_type(Estagiario)))\
+        .order_by(Pacientes.nome_completo)\
+        .all()
+    
+    lista_pacientes = []
+    for paciente in pacientes_db:
+        lista_pacientes.append({
+            'id_paciente': paciente.id_paciente,
+            'nome_completo': paciente.nome_completo,
+            'status': paciente.status,
+            'id_estagiario': paciente.id_estagiario,
+            'estagiario_nome': paciente.estagiario.nome if paciente.estagiario else None,
+        })
+    
+    return jsonify(lista_pacientes)
 
 @app.route('/api/dashboard_coordenacao', methods=['POST'])
 @login_required
