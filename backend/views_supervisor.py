@@ -366,48 +366,64 @@ def api_sup_check_ficha(id):
         'revisor': current_user.nome,
         'data_revisao': folha.data_check_supervisor.strftime('%d/%m/%Y %H:%M:%S')
     })
+@app.route('/api/sup_atribuir_estagiario/<int:id_paciente>', methods=['POST'])
+@login_required
+def sup_atribuir_estagiario(id_paciente):
+    # 1. Controle de Acesso: Garante que apenas supervisores (cargo '1') podem usar esta rota
+    if current_user.cargo != 1:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
 
-# @app.route('/api/sup_estagiarios_do_grupo', methods=['GET'])
-# @login_required
-# def sup_estagiarios_do_grupo():
-#     # Garante que apenas supervisores (cargo '1') possam acessar
-#     if current_user.cargo != '1':
-#         return jsonify({'message': 'Acesso não autorizado'}), 403
+    try:
+        paciente = Pacientes.query.get_or_404(id_paciente)
+        data = request.get_json()
+        id_estagiario_novo = data.get('id_estagiario')
 
-#     # Busca todos os usuários com cargo '2' (Estagiário) que pertencem ao mesmo grupo do supervisor
-#     estagiarios = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status='true').all()
-#     lista = [{'id': user.id_usuario, 'nome': user.nome} for user in estagiarios]
-#     return jsonify(lista)
+        # 2. REGRA DE NEGÓCIO: O supervisor só pode alterar pacientes que ele já supervisiona
+        if paciente.id_supervisor != current_user.id_usuario:
+            return jsonify({'message': 'Este paciente não pertence ao seu grupo de supervisão.'}), 403
 
-# @app.route('/api/sup/atribuir_estagiario/<int:id_paciente>', methods=['POST'])
-# @login_required
-# def sup_atribuir_estagiario(id_paciente):
-#     # Garante que apenas supervisores (cargo '1') possam acessar
-#     if current_user.cargo != '1':
-#         return jsonify({'message': 'Acesso não autorizado'}), 403
+        # 3. REGRA DE NEGÓCIO: Valida se o estagiário a ser atribuído pertence ao mesmo grupo do supervisor
+        # (Permite que id_estagiario_novo seja None ou "" para desatribuir)
+        if id_estagiario_novo:
+            estagiario = Usuarios.query.get(id_estagiario_novo)
+            if not estagiario or estagiario.grupo != current_user.grupo:
+                return jsonify({'message': 'Estagiário inválido ou não pertence ao seu grupo.'}), 400
 
-#     paciente = Pacientes.query.get_or_404(id_paciente)
+        # 4. Se tudo estiver ok, faz a atualização
+        # A lógica 'or None' converte uma string vazia "" para None (NULL no banco)
+        paciente.id_estagiario = id_estagiario_novo or None
+        
+        db.session.commit()
+
+        # 5. IMPORTANTE: Limpa o cache da ficha deste paciente para que a mudança apareça
+        cache.delete(f'ficha_paciente_{id_paciente}')
+
+        return jsonify({'status': 'success', 'message': 'Estagiário atribuído com sucesso!'})
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERRO AO ATRIBUIR ESTAGIÁRIO: {e}")
+        return jsonify({'message': f'Ocorreu um erro interno: {e}'}), 500
     
-#     # Regra de negócio: Supervisor só pode atribuir pacientes do seu próprio grupo
-#     if paciente.id_supervisor != current_user.id_usuario:
-#         return jsonify({'message': 'Este paciente não pertence ao seu grupo.'}), 403
+@app.route('/api/sup_estagiarios_do_grupo', methods=['GET'])
+@login_required
+def sup_estagiarios_do_grupo():
+    # Garante que apenas supervisores (cargo '1') e talvez coordenadores ('3') possam acessar
+    if current_user.cargo not in [1, 3]:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
 
-#     data = request.get_json()
-#     id_estagiario_novo = data.get('id_estagiario')
-
-#     # Valida se o estagiário a ser atribuído pertence ao mesmo grupo
-#     if id_estagiario_novo:
-#         estagiario = Usuarios.query.get(id_estagiario_novo)
-#         if not estagiario or estagiario.grupo != current_user.grupo:
-#             return jsonify({'message': 'Estagiário inválido ou não pertence ao seu grupo.'}), 400
-
-#     paciente.id_estagiario = id_estagiario_novo or None
-#     db.session.commit()
-
-#     # Limpa o cache para que a mudança apareça na próxima recarga
-#     cache.delete(f'ficha_paciente_{id_paciente}')
-
-#     return jsonify({'status': 'success', 'message': 'Estagiário atribuído com sucesso!'})
+    # Busca todos os usuários com cargo '2' (Estagiário) que pertencem ao mesmo grupo do supervisor
+    # e que estão com status 'true'
+    estagiarios = Usuarios.query.filter_by(
+        grupo=current_user.grupo, 
+        cargo='2', 
+        status='true'
+    ).order_by(Usuarios.nome).all()
+    
+    # Cria uma lista de dicionários com id e nome para o <select> do frontend
+    lista = [{'id': user.id_usuario, 'nome': user.nome} for user in estagiarios]
+    
+    return jsonify(lista)
 
 @app.route('/api/sup_pacientes_supervisionados', methods=['GET'])
 @login_required

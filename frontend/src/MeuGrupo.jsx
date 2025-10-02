@@ -3,6 +3,7 @@ import { AuthContext } from './AuthContext';
 import Header from './Header';
 import AdicionarEstagiario from './AdicionarEstagiario';
 import { Link } from 'react-router-dom';
+import Modal from './Modal';
 
 function ActionsDropdown({ paciente, onAtribuir }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,8 +18,10 @@ function ActionsDropdown({ paciente, onAtribuir }) {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full hover:bg-slate-200">
-        <i className="bi bi-three-dots-vertical text-slate-600"></i>
+      <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+        </svg>
       </button>
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 ring-1 ring-slate-200">
@@ -115,7 +118,7 @@ export default function MeuGrupo() {
     fetch('/api/sup_estagiarios_do_grupo', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
-        setEstagiarios(data);
+        setListaEstagiariosModal(data);
         setSelectedEstagiarioId(paciente.id_estagiario || '');
         setModalState({ isOpen: true, paciente: paciente });
       });
@@ -403,20 +406,27 @@ export default function MeuGrupo() {
                         <><SkeletonRow /><SkeletonRow /><SkeletonRow /></>
                       ) : pacientes.length > 0 ? (
                         pacientes.map(paciente => (
-                          <tr key={paciente.id_paciente} className="hover:bg-slate-50">
-                            {/* Célula do Paciente */}
-                            <td className="px-6 py-4 ...">
+                          <tr key={paciente.id_paciente} className="hover:bg-blue-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <img className="h-10 w-10 ..." src={`/api/uploads/pacientes/${paciente.id_paciente}`} alt="" />
-                                <div className="ml-4 ...">{paciente.nome_completo}</div>
+                                <div className="flex-shrink-0 h-10 w-10">
+                                  <img className="h-10 w-10 rounded-full object-cover bg-gray-200" src={`/api/uploads/pacientes/${paciente.id_paciente}`} alt="Foto do paciente" />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">{paciente.nome_completo}</div>
+                                </div>
                               </div>
                             </td>
-                            {/* Célula do Status */}
-                            <td className="px-6 py-4 ...">
-                              <span className={`...`}>{String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}</span>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${String(paciente.status).toLowerCase() === 'true'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                                }`}>
+                                {String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}
+                              </span>
                             </td>
                             {/* Célula do Estagiário */}
-                            <td className="px-6 py-4 ...">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                               {paciente.estagiario_nome ? (
                                 <span>{paciente.estagiario_nome}</span>
                               ) : (
@@ -424,7 +434,7 @@ export default function MeuGrupo() {
                               )}
                             </td>
                             {/* Célula de Ações */}
-                            <td className="px-6 py-4 text-right">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <ActionsDropdown paciente={paciente} onAtribuir={handleOpenAssignModal} />
                             </td>
                           </tr>
@@ -441,9 +451,42 @@ export default function MeuGrupo() {
           </div>
         </div>
       </main>
+      {/* --- MODAL DE ATRIBUIÇÃO --- */}
+      {modalState.isOpen && (
+        <Modal
+          onClose={() => setModalState({ isOpen: false, paciente: null })}
+          title={`Atribuir Estagiário para ${modalState.paciente.nome_completo}`}
+        >
+          <div className="space-y-4">
+            <label htmlFor="estagiario-select" className="block text-sm font-medium text-slate-700">
+              Selecione um estagiário da sua equipe:
+            </label>
+            <select
+              id="estagiario-select"
+              value={selectedEstagiarioId}
+              onChange={(e) => setSelectedEstagiarioId(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-green focus:border-green"
+            >
+              <option value="">-- Remover Atribuição --</option>
+              {listaEstagiariosModal.map(estagiario => (
+                <option key={estagiario.id} value={estagiario.id}>{estagiario.nome}</option>
+              ))}
+            </select>
+          </div>
+          <div className="mt-6 pt-4 border-t flex justify-end gap-3">
+            <button type="button" className="px-4 py-2 bg-slate-100 rounded-lg hover:bg-slate-200" onClick={() => setModalState({ isOpen: false, paciente: null })}>
+              Cancelar
+            </button>
+            <button type="button" className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90" onClick={handleSaveAssignment}>
+              Salvar Atribuição
+            </button>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }
+
 // --- COMPONENTES AUXILIARES PARA LIMPEZA ---
 
 // Card para a aba "Visão Geral"
