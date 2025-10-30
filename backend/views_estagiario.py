@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos
+from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido
 from sqlalchemy import text, desc
 from flask_login import login_required, current_user
@@ -156,6 +156,58 @@ def est_consulta_card():
         'hoje': consultas_hoje_count,
         'semana': consultas_semana_count
     })
+# ------------------- TROCAS -------------------
+@app.route('/api/solicitar_troca_supervisor', methods=['POST'])
+@login_required
+def solicitar_troca_supervisor():
+    """
+    Estagiário cria uma solicitação de troca de supervisor.
+    Body (json or form): id_supervisor_novo, levar_pacientes (bool/string), justificativa (optional)
+    """
+    data = request.get_json() or request.form
+    try:
+        id_supervisor_novo = data.get('id_supervisor_novo') or data.get('id_supervisor')
+        if id_supervisor_novo is None:
+            return jsonify({'status': 'error', 'message': 'id_supervisor_novo é obrigatório.'}), 400
+        try:
+            id_supervisor_novo = int(id_supervisor_novo)
+        except ValueError:
+            return jsonify({'status': 'error', 'message': 'id_supervisor_novo inválido.'}), 400
+
+        levar_raw = data.get('levar_pacientes', False)
+        levar_pacientes = str(levar_raw).lower() in ('true', '1', 'yes') if levar_raw is not None else False
+        justificativa = data.get('justificativa') or None
+
+        # tenta obter supervisor atual do usuário (se existir)
+        id_supervisor_atual = getattr(current_user, 'id_supervisor', None)
+        # fallback: None (pode ser atualizado quando secretaria aprovar)
+
+        troca = TrocaSupervisao(
+            id_estagiario=current_user.id_usuario,
+            id_supervisor_atual=id_supervisor_atual,
+            id_supervisor_novo=id_supervisor_novo,
+            levar_pacientes=bool(levar_pacientes),
+            justificativa=justificativa,
+            status='pendente',
+            data_solicitacao=date.today()
+        )
+        db.session.add(troca)
+        db.session.commit()
+        return jsonify({'status': 'success', 'id_troca': troca.id_troca}), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f'ERRO solicitar_troca_supervisor: {e}')
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/minhas_trocas', methods=['GET'])
+@login_required
+def minhas_trocas():
+    """
+    Retorna as solicitações do estagiário logado.
+    """
+    trocas = TrocaSupervisao.query.filter_by(id_estagiario=current_user.id_usuario).order_by(TrocaSupervisao.data_solicitacao.desc()).all()
+    return jsonify([t.to_dict() for t in trocas])
 
 # ------------------- FICHA PACIENTE -------------------
 @app.route('/api/meus_pacientes', methods=['GET'])

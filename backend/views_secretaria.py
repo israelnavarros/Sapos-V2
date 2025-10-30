@@ -1,6 +1,6 @@
 from flask import  jsonify, request, session, flash, url_for, send_from_directory
 from main import app, db, mail
-from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao
+from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func
 from flask_login import login_required, current_user
@@ -13,6 +13,76 @@ import re
 import os
 from sqlalchemy.orm import joinedload, aliased
 
+
+@app.route('/api/trocas_pendentes', methods=['GET'])
+@login_required
+def trocas_pendentes():
+    """
+    Lista solicitações pendentes (acesso reservado à secretaria).
+    Ajuste a checagem de cargo conforme sua aplicação (aqui assumo cargo == '2' para secretaria).
+    """
+    if getattr(current_user, 'cargo', None) != '2':
+        return jsonify({'status': 'error', 'message': 'Acesso não autorizado.'}), 403
+
+    trocas = TrocaSupervisao.query.filter_by(status='pendente').order_by(TrocaSupervisao.data_solicitacao.asc()).all()
+    return jsonify([t.to_dict() for t in trocas])
+
+
+@app.route('/api/secretaria_responder_troca/<int:id_troca>', methods=['POST'])
+@login_required
+def secretaria_responder_troca(id_troca):
+    """
+    Secretaria aprova ou rejeita a solicitação.
+    Body (json or form): action = 'aprovar' | 'rejeitar'
+    Se aprovar e levar_pacientes == True, atualiza todos os pacientes do estagiário para o novo supervisor.
+    Também tenta atualizar o campo de supervisor do usuário estagiário se existir.
+    """
+    if getattr(current_user, 'cargo', None) != '2':
+        return jsonify({'status': 'error', 'message': 'Acesso não autorizado.'}), 403
+
+    data = request.get_json() or request.form
+    action = (data.get('action') or '').lower()
+    if action not in ('aprovar', 'rejeitar'):
+        return jsonify({'status': 'error', 'message': "Parâmetro 'action' deve ser 'aprovar' ou 'rejeitar'."}), 400
+
+    troca = TrocaSupervisao.query.get_or_404(id_troca)
+
+    try:
+        if action == 'aprovar':
+            troca.status = 'aprovada'
+            troca.id_aprovador = current_user.id_usuario
+            troca.data_resposta = date.today()
+
+            # atualiza supervisor do estagiario (se o modelo Usuarios tiver esse campo)
+            estagiario = Usuarios.query.get(troca.id_estagiario)
+            if estagiario:
+                if hasattr(estagiario, 'id_supervisor'):
+                    setattr(estagiario, 'id_supervisor', troca.id_supervisor_novo)
+                    db.session.add(estagiario)
+
+            # se pediu para levar pacientes, atualiza todos os pacientes vinculados ao estagiário
+            if troca.levar_pacientes:
+                pacientes = Pacientes.query.filter_by(id_estagiario=troca.id_estagiario).all()
+                for p in pacientes:
+                    p.id_supervisor = troca.id_supervisor_novo
+                    db.session.add(p)
+                    try:
+                        cache.delete(f'ficha_paciente_{p.id_paciente}')
+                    except Exception:
+                        pass
+
+        else:  # rejeitar
+            troca.status = 'rejeitada'
+            troca.id_aprovador = current_user.id_usuario
+            troca.data_resposta = date.today()
+
+        db.session.add(troca)
+        db.session.commit()
+        return jsonify({'status': 'success', 'message': f'Troca {action}da com sucesso.'})
+    except Exception as e:
+        db.session.rollback()
+        print(f'ERRO secretaria_responder_troca: {e}')
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 # Consultas da secretaria
 @app.route('/api/consulta_secretaria', methods=['GET'])
 @login_required
@@ -303,6 +373,9 @@ def adicionar_paciente_secretaria():
         db.session.rollback()
         print(f"ERRO AO CRIAR PACIENTE: {e}")
         return jsonify({'message': f'Ocorreu um erro interno: {e}'}), 500
+
+
+
 
 # Rota para buscar todos os SUPERVISORES disponíveis
 @app.route('/api/lista_supervisores', methods=['GET'])

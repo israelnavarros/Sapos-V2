@@ -1,5 +1,6 @@
 from main import db, login_manager
 from flask_login import UserMixin
+from datetime import date
 
 @login_manager.user_loader
 def load_user(id_usuario):
@@ -256,6 +257,34 @@ class HistoricoDoencas(db.Model):
 
     def __repr__(self):
         return '<Name %r>' % self.name
+    
+class TrocaSupervisao(db.Model):
+    __tablename__ = 'trocas_supervisao'
+
+    id_troca = db.Column(db.Integer, primary_key=True)
+    id_estagiario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+    id_supervisor_atual = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
+    id_supervisor_novo = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+    levar_pacientes = db.Column(db.Boolean, default=False)
+    justificativa = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default='pendente')  # 'pendente', 'aprovada', 'rejeitada'
+    data_solicitacao = db.Column(db.Date, default=date.today)
+    data_resposta = db.Column(db.Date, nullable=True)
+    id_aprovador = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
+
+    def to_dict(self):
+        return {
+            'id_troca': self.id_troca,
+            'id_estagiario': self.id_estagiario,
+            'id_supervisor_atual': self.id_supervisor_atual,
+            'id_supervisor_novo': self.id_supervisor_novo,
+            'levar_pacientes': bool(self.levar_pacientes),
+            'justificativa': self.justificativa,
+            'status': self.status,
+            'data_solicitacao': str(self.data_solicitacao),
+            'data_resposta': str(self.data_resposta) if self.data_resposta else None,
+            'id_aprovador': self.id_aprovador
+        }
 
 # class Formularios(db.Model):
 #     id_form = db.Column(db.Integer, primary_key=True, autoincrement=True)
