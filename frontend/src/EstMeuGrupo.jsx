@@ -8,7 +8,8 @@ export default function EstMeuPacientes() {
   const navigate = useNavigate();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [supervisores, setSupervisores] = useState([]);
+  const [currentSupervisores, setCurrentSupervisores] = useState([]);
+  const [allSupervisores, setAllSupervisores] = useState([]);
   const [selectedSupervisor, setSelectedSupervisor] = useState('');
   const [levarPacientes, setLevarPacientes] = useState(false);
   const [justificativa, setJustificativa] = useState('');
@@ -23,21 +24,35 @@ export default function EstMeuPacientes() {
       .finally(() => setLoading(false));
   }, []);
 
-  // buscar supervisores quando abrir o modal
+  // buscar supervisores do grupo atual e todos os supervisores quando abrir o modal
   useEffect(() => {
     if (!modalOpen) return;
     setCarregandoSupervisores(true);
-    fetch('/api/consulta_ids_supervisores', { credentials: 'include' })
+
+    const pGrupo = fetch('/api/consulta_ids_supervisores', { credentials: 'include' })
       .then(res => {
-        if (!res.ok) throw new Error('Erro ao carregar supervisores');
+        if (!res.ok) throw new Error('Erro ao carregar supervisores do grupo');
         return res.json();
       })
-      .then(data => {
-        setSupervisores(data || []);
+      .catch(err => {
+        console.error('Erro ao carregar supervisores do grupo:', err);
+        return [];
+      });
+
+    const pTodos = fetch('/api/consulta_todos_supervisores', { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) throw new Error('Erro ao carregar todos os supervisores');
+        return res.json();
       })
       .catch(err => {
-        console.error('Erro ao carregar supervisores:', err);
-        setSupervisores([]);
+        console.error('Erro ao carregar todos os supervisores:', err);
+        return [];
+      });
+
+    Promise.all([pGrupo, pTodos])
+      .then(([grupoList, todos]) => {
+        setCurrentSupervisores(Array.isArray(grupoList) ? grupoList : []);
+        setAllSupervisores(Array.isArray(todos) ? todos : []);
       })
       .finally(() => setCarregandoSupervisores(false));
   }, [modalOpen]);
@@ -196,10 +211,31 @@ export default function EstMeuPacientes() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Supervisores do grupo atual */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Supervisor novo</label>
+                <label className="block text-sm font-medium text-gray-700">Supervisores do seu grupo</label>
                 {carregandoSupervisores ? (
                   <div className="mt-2 text-sm text-gray-500">Carregando supervisores...</div>
+                ) : (
+                  <div className="mt-1 text-sm text-gray-700">
+                    {currentSupervisores.length > 0 ? (
+                      currentSupervisores.map(s => (
+                        <div key={s.id_supervisor || s.id_usuario || s.id} className="py-1">
+                          {s.nome} {s.grupo ? `(Grupo ${s.grupo})` : ''}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-sm text-gray-500">Nenhum supervisor encontrado no seu grupo</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Select com todos os supervisores */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Escolher supervisor (irá para o grupo deste supervisor)</label>
+                {carregandoSupervisores ? (
+                  <div className="mt-2 text-sm text-gray-500">Carregando lista...</div>
                 ) : (
                   <select
                     value={selectedSupervisor}
@@ -207,9 +243,9 @@ export default function EstMeuPacientes() {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
                   >
                     <option value="">— selecione —</option>
-                    {supervisores.map(s => (
-                      <option key={s.id_supervisor || s.id} value={s.id_supervisor || s.id}>
-                        {s.nome}
+                    {allSupervisores.map(s => (
+                      <option key={s.id_usuario || s.id} value={s.id_usuario || s.id}>
+                        {s.nome} {s.grupo ? `(Grupo ${s.grupo})` : ''}
                       </option>
                     ))}
                   </select>

@@ -252,7 +252,7 @@ export default function MeuGrupo() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Coordenadores */}
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-800 mb-4">Coordenadores</h2>
+                  <h2 className="text-xl font-semibold text-slate-800 mb-4">Supervisores</h2>
                   <ul className="space-y-3">
                     {coordenadores.map(coord => <MemberItem key={coord.id} member={coord} />)}
                   </ul>

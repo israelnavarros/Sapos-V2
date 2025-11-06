@@ -157,13 +157,21 @@ def est_consulta_card():
         'semana': consultas_semana_count
     })
 # ------------------- TROCAS -------------------
+@app.route('/api/consulta_todos_supervisores', methods=['GET'])
+@login_required
+def consulta_todos_supervisores():
+    """
+    Retorna todos os usuários com cargo de supervisor (cargo == 1).
+    Inclui id, nome e grupo.
+    """
+    supervisores = Usuarios.query.filter_by(cargo=1, status=True).order_by(Usuarios.nome).all()
+    result = [{'id_usuario': s.id_usuario, 'nome': s.nome, 'grupo': s.grupo} for s in supervisores]
+    return jsonify(result)
+
+
 @app.route('/api/solicitar_troca_supervisor', methods=['POST'])
 @login_required
 def solicitar_troca_supervisor():
-    """
-    Estagiário cria uma solicitação de troca de supervisor.
-    Body (json or form): id_supervisor_novo, levar_pacientes (bool/string), justificativa (optional)
-    """
     data = request.get_json() or request.form
     try:
         id_supervisor_novo = data.get('id_supervisor_novo') or data.get('id_supervisor')
@@ -178,14 +186,23 @@ def solicitar_troca_supervisor():
         levar_pacientes = str(levar_raw).lower() in ('true', '1', 'yes') if levar_raw is not None else False
         justificativa = data.get('justificativa') or None
 
-        # tenta obter supervisor atual do usuário (se existir)
-        id_supervisor_atual = getattr(current_user, 'id_supervisor', None)
-        # fallback: None (pode ser atualizado quando secretaria aprovar)
+        # grupo de origem (do estagiário)
+        grupo_origem = getattr(current_user, 'grupo', None)
+
+        # tenta obter um "supervisor atual" do grupo atual (primeiro supervisor encontrado) - pode ser None
+        supervisor_atual = Usuarios.query.filter_by(grupo=grupo_origem, cargo=1, status=True).first()
+        id_supervisor_atual = supervisor_atual.id_usuario if supervisor_atual else None
+
+        # obter dados do supervisor novo para obter grupo destino
+        supervisor_novo = Usuarios.query.get(id_supervisor_novo)
+        id_grupo_destino = supervisor_novo.grupo if supervisor_novo else None
 
         troca = TrocaSupervisao(
             id_estagiario=current_user.id_usuario,
             id_supervisor_atual=id_supervisor_atual,
             id_supervisor_novo=id_supervisor_novo,
+            id_grupo_origem=grupo_origem,
+            id_grupo_destino=id_grupo_destino,
             levar_pacientes=bool(levar_pacientes),
             justificativa=justificativa,
             status='pendente',

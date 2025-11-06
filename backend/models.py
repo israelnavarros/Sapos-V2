@@ -265,6 +265,8 @@ class TrocaSupervisao(db.Model):
     id_estagiario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
     id_supervisor_atual = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
     id_supervisor_novo = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+    id_grupo_origem = db.Column(db.Integer, nullable=True)   # novo: grupo atual do estagiário
+    id_grupo_destino = db.Column(db.Integer, nullable=True)  # novo: grupo do supervisor escolhido
     levar_pacientes = db.Column(db.Boolean, default=False)
     justificativa = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), default='pendente')  # 'pendente', 'aprovada', 'rejeitada'
@@ -278,6 +280,8 @@ class TrocaSupervisao(db.Model):
             'id_estagiario': self.id_estagiario,
             'id_supervisor_atual': self.id_supervisor_atual,
             'id_supervisor_novo': self.id_supervisor_novo,
+            'id_grupo_origem': self.id_grupo_origem,
+            'id_grupo_destino': self.id_grupo_destino,
             'levar_pacientes': bool(self.levar_pacientes),
             'justificativa': self.justificativa,
             'status': self.status,
