@@ -19,9 +19,10 @@ from sqlalchemy.orm import joinedload, aliased
 def trocas_pendentes():
     """
     Lista solicitações pendentes (acesso reservado à secretaria).
-    Ajuste a checagem de cargo conforme sua aplicação (aqui assumo cargo == '2' para secretaria).
+    Ajuste a checagem de cargo conforme sua aplicação (aqui assumo cargo == '0' para secretaria).
     """
-    if getattr(current_user, 'cargo', None) != '2':
+    print(current_user.cargo)
+    if (current_user.cargo != 0):
         return jsonify({'status': 'error', 'message': 'Acesso não autorizado.'}), 403
 
     trocas = TrocaSupervisao.query.filter_by(status='pendente').order_by(TrocaSupervisao.data_solicitacao.asc()).all()
@@ -37,7 +38,7 @@ def secretaria_responder_troca(id_troca):
     Se aprovar e levar_pacientes == True, atualiza todos os pacientes do estagiário para o novo supervisor.
     Também tenta atualizar o campo de supervisor do usuário estagiário se existir.
     """
-    if getattr(current_user, 'cargo', None) != '2':
+    if (current_user.cargo != 0):
         return jsonify({'status': 'error', 'message': 'Acesso não autorizado.'}), 403
 
     data = request.get_json() or request.form
@@ -53,23 +54,23 @@ def secretaria_responder_troca(id_troca):
             troca.id_aprovador = current_user.id_usuario
             troca.data_resposta = date.today()
 
-            # atualiza supervisor do estagiario (se o modelo Usuarios tiver esse campo)
+            # buscar supervisor novo para obter seu grupo
+            supervisor_novo = Usuarios.query.get(troca.id_supervisor_novo)
+            if not supervisor_novo:
+                return jsonify({'status': 'error', 'message': 'Supervisor não encontrado.'}), 404
+            
+            # atualizar grupo do estagiário para o grupo do supervisor novo
             estagiario = Usuarios.query.get(troca.id_estagiario)
             if estagiario:
-                if hasattr(estagiario, 'id_supervisor'):
-                    setattr(estagiario, 'id_supervisor', troca.id_supervisor_novo)
-                    db.session.add(estagiario)
+                estagiario.grupo = supervisor_novo.grupo
+                db.session.add(estagiario)
 
-            # se pediu para levar pacientes, atualiza todos os pacientes vinculados ao estagiário
+            # se pediu para levar pacientes, atualiza o grupo dos pacientes também
             if troca.levar_pacientes:
                 pacientes = Pacientes.query.filter_by(id_estagiario=troca.id_estagiario).all()
                 for p in pacientes:
-                    p.id_supervisor = troca.id_supervisor_novo
+                    p.id_supervisor = supervisor_novo.id_usuario
                     db.session.add(p)
-                    try:
-                        cache.delete(f'ficha_paciente_{p.id_paciente}')
-                    except Exception:
-                        pass
 
         else:  # rejeitar
             troca.status = 'rejeitada'
