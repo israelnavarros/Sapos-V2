@@ -34,35 +34,11 @@ a {
   color: #008006;
 } */
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-/* .greenColor {
-  background-color: #66A388;
-} */
-/* button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-} */
-/* button:hover {
-  border-color: #646cff;
-} */
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -85,15 +61,14 @@ button:focus-visible {
 /* Container principal */
 .container-principal {
     display: flex;
-    flex-direction: column; /* Empilha os elementos no mobile */
-    max-width: 100vw; /* Largura máxima do container */
-    width: 200%; /* Ocupa toda a largura disponível */
-    margin: 0 auto; /* Centraliza o container */
-    min-height: 700px; /* Altura mínima */
-    gap: 1.5rem; /* Espaçamento entre os painéis */
-    overflow-x: hidden; /* Impede rolagem horizontal */
-    justify-content: center; /* Centraliza os painéis horizontalmente */
-        flex-grow: 0;
+    flex-direction: column;
+    max-width: 1200px; /* largura máxima do conteúdo (centraliza) */
+    width: 100%;
+    margin: 0 auto; /* centraliza horizontalmente */
+    min-height: 700px;
+    gap: 1.5rem;
+    overflow-x: hidden;
+    justify-content: center;
 }
 
 /* Painel esquerdo */
@@ -103,68 +78,60 @@ button:focus-visible {
     border-radius: 0.5rem;
     padding: 1.5rem;
     text-align: center;
-    flex-shrink: 0; /* Impede que o painel esquerdo encolha */
-    flex-grow: 0; /* Impede que o painel esquerdo cresça */
-    overflow: hidden; /* Garante que o conteúdo não ultrapasse os limites */
-    width: 40vw; /* 40% da largura da tela */
-    max-width: 400px; /* Limita a largura máxima */
-    min-width: 200px; /* Define uma largura mínima */
+    flex: 0 0 300px; /* largura fixa ideal em desktop */
+    max-width: 400px;
+    min-width: 200px;
+    overflow: hidden;
 }
 
-/* Painel direito */
-.painel-direito {
+/* Painel direito (card de conteúdo) */
+.painel-direito,
+.page-card {
     background-color: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.06);
     border-radius: 0.5rem;
     padding: 1.5rem;
-    overflow-y: auto; /* Permite rolagem vertical se o conteúdo for maior */
-    overflow-x: hidden; /* Impede rolagem horizontal */
-    min-height: 500px; /* Altura mínima para consistência */
-    flex-shrink: 0; /* Impede que o painel encolha */
-    flex-grow: 1; /* Permite que o painel ocupe o espaço restante */
-    width: 60vw; /* 60% da largura da tela */
-    max-width: 800px; /* Limita a largura máxima */
-    min-width: 300px; /* Define uma largura mínima */
+    overflow: hidden;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 500px;
+    box-sizing: border-box;
 }
 
 /* Tornar tabelas, gráficos e imagens responsivos */
 .painel-direito table,
 .painel-direito img,
 .painel-direito canvas {
-    max-width: 100%; /* Garante que o conteúdo não ultrapasse os limites */
-    height: auto; /* Mantém a proporção */
-    display: block; /* Garante que o elemento respeite o fluxo */
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 /* Estilos para telas médias e maiores (md) */
 @media (min-width: 768px) {
     .container-principal {
-        flex-direction: row; /* Elementos lado a lado */
-        justify-content: center; /* Centraliza os painéis horizontalmente */
+        flex-direction: row;
+        align-items: flex-start;
     }
     .painel-esquerdo {
-        width: 40vw; /* 40% da largura da tela */
-        max-width: 400px; /* Limita a largura máxima */
+        flex: 0 0 35%;
     }
     .painel-direito {
-        width: 60vw; /* 60% da largura da tela */
-        max-width: 800px; /* Limita a largura máxima */
+        flex: 1 1 65%;
     }
 }
 
 /* Estilos para telas pequenas */
 @media (max-width: 767px) {
     .container-principal {
-        flex-direction: column; /* Empilha os elementos no mobile */
+        flex-direction: column;
     }
     .painel-esquerdo,
     .painel-direito {
-        width: 90vw; /* Ocupa quase toda a largura no mobile */
-        max-width: 100%; /* Remove o limite de largura no mobile */
+        width: 95vw;
+        max-width: 100%;
     }
 }
-
-/* Calendar.css */
 
 /* Cor geral das bordas do calendário */
 .fc {
