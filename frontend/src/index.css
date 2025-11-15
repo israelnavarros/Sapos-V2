@@ -57,14 +57,18 @@ button:focus-visible {
   }
 }
 
+/* Container geral para centralização e largura máxima */
+.container-geral {
+    max-width: 1200px; /* largura máxima do conteúdo */
+    width: 100%;
+    margin-left: auto;  /* centraliza horizontalmente */
+    margin-right: auto; /* centraliza horizontalmente */
+}
 
 /* Container principal */
 .container-principal {
     display: flex;
     flex-direction: row; /* Mantenha a direção em linha */
-    max-width: 1200px; /* largura máxima do conteúdo (centraliza) */
-    width: 100%;
-    margin: 0 auto; /* centraliza horizontalmente */
     min-height: calc(100vh - 120px); /* altura mínima igual à altura da tela menos a altura do cabeçalho */
     gap: 1.5rem;
     overflow-x: hidden;

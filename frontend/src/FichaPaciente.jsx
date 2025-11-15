@@ -59,6 +59,24 @@ function FeedbackCard({ folha }) {
   );
 }
 
+function Tag({ nome }) {
+  // Função para gerar uma cor com base no nome da tag para consistência
+  const stringToColor = (str) => {
+    if (!str) return 'hsl(0, 0%, 40%)'; // Cor padrão para string vazia
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = hash % 360;
+    return `hsl(${h}, 25%, 40%)`; // Matiz (0-360), Saturação (45%), Luminosidade (40%)
+  };
+
+  const tagColor = stringToColor(nome);
+
+  return (
+    <div className="px-3 py-1 text-sm font-medium text-white rounded-full shadow-sm" style={{ backgroundColor: tagColor }}>{nome}</div>
+  );
+}
 export default function FichaPaciente() {
   const { id_paciente } = useParams();
   const [info, setInfo] = useState(null);
@@ -68,15 +86,20 @@ export default function FichaPaciente() {
   const [estat3, setEstat3] = useState(null);
   const [tab, setTab] = useState('ficha'); // Controle das abas
   const [fichaTab, setFichaTab] = useState('atendimento');
-  const [modalOpen, setModalOpen] = useState(false); // Controle do modal
+  const [validationModalOpen, setValidationModalOpen] = useState(false); // Modal de validação
   const [selectedFolha, setSelectedFolha] = useState(null); // Folha selecionada
   const [feedback, setFeedback] = useState(''); // Feedback do supervisor
   const [status, setStatus] = useState(''); // Status (Aprovado ou Reprovado)
 
+  // Estados para o Modal de Tags
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [allTags, setAllTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState(new Set());
+  const [newTagName, setNewTagName] = useState('');
+
 
   useEffect(() => {
-    console.log('useEffect rodou', id_paciente);
-
+    fetchPacienteData();
     // Fetch dos dados do paciente e folhas de evolução
     fetch(`/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
@@ -130,17 +153,24 @@ export default function FichaPaciente() {
       .catch(err => console.error('Erro ao carregar estatística 3:', err));
   }, [id_paciente]);
 
-  const handleOpenModal = (folha) => {
-    setSelectedFolha(folha);
-    setModalOpen(true);
+  const fetchPacienteData = () => {
+    fetch(`/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setInfo(data);
+        setFolhas(data.folhas_pacientes || []);
+        // Inicializa as tags selecionadas com as do paciente
+        const initialTagIds = new Set((data.paciente.tags || []).map(t => t.id_tag));
+        setSelectedTags(initialTagIds);
+      })
+      .catch(err => console.error('Erro ao carregar dados do paciente:', err));
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedFolha(null);
-    setFeedback('');
-    setStatus('');
+  const handleOpenModal = (folha) => {
+    setSelectedFolha(folha);
+    setValidationModalOpen(true);
   };
+
   const handleRemover = async (idFolha) => {
     if (!window.confirm("Tem certeza que deseja excluir esta folha?")) return;
 
@@ -176,7 +206,7 @@ export default function FichaPaciente() {
 
       if (response.ok) {
         alert('Sessão validada com sucesso!');
-        handleCloseModal();
+        setValidationModalOpen(false);
 
         // Atualizar a lista de folhas
         const updatedFolhas = await fetch(`/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' });
@@ -189,6 +219,67 @@ export default function FichaPaciente() {
       console.error('Erro ao validar a sessão:', err);
     }
   };
+
+  // --- Funções para o Modal de Tags ---
+  const openTagModal = () => {
+    fetch('/api/tags', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setAllTags(data);
+        setIsTagModalOpen(true);
+      })
+      .catch(err => console.error("Erro ao buscar tags:", err));
+  };
+
+  const handleTagSelectionChange = (tagId) => {
+    setSelectedTags(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(tagId)) {
+        newSet.delete(tagId);
+      } else {
+        newSet.add(tagId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleCreateTag = async () => {
+    if (!newTagName.trim()) return;
+    try {
+      const res = await fetch('/api/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ nome: newTagName }),
+      });
+      const newTag = await res.json();
+      if (res.ok) {
+        setAllTags(prev => [...prev, newTag]);
+        setSelectedTags(prev => new Set(prev).add(newTag.id_tag)); // Auto-seleciona a nova tag
+        setNewTagName('');
+      } else {
+        alert(`Erro: ${newTag.message}`);
+      }
+    } catch (err) {
+      console.error("Erro ao criar tag:", err);
+    }
+  };
+
+  const handleSavePatientTags = async () => {
+    try {
+      const res = await fetch(`/api/paciente/${id_paciente}/tags`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tag_ids: Array.from(selectedTags) }),
+      });
+      if (res.ok) {
+        alert('Tags atualizadas com sucesso!');
+        setIsTagModalOpen(false);
+        fetchPacienteData(); // Re-busca os dados do paciente para atualizar a UI
+      } else throw new Error('Falha ao salvar tags');
+    } catch (err) { console.error(err); alert(err.message); }
+  };
   if (!info || !info.paciente) return <div>Carregando...</div>;
   const paciente = info.paciente;
 
@@ -196,7 +287,23 @@ export default function FichaPaciente() {
     <>
       <Header />
       <main className='mt-20 p-4'>
-        <div className="container-principal">
+        {/* SEÇÃO DE TAGS COM BOTÃO */}
+        <div className="container-geral px-4 sm:px-6 lg:px-8 mb-4">
+          <div className="p-4 rounded-lg flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3 flex-wrap">
+                <h4 className="text-sm font-semibold text-gray-600">Tags do Paciente</h4>
+                {paciente.tags && paciente.tags.length > 0
+                    ? paciente.tags.map(tag => <Tag key={tag.id_tag} nome={tag.nome} />)
+                    : <p className="text-sm text-gray-400 italic">Nenhuma tag atribuída.</p>}
+            </div>
+            <button onClick={openTagModal} className="flex items-center gap-2 text-sm bg-green text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm hover:bg-green-600 transition-colors">
+              <i className="bi bi-pencil-square"></i>
+              Gerenciar Tags
+            </button>
+          </div>
+        </div>
+
+        <div className="container-geral container-principal">
           <div className="painel-esquerdo">
             <img
               src={`/api/uploads/pacientes/${paciente.id_paciente}`}
@@ -243,8 +350,6 @@ export default function FichaPaciente() {
           <div className="painel-direito">
             {tab === 'ficha' && (
               <div className="pt-3">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Ficha de Atendimento</h3>
-
 
                 <div className="flex border-b border-gray-200 mb-4">
                   <button
@@ -519,8 +624,8 @@ export default function FichaPaciente() {
         </div>
       </main>
       {/* INÍCIO DO CÓDIGO DO MODAL CORRIGIDO */}
-      {modalOpen && selectedFolha && (
-        // Overlay (fundo escuro semi-transparente)
+      {validationModalOpen && selectedFolha && (
+
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
 
           {/* Conteúdo do Modal */}
@@ -579,7 +684,7 @@ export default function FichaPaciente() {
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 type="button"
-                onClick={handleCloseModal}
+                onClick={() => setValidationModalOpen(false)}
                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Cancelar
@@ -590,6 +695,60 @@ export default function FichaPaciente() {
                 className="px-4 py-2 bg-green text-white rounded-md hover:bg-opacity-90 transition-colors"
               >
                 Enviar Validação
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE GERENCIAMENTO DE TAGS */}
+      {isTagModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl mx-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Gerenciar Tags do Paciente</h3>
+
+            {/* Seção de Criar Nova Tag */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Criar e Adicionar Nova Tag</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  placeholder="Nome da nova tag"
+                  className="flex-grow p-2 border border-gray-300 rounded-md shadow-sm"
+                />
+                <button onClick={handleCreateTag} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700">
+                  Criar
+                </button>
+              </div>
+            </div>
+
+            {/* Seção de Selecionar Tags Existentes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Selecionar Tags Existentes</label>
+              <div className="max-h-60 overflow-y-auto border rounded-md p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {allTags.map(tag => (
+                  <label key={tag.id_tag} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedTags.has(tag.id_tag)}
+                      onChange={() => handleTagSelectionChange(tag.id_tag)}
+                      className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                    />
+                    <Tag nome={tag.nome} />
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Botões de Ação do Modal */}
+            <div className="mt-6 flex justify-end space-x-3">
+              <button onClick={() => setIsTagModalOpen(false)} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                Cancelar
+              </button>
+              <button onClick={handleSavePatientTags} className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">
+                Salvar Alterações
               </button>
             </div>
           </div>

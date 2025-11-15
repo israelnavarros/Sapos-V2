@@ -258,6 +258,11 @@ def api_ficha_paciente(id):
     estagiario = Usuarios.query.get(dados_paciente.id_estagiario)
     supervisor = Usuarios.query.get(dados_paciente.id_supervisor)
     
+    tags = [{
+        'id_tag': pt.tag.id_tag,
+        'nome': pt.tag.nome
+    } for pt in dados_paciente.tags_rel]
+
     paciente_json = {
         'id_paciente': dados_paciente.id_paciente,
         'nome_completo': dados_paciente.nome_completo,
@@ -296,6 +301,7 @@ def api_ficha_paciente(id):
         'etnia':dados_paciente.etnia,
         'genero':dados_paciente.genero,
         'classe_social':dados_paciente.classe_social,
+        'tags': tags,
     }
     Estagiario = aliased(Usuarios)
     Supervisor = aliased(Usuarios)

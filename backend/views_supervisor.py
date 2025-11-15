@@ -1,7 +1,7 @@
 from operator import or_
 from flask import request, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao
+from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func
 from flask_login import login_required, current_user
@@ -276,6 +276,11 @@ def api_sup_ficha_paciente(id):
     dados_paciente = Pacientes.query.filter_by(id_paciente=id).first()
     estagiario = Usuarios.query.filter_by(id_usuario=dados_paciente.id_estagiario).first()
     supervisor = Usuarios.query.filter_by(id_usuario=dados_paciente.id_supervisor).first()
+    tags = [{
+        'id_tag': pt.tag.id_tag,
+        'nome': pt.tag.nome
+    } for pt in dados_paciente.tags_rel]
+
 
     paciente_json = {
         'id_paciente': dados_paciente.id_paciente,
@@ -314,6 +319,7 @@ def api_sup_ficha_paciente(id):
         'etnia':dados_paciente.etnia,
         'genero':dados_paciente.genero,
         'classe_social':dados_paciente.classe_social,
+        'tags': tags,
     }
 
     Estagiario = aliased(Usuarios)
@@ -536,3 +542,54 @@ def sup_validar_folha(id_folha):
 
     db.session.commit()
     return jsonify({'message': 'Folha validada com sucesso!'})
+
+@app.route('/api/tags', methods=['GET'])
+@login_required
+def api_get_all_tags():
+    """ Retorna todas as tags cadastradas no sistema. """
+    tags = Tag.query.order_by(Tag.nome).all()
+    return jsonify([{'id_tag': tag.id_tag, 'nome': tag.nome} for tag in tags])
+
+@app.route('/api/tags', methods=['POST'])
+@login_required
+def api_create_tag():
+    """ Cria uma nova tag. """
+    data = request.get_json()
+    nome_tag = data.get('nome')
+    if not nome_tag:
+        return jsonify({'message': 'O nome da tag é obrigatório.'}), 400
+
+    # Verifica se a tag já existe (ignorando maiúsculas/minúsculas)
+    tag_existente = Tag.query.filter(func.lower(Tag.nome) == func.lower(nome_tag)).first()
+    if tag_existente:
+        return jsonify({'message': 'Essa tag já existe.'}), 409
+
+    nova_tag = Tag(nome=nome_tag)
+    db.session.add(nova_tag)
+    db.session.commit()
+    return jsonify({'id_tag': nova_tag.id_tag, 'nome': nova_tag.nome}), 201
+
+@app.route('/api/paciente/<int:id_paciente>/tags', methods=['PUT'])
+@login_required
+def api_update_paciente_tags(id_paciente):
+    """ Atualiza as tags de um paciente. """
+    paciente = Pacientes.query.get_or_404(id_paciente)
+    data = request.get_json()
+    tag_ids = data.get('tag_ids', [])
+
+    # REGRA DE NEGÓCIO: Apenas o supervisor do paciente pode alterar as tags
+    if paciente.id_supervisor != current_user.id_usuario:
+        return jsonify({'message': 'Acesso não autorizado para alterar tags deste paciente.'}), 403
+
+    # 1. Remove todas as tags atuais do paciente
+    PacienteTag.query.filter_by(id_paciente=id_paciente).delete()
+
+    # 2. Adiciona as novas tags selecionadas
+    for tag_id in tag_ids:
+        nova_associacao = PacienteTag(id_paciente=id_paciente, id_tag=tag_id)
+        db.session.add(nova_associacao)
+
+    db.session.commit()
+    cache.delete(f'ficha_paciente_{id_paciente}') # Limpa o cache para refletir a mudança
+
+    return jsonify({'message': 'Tags do paciente atualizadas com sucesso.'})

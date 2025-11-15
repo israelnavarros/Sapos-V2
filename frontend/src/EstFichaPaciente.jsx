@@ -60,6 +60,25 @@ function FeedbackCard({ folha }) {
     </div>
   );
 }
+
+function Tag({ nome }) {
+  // Função para gerar uma cor com base no nome da tag para consistência
+  const stringToColor = (str) => {
+    if (!str) return 'hsl(0, 0%, 40%)'; // Cor padrão para string vazia
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = hash % 360;
+    return `hsl(${h}, 15%, 40%)`; // Matiz (0-360), Saturação (45%), Luminosidade (40%)
+  };
+
+  const tagColor = stringToColor(nome);
+
+  return (
+    <div className="px-3 py-1 text-sm font-medium text-white rounded-md shadow-sm" style={{ backgroundColor: tagColor }}>{nome}</div>
+  );
+}
 export default function EstFichaPaciente() {
   const { id_paciente } = useParams();
   const [info, setInfo] = useState(null);
@@ -215,7 +234,17 @@ export default function EstFichaPaciente() {
     <>
       <Header />
       <main className='mt-20 p-4 '>
-        <div className="container-principal">
+        {/* SEÇÃO DE TAGS */}
+        <div className="container-geral px-4 sm:px-6 lg:px-8 mb-4">
+          <div className="p-4 rounded-lg flex items-center flex-wrap gap-4 mb-4">
+              <h4 className="text-sm font-semibold text-gray-600">Tags do Paciente</h4>
+              {paciente.tags && paciente.tags.length > 0
+                ? paciente.tags.map(tag => <Tag key={tag.id_tag} nome={tag.nome} />)
+                : <p className="text-sm text-gray-400 italic">Nenhuma tag atribuída.</p>}
+          </div>
+        </div>
+
+        <div className="container-geral container-principal">
           <div className="painel-esquerdo">
             <img
               src={`/api/uploads/pacientes/${paciente.id_paciente}`}
@@ -249,6 +278,7 @@ export default function EstFichaPaciente() {
           <div className="painel-direito">
             {tab === 'ficha' && (
               <div className="pt-3">
+
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                         <h1 className="text-3xl font-bold text-gray-900">Administração de Pacientes</h1>                        
                         <Link
