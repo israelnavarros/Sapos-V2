@@ -297,7 +297,7 @@ export default function FichaPaciente() {
                     ? paciente.tags.map(tag => <Tag key={tag.id_tag} nome={tag.nome} />)
                     : <p className="text-sm text-gray-400 italic">Nenhuma tag atribuída.</p>}
             </div>
-            <button onClick={openTagModal} className="flex items-center gap-2 text-sm bg-green text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm hover:bg-green-600 transition-colors">
+            <button onClick={openTagModal} className="flex items-center gap-2 text-sm bg-green text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm hover:bg-green-600 transition-colors cursor-pointer">
               <i className="bi bi-pencil-square"></i>
               Gerenciar Tags
             </button>
