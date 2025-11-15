@@ -35,6 +35,31 @@ function CampoEvolucao({ label, texto }) {
     </div>
   );
 }
+
+function FeedbackCard({ folha }) {
+  if (!folha.feedback) return null;
+
+  const isApproved = folha.status_validacao === 'Aprovado';
+  const borderColor = isApproved ? 'border-green' : 'border-[#BD4343]';
+  const bgColor = isApproved ? 'bg-green-50' : 'bg-red-50';
+  const textColor = isApproved ? 'text-green-800' : 'text-red-800';
+  const icon = isApproved
+    ? <i className="bi bi-check-circle-fill text-green"></i>
+    : <i className="bi bi-x-circle-fill text-[#BD4343]"></i>;
+
+  return (
+    <div className={`p-4 rounded-lg border ${borderColor} ${bgColor} mb-4`}>
+      <div className="flex items-center gap-3 mb-2">
+        {icon}
+        <h4 className={`text-md font-bold ${textColor}`}>Feedback do Supervisor</h4>
+      </div>
+      <p className="text-sm text-slate-700 whitespace-pre-wrap">{folha.feedback}</p>
+      {folha.data_status && (
+        <p className="text-xs text-slate-500 mt-2 text-right">Respondido em: {new Date(folha.data_status).toLocaleString('pt-BR')}</p>
+      )}
+    </div>
+  );
+}
 export default function EstFichaPaciente() {
   const { id_paciente } = useParams();
   const [info, setInfo] = useState(null);
@@ -180,25 +205,6 @@ export default function EstFichaPaciente() {
       alert('Ocorreu um erro de conexão.');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleRemover = async (idFolha) => {
-    if (!window.confirm("Tem certeza que deseja excluir esta folha?")) return;
-
-    try {
-      const res = await fetch(`/api/est_ficha_deletada/${idFolha}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (res.ok) {
-        alert("Folha excluída com sucesso!");
-        setFolhas(folhas.filter(folha => folha.id_folha !== idFolha));
-      } else {
-        alert("Erro ao excluir a folha.");
-      }
-    } catch (err) {
-      console.error('Erro ao excluir evolução:', err);
     }
   };
 
@@ -458,13 +464,13 @@ export default function EstFichaPaciente() {
                                 )}
                               </button>
                             </div>
-                            <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
                           </div>
 
                           <div className="border-t border-[#B8C6D1]"></div>
-
-                          <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                            <div className="p-4 md:p-6">
+                          
+                          <div className="w-full">
+                            <div className="p-4 md:p-6 w-full">
+                              <div className="md:col-span-2"><FeedbackCard folha={folha} /></div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                                 <div className="md:col-span-2">
                                   <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />

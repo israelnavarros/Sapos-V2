@@ -340,6 +340,8 @@ def api_sup_ficha_paciente(id):
             'data_postagem': str(folha.data_postagem),
             'numero_sessao': folha.numero_sessao,
             'status_validacao': folha.status_validacao,
+            'feedback': folha.feedback,
+            'data_status': str(folha.data_status) if folha.data_status else None,
             
             # Lendo os campos diretamente do banco (agora em texto plano)
             'hipotese_diagnostica': folha.hipotese_diagnostica,

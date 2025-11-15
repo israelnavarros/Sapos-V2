@@ -323,6 +323,8 @@ def api_ficha_paciente(id):
             'data_postagem': str(folha.data_postagem),
             'numero_sessao': folha.numero_sessao,
             'status_validacao': folha.status_validacao,
+            'feedback': folha.feedback,
+            'data_status': str(folha.data_status) if folha.data_status else None,
             # 'hipotese_diagnostica': descriptografar_campo(folha.hipotese_diagnostica),
             # 'sintomas_atuais': descriptografar_campo(folha.sintomas_atuais),
             # 'intervencoes_realizadas': descriptografar_campo(folha.intervencoes_realizadas),

@@ -34,6 +34,31 @@ function CampoEvolucao({ label, texto }) {
   );
 }
 
+function FeedbackCard({ folha }) {
+  if (!folha.feedback) return null;
+
+  const isApproved = folha.status_validacao === 'Aprovado';
+  const borderColor = isApproved ? 'border-green' : 'border-[#BD4343]';
+  const bgColor = isApproved ? 'bg-green-50' : 'bg-red-50';
+  const textColor = isApproved ? 'text-green-800' : 'text-red-800';
+  const icon = isApproved
+    ? <i className="bi bi-check-circle-fill text-green"></i>
+    : <i className="bi bi-x-circle-fill text-[#BD4343]"></i>;
+
+  return (
+    <div className={`p-4 rounded-lg border ${borderColor} ${bgColor} mb-4`}>
+      <div className="flex items-center gap-3 mb-2">
+        {icon}
+        <h4 className={`text-md font-bold ${textColor}`}>Feedback do Supervisor</h4>
+      </div>
+      <p className="text-sm text-slate-700 whitespace-pre-wrap">{folha.feedback}</p>
+      {folha.data_status && (
+        <p className="text-xs text-slate-500 mt-2 text-right">Respondido em: {new Date(folha.data_status).toLocaleString('pt-BR')}</p>
+      )}
+    </div>
+  );
+}
+
 export default function FichaPaciente() {
   const { id_paciente } = useParams();
   const [info, setInfo] = useState(null);
@@ -416,9 +441,10 @@ export default function FichaPaciente() {
                             <button className="btn btn-outline-danger btn-sm" onClick={() => handleRemover(folha.id_folha)}>Excluir</button>
                           </div>
 
-                          <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                            <div className="p-4 md:p-6">
+                          <div className="border-t border-slate-200">
+                            <div className="p-4 md:p-6 w-full">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                <div className="md:col-span-2"><FeedbackCard folha={folha} /></div>
                                 <div className="md:col-span-2">
                                   <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />
                                 </div>
