@@ -89,6 +89,7 @@ export default function EstFichaPaciente() {
   const [tab, setTab] = useState('ficha');
   const [fichaTab, setFichaTab] = useState('atendimento');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [expandedFolhaId, setExpandedFolhaId] = useState(null); // Estado para controlar a expansão
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [novaEvolucao, setNovaEvolucao] = useState({
     hipotese_diagnostica: '',
@@ -428,10 +429,14 @@ export default function EstFichaPaciente() {
                       </div>
                     </div>
                   ) : (
-                    folhas.map(folha => (
-                      <div className="bg-white rounded-xl shadow-md mb-6" key={folha.id_folha}>
-                        <p className="text-xs text-slate-500">{new Date(folha.data_postagem).toLocaleString('pt-BR')}</p>
-                        <div className="card-body border border-[#B8C6D1] border-secondary rounded">
+                    folhas.map(folha => {
+                      const isExpanded = expandedFolhaId === folha.id_folha;
+                      return (
+                      <div className="bg-white rounded-xl shadow mb-6 border border-slate-200" key={folha.id_folha}>
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+                            <p className="text-sm font-semibold text-slate-700">Sessão #{folha.numero_sessao}</p>
+                            <p className="text-xs text-slate-500">{new Date(folha.data_postagem).toLocaleString('pt-BR')}</p>
+                        </div>                        <div className="card-body">
                           <div className="flex items-center justify-between p-4 md:p-4">
                             <div className="flex items-center gap-4">
                               <img
@@ -442,10 +447,6 @@ export default function EstFichaPaciente() {
                               <div>
                                 <small>Nome do Estagiário</small>
                                 <h6 className="font-bold text-slate-800">{folha.nome_estagiario}</h6>
-                              </div>
-                              <div className='col'>
-                                <small>Nº da Sessão</small>
-                                <h1 className="text-muted">{folha.numero_sessao}</h1>
                               </div>
                             </div>
                             <div className="ms-auto">
@@ -494,38 +495,52 @@ export default function EstFichaPaciente() {
                                 )}
                               </button>
                             </div>
+                            {/* Botão de expandir/recolher */}
+                            <button 
+                              onClick={() => setExpandedFolhaId(isExpanded ? null : folha.id_folha)}
+                              className="p-2 rounded-full hover:bg-slate-100 transition-colors ml-2 cursor-pointer"
+                              aria-label={isExpanded ? "Recolher" : "Expandir"}
+                            >
+                              <svg className={`w-6 h-6 text-slate-500 transition-transform transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                              </svg>
+                            </button>
                           </div>
 
-                          <div className="border-t border-[#B8C6D1]"></div>
-                          
-                          <div className="w-full">
-                            <div className="p-4 md:p-6 w-full">
-                              <div className="md:col-span-2"><FeedbackCard folha={folha} /></div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                                <div className="md:col-span-2">
-                                  <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />
-                                </div>
-                                <div>
-                                  <CampoEvolucao label="Sintomas Atuais" texto={folha.sintomas_atuais} />
-                                </div>
-                                <div>
-                                  <CampoEvolucao label="Intervenções Realizadas" texto={folha.intervencoes_realizadas} />
-                                </div>
-                                <div className="md:col-span-2">
-                                  <CampoEvolucao label="Evolução Clínica" texto={folha.evolucao_clinica} />
-                                </div>
-                                <div className="md:col-span-2">
-                                  <CampoEvolucao label="Plano para a Próxima Sessão" texto={folha.plano_proxima_sessao} />
-                                </div>
-                                <div className="md:col-span-2">
-                                  <CampoEvolucao label="Observações" texto={folha.observacoes} />
+                          {/* Conteúdo expansível */}
+                          {isExpanded && (
+                            <>
+                              <div className="border-t border-slate-200"></div>
+                              <div className="w-full">
+                                <div className="p-4 md:p-6 w-full">
+                                  <div className="md:col-span-2"><FeedbackCard folha={folha} /></div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                    <div className="md:col-span-2">
+                                      <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />
+                                    </div>
+                                    <div>
+                                      <CampoEvolucao label="Sintomas Atuais" texto={folha.sintomas_atuais} />
+                                    </div>
+                                    <div>
+                                      <CampoEvolucao label="Intervenções Realizadas" texto={folha.intervencoes_realizadas} />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                      <CampoEvolucao label="Evolução Clínica" texto={folha.evolucao_clinica} />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                      <CampoEvolucao label="Plano para a Próxima Sessão" texto={folha.plano_proxima_sessao} />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                      <CampoEvolucao label="Observações" texto={folha.observacoes} />
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </div>
+                            </>
+                          )}
                         </div>
                       </div>
-                    ))
+                    )})
                   )}
                 </div>
               </div>
