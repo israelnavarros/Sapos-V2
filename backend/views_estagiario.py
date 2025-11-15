@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, session, flash, url_for, s
 from main import app, db, mail, crypt, cache
 from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido
-from sqlalchemy import text, desc
+from sqlalchemy import text, desc, or_
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_mail import Message
@@ -612,3 +612,62 @@ def atividade_paciente(id):
     tempo_decorrido = agora - ultima_atividade
     tempo_formatado = formatar_tempo_decorrido(tempo_decorrido)
     return tempo_formatado
+
+@app.route('/api/pacientes_disponiveis', methods=['GET'])
+@login_required
+def pacientes_disponiveis():
+    """
+    Lista pacientes disponíveis para um estagiário assumir.
+    Critérios:
+    1. Paciente não tem estagiário (`id_estagiario` é NULL).
+    2. O paciente ou não tem supervisor ou o supervisor pertence ao mesmo grupo do estagiário.
+    """
+    if current_user.cargo != 2: # Apenas para estagiários
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    supervisores_grupo_ids = [u.id_usuario for u in Usuarios.query.filter_by(grupo=current_user.grupo, cargo=1).all()]
+
+    Supervisor = aliased(Usuarios)
+    pacientes_query = Pacientes.query.outerjoin(Supervisor, Pacientes.id_supervisor == Supervisor.id_usuario).filter(
+        Pacientes.id_estagiario == None,
+        or_(
+            Pacientes.id_supervisor == None,
+            Pacientes.id_supervisor.in_(supervisores_grupo_ids)
+        )
+    ).add_columns(
+        Pacientes.id_paciente,
+        Pacientes.nome_completo,
+        Pacientes.idade,
+        Pacientes.motivo,
+        Supervisor.nome.label('supervisor_nome')
+    ).order_by(Pacientes.data_criacao.desc()).all()
+
+    pacientes_disponiveis = [
+        {'id_paciente': p.id_paciente, 'nome_completo': p.nome_completo, 'idade': p.idade, 'motivo': p.motivo, 'supervisor_nome': p.supervisor_nome}
+        for p in pacientes_query
+    ]
+
+    return jsonify(pacientes_disponiveis)
+
+
+@app.route('/api/assumir_paciente/<int:id_paciente>', methods=['POST'])
+@login_required
+def assumir_paciente(id_paciente):
+    """
+    Estagiário assume um paciente.
+    Atualiza o id_estagiario e o id_supervisor do paciente.
+    """
+    if current_user.cargo != 2:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    paciente = Pacientes.query.get_or_404(id_paciente)
+    if paciente.id_estagiario:
+        return jsonify({'message': 'Este paciente já foi assumido por outro estagiário.'}), 400
+
+    supervisor = Usuarios.query.filter_by(grupo=current_user.grupo, cargo=1).first()
+
+    paciente.id_estagiario = current_user.id_usuario
+    paciente.id_supervisor = supervisor.id_usuario if supervisor else None
+    db.session.commit()
+
+    return jsonify({'status': 'success', 'message': 'Paciente assumido com sucesso!'})
