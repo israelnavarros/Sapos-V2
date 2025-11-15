@@ -388,9 +388,21 @@ export default function MeuGrupo() {
 
             {/* Aba: Dashboard de Pacientes */}
             {abaAtiva === 'dashboard' && (
-              <div className="bg-white p-6 rounded-xl shadow-md text-center">
-                <h2 className="text-xl font-semibold text-slate-800">Dashboard de Pacientes</h2>
-                <p className="mt-2 text-slate-500">Esta área mostra os pacientes do seu grupo.</p>
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <div className="flex justify-between items-center mb-6">
+                    <div className="text-left">
+                        <h2 className="text-xl font-semibold text-slate-800">Dashboard de Pacientes</h2>
+                        <p className="mt-1 text-slate-500">Esta área mostra os pacientes do seu grupo.</p>
+                    </div>
+                    <Link
+                        to="/sup_assumir_paciente"
+                        className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
+                    >
+                        <i className="bi bi-person-plus-fill"></i>
+                        Assumir/Gerenciar Paciente
+                    </Link>
+                </div> 
+                
                 <div className="overflow-x-auto bg-white shadow-lg rounded-xl">
                   <table className="min-w-full divide-y divide-slate-200">
                     <thead className="bg-slate-100">

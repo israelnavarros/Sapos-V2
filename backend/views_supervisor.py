@@ -1,3 +1,4 @@
+from operator import or_
 from flask import request, jsonify
 from main import app, db, mail, crypt, cache
 from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao
@@ -460,6 +461,64 @@ def sup_pacientes_supervisionados():
 @login_required
 def api_dashboard_coordenacao():
     return jsonify({'status': 'success'})
+
+@app.route('/api/sup_pacientes_para_assumir', methods=['GET'])
+@login_required
+def sup_pacientes_para_assumir():
+    """
+    Lista pacientes para um supervisor assumir ou gerenciar.
+    Critérios:
+    1. Paciente não tem supervisor.
+    2. Paciente já é supervisionado pelo supervisor logado.
+    """
+    if current_user.cargo != 1:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    Estagiario = aliased(Usuarios)
+    Supervisor = aliased(Usuarios)
+
+    pacientes_query = Pacientes.query\
+        .outerjoin(Estagiario, Pacientes.id_estagiario == Estagiario.id_usuario)\
+        .outerjoin(Supervisor, Pacientes.id_supervisor == Supervisor.id_usuario)\
+        .filter(
+            or_(
+                Pacientes.id_supervisor == None,
+                Pacientes.id_supervisor == current_user.id_usuario
+            )
+        )\
+        .add_columns(
+            Pacientes.id_paciente,
+            Pacientes.nome_completo,
+            Pacientes.idade,
+            Pacientes.motivo,
+            Estagiario.nome.label('estagiario_nome'),
+            Supervisor.nome.label('supervisor_nome')
+        ).order_by(Pacientes.data_criacao.desc()).all()
+
+    pacientes_disponiveis = [
+        {'id_paciente': p.id_paciente, 'nome_completo': p.nome_completo, 'idade': p.idade, 'motivo': p.motivo, 'estagiario_nome': p.estagiario_nome, 'supervisor_nome': p.supervisor_nome}
+        for p in pacientes_query
+    ]
+
+    return jsonify(pacientes_disponiveis)
+
+@app.route('/api/sup_assumir_ou_atualizar_paciente/<int:id_paciente>', methods=['POST'])
+@login_required
+def sup_assumir_ou_atualizar_paciente(id_paciente):
+    if current_user.cargo != 1:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    paciente = Pacientes.query.get_or_404(id_paciente)
+    data = request.get_json()
+    id_estagiario_novo = data.get('id_estagiario') or None
+
+    # Define o supervisor atual como o supervisor do paciente
+    paciente.id_supervisor = current_user.id_usuario
+    # Atribui o estagiário (ou remove a atribuição se for None)
+    paciente.id_estagiario = id_estagiario_novo
+
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': 'Paciente atualizado com sucesso!'})
 
 @app.route('/api/sup_validar_folha/<int:id_folha>', methods=['POST'])
 @login_required
