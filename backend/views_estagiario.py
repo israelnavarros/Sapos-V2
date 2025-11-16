@@ -301,6 +301,7 @@ def api_ficha_paciente(id):
         'etnia':dados_paciente.etnia,
         'genero':dados_paciente.genero,
         'classe_social':dados_paciente.classe_social,
+        'intervalo_sessoes': dados_paciente.intervalo_sessoes,
         'tags': tags,
     }
     Estagiario = aliased(Usuarios)

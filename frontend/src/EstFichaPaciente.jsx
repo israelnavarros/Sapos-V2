@@ -238,10 +238,10 @@ export default function EstFichaPaciente() {
         {/* SEÇÃO DE TAGS */}
         <div className="container-geral px-4 sm:px-6 lg:px-8 mb-4">
           <div className="p-4 rounded-lg flex items-center flex-wrap gap-4 mb-4">
-              <h4 className="text-sm font-semibold text-gray-600">Tags do Paciente</h4>
-              {paciente.tags && paciente.tags.length > 0
-                ? paciente.tags.map(tag => <Tag key={tag.id_tag} nome={tag.nome} />)
-                : <p className="text-sm text-gray-400 italic">Nenhuma tag atribuída.</p>}
+            <h4 className="text-sm font-semibold text-gray-600">Tags do Paciente</h4>
+            {paciente.tags && paciente.tags.length > 0
+              ? paciente.tags.map(tag => <Tag key={tag.id_tag} nome={tag.nome} />)
+              : <p className="text-sm text-gray-400 italic">Nenhuma tag atribuída.</p>}
           </div>
         </div>
 
@@ -281,17 +281,17 @@ export default function EstFichaPaciente() {
               <div className="pt-3">
 
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                        <h1 className="text-3xl font-bold text-gray-900">Administração de Pacientes</h1>                        
-                        <Link
-                            to={`/est_editar_paciente/${paciente.id_paciente}`}
-                            className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                            </svg>
-                            Editar Ficha do Paciente
-                        </Link>
-                    </div>
+                  <h1 className="text-3xl font-bold text-gray-900">Administração de Pacientes</h1>
+                  <Link
+                    to={`/est_editar_paciente/${paciente.id_paciente}`}
+                    className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    Editar Ficha do Paciente
+                  </Link>
+                </div>
                 {/* <h3 className="text-xl font-bold text-gray-800 mb-4">Ficha de Atendimento</h3> */}
 
 
@@ -411,6 +411,7 @@ export default function EstFichaPaciente() {
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
                     <p className="text-sm text-gray-500">Visualize e valide as atualizações feitas pelos estagiários sobre o paciente.</p>
                   </div>
+
                   <button
                     onClick={() => setIsCreateModalOpen(true)}
                     className="px-4 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors"
@@ -418,6 +419,12 @@ export default function EstFichaPaciente() {
                     Adicionar Evolução
                   </button>
                 </div>
+                {paciente.intervalo_sessoes && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
+                    <i className="bi bi-info-circle-fill text-blue-600"></i>
+                    <p className="text-sm text-blue-800">O intervalo de atendimento definido para este paciente é <strong>{paciente.intervalo_sessoes}</strong>.</p>
+                  </div>
+                )}
 
 
                 <div id="ListaDeFolhas">
@@ -432,115 +439,116 @@ export default function EstFichaPaciente() {
                     folhas.map(folha => {
                       const isExpanded = expandedFolhaId === folha.id_folha;
                       return (
-                      <div className="bg-white rounded-xl shadow mb-6 border border-slate-200" key={folha.id_folha}>
-                        <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+                        <div className="bg-white rounded-xl shadow mb-6 border border-slate-200" key={folha.id_folha}>
+                          <div className="p-4 border-b border-slate-200 flex justify-between items-center">
                             <p className="text-sm font-semibold text-slate-700">Sessão #{folha.numero_sessao}</p>
                             <p className="text-xs text-slate-500">{new Date(folha.data_postagem).toLocaleString('pt-BR')}</p>
-                        </div>                        <div className="card-body">
-                          <div className="flex items-center justify-between p-4 md:p-4">
-                            <div className="flex items-center gap-4">
-                              <img
-                                src={`/api/uploads/usuarios/${folha.id_estagiario}`}
-                                alt="Estagiário"
-                                className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
-                              />
-                              <div>
-                                <small>Nome do Estagiário</small>
-                                <h6 className="font-bold text-slate-800">{folha.nome_estagiario}</h6>
+                          </div>                        <div className="card-body">
+                            <div className="flex items-center justify-between p-4 md:p-4">
+                              <div className="flex items-center gap-4">
+                                <img
+                                  src={`/api/uploads/usuarios/${folha.id_estagiario}`}
+                                  alt="Estagiário"
+                                  className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
+                                />
+                                <div>
+                                  <small>Nome do Estagiário</small>
+                                  <h6 className="font-bold text-slate-800">{folha.nome_estagiario}</h6>
+                                </div>
                               </div>
-                            </div>
-                            <div className="ms-auto">
-                              <button
-                                disabled={folha.status_validacao === 'Validação Pendente'}
-                                className={`flex items-center justify-between  w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
+                              <div className="ms-auto">
+                                <button
+                                  disabled={folha.status_validacao === 'Validação Pendente'}
+                                  className={`flex items-center justify-between  w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
                                 ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
-                                    folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
-                                      'border-green-600 text-green hover:bg-green-50 cursor-pointer'}`}
-                                onClick={() => {
-                                  if (folha.status_validacao !== 'Validação Pendente') {
-                                    console.log(`Status clicado: ${folha.status_validacao}`);
-                                  }
-                                }}
-                              >
-                                {/* Ícone dentro de círculo */}
-                                <span className={`flex items-center justify-center w-6 h-6 rounded-full
+                                      folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
+                                        'border-green-600 text-green hover:bg-green-50 cursor-pointer'}`}
+                                  onClick={() => {
+                                    if (folha.status_validacao !== 'Validação Pendente') {
+                                      console.log(`Status clicado: ${folha.status_validacao}`);
+                                    }
+                                  }}
+                                >
+                                  {/* Ícone dentro de círculo */}
+                                  <span className={`flex items-center justify-center w-6 h-6 rounded-full
                                 ${folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
-                                    folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
-                                      'bg-gray-200 text-gray-500'}`}>
-                                  {folha.status_validacao === 'Aprovado' && (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  )}
-                                  {folha.status_validacao === 'Reprovado' && (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                  )}
-                                  {folha.status_validacao === 'Validação Pendente' && (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                  )}
-                                </span>
+                                      folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
+                                        'bg-gray-200 text-gray-500'}`}>
+                                    {folha.status_validacao === 'Aprovado' && (
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                    {folha.status_validacao === 'Reprovado' && (
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                    )}
+                                    {folha.status_validacao === 'Validação Pendente' && (
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    )}
+                                  </span>
 
-                                {/* Texto do status */}
-                                <span className="flex-grow text-left">{folha.status_validacao}</span>
+                                  {/* Texto do status */}
+                                  <span className="flex-grow text-left">{folha.status_validacao}</span>
 
-                                {/* Seta para baixo se clicável */}
-                                {folha.status_validacao !== 'Validação Pendente' && (
-                                  <svg className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                  </svg>
-                                )}
+                                  {/* Seta para baixo se clicável */}
+                                  {folha.status_validacao !== 'Validação Pendente' && (
+                                    <svg className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  )}
+                                </button>
+                              </div>
+                              {/* Botão de expandir/recolher */}
+                              <button
+                                onClick={() => setExpandedFolhaId(isExpanded ? null : folha.id_folha)}
+                                className="p-2 rounded-full hover:bg-slate-100 transition-colors ml-2 cursor-pointer"
+                                aria-label={isExpanded ? "Recolher" : "Expandir"}
+                              >
+                                <svg className={`w-6 h-6 text-slate-500 transition-transform transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
                               </button>
                             </div>
-                            {/* Botão de expandir/recolher */}
-                            <button 
-                              onClick={() => setExpandedFolhaId(isExpanded ? null : folha.id_folha)}
-                              className="p-2 rounded-full hover:bg-slate-100 transition-colors ml-2 cursor-pointer"
-                              aria-label={isExpanded ? "Recolher" : "Expandir"}
-                            >
-                              <svg className={`w-6 h-6 text-slate-500 transition-transform transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                              </svg>
-                            </button>
-                          </div>
 
-                          {/* Conteúdo expansível */}
-                          {isExpanded && (
-                            <>
-                              <div className="border-t border-slate-200"></div>
-                              <div className="w-full">
-                                <div className="p-4 md:p-6 w-full">
-                                  <div className="md:col-span-2"><FeedbackCard folha={folha} /></div>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                                    <div className="md:col-span-2">
-                                      <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />
-                                    </div>
-                                    <div>
-                                      <CampoEvolucao label="Sintomas Atuais" texto={folha.sintomas_atuais} />
-                                    </div>
-                                    <div>
-                                      <CampoEvolucao label="Intervenções Realizadas" texto={folha.intervencoes_realizadas} />
-                                    </div>
-                                    <div className="md:col-span-2">
-                                      <CampoEvolucao label="Evolução Clínica" texto={folha.evolucao_clinica} />
-                                    </div>
-                                    <div className="md:col-span-2">
-                                      <CampoEvolucao label="Plano para a Próxima Sessão" texto={folha.plano_proxima_sessao} />
-                                    </div>
-                                    <div className="md:col-span-2">
-                                      <CampoEvolucao label="Observações" texto={folha.observacoes} />
+                            {/* Conteúdo expansível */}
+                            {isExpanded && (
+                              <>
+                                <div className="border-t border-slate-200"></div>
+                                <div className="w-full">
+                                  <div className="p-4 md:p-6 w-full">
+                                    <div className="md:col-span-2"><FeedbackCard folha={folha} /></div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                      <div className="md:col-span-2">
+                                        <CampoEvolucao label="Hipótese Diagnóstica" texto={folha.hipotese_diagnostica} />
+                                      </div>
+                                      <div>
+                                        <CampoEvolucao label="Sintomas Atuais" texto={folha.sintomas_atuais} />
+                                      </div>
+                                      <div>
+                                        <CampoEvolucao label="Intervenções Realizadas" texto={folha.intervencoes_realizadas} />
+                                      </div>
+                                      <div className="md:col-span-2">
+                                        <CampoEvolucao label="Evolução Clínica" texto={folha.evolucao_clinica} />
+                                      </div>
+                                      <div className="md:col-span-2">
+                                        <CampoEvolucao label="Plano para a Próxima Sessão" texto={folha.plano_proxima_sessao} />
+                                      </div>
+                                      <div className="md:col-span-2">
+                                        <CampoEvolucao label="Observações" texto={folha.observacoes} />
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            </>
-                          )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )})
+                      )
+                    })
                   )}
                 </div>
               </div>

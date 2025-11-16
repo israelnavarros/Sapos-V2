@@ -98,6 +98,11 @@ export default function FichaPaciente() {
   const [selectedTags, setSelectedTags] = useState(new Set());
   const [newTagName, setNewTagName] = useState('');
 
+  // Estados para o Modal de Intervalo
+  const [isIntervaloModalOpen, setIsIntervaloModalOpen] = useState(false);
+  const [intervalo, setIntervalo] = useState('');
+
+
 
   useEffect(() => {
     fetchPacienteData();
@@ -107,6 +112,7 @@ export default function FichaPaciente() {
       .then(data => {
         setInfo(data);
         setFolhas(data.folhas_pacientes || []);
+        setIntervalo(data.paciente?.intervalo_sessoes || '');
       })
       .catch(err => console.error('Erro ao carregar dados do paciente:', err));
 
@@ -162,6 +168,7 @@ export default function FichaPaciente() {
         setFolhas(data.folhas_pacientes || []);
         // Inicializa as tags selecionadas com as do paciente
         const initialTagIds = new Set((data.paciente.tags || []).map(t => t.id_tag));
+        setIntervalo(data.paciente?.intervalo_sessoes || '');
         setSelectedTags(initialTagIds);
       })
       .catch(err => console.error('Erro ao carregar dados do paciente:', err));
@@ -281,6 +288,24 @@ export default function FichaPaciente() {
       } else throw new Error('Falha ao salvar tags');
     } catch (err) { console.error(err); alert(err.message); }
   };
+
+  const handleSaveIntervalo = async () => {
+    try {
+      const res = await fetch(`/api/paciente/${id_paciente}/intervalo`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ intervalo: intervalo }),
+      });
+      if (res.ok) {
+        alert('Intervalo de atendimento atualizado com sucesso!');
+        setIsIntervaloModalOpen(false);
+        fetchPacienteData(); // Re-busca os dados para atualizar a UI
+      } else {
+        throw new Error('Falha ao salvar o intervalo.');
+      }
+    } catch (err) { console.error(err); alert(err.message); }
+  };
   if (!info || !info.paciente) return <div>Carregando...</div>;
   const paciente = info.paciente;
 
@@ -290,17 +315,23 @@ export default function FichaPaciente() {
       <main className='mt-20 p-4'>
         {/* SEÇÃO DE TAGS COM BOTÃO */}
         <div className="container-geral px-4 sm:px-6 lg:px-8 mb-4">
-          <div className="p-4 rounded-lg flex items-center justify-between flex-wrap gap-4">
+          <div className="p-4 rounded-lg flex items-center justify-between flex-wrap gap-y-3 gap-x-4">
             <div className="flex items-center gap-3 flex-wrap">
                 <h4 className="text-sm font-semibold text-gray-600">Tags do Paciente</h4>
                 {paciente.tags && paciente.tags.length > 0
                     ? paciente.tags.map(tag => <Tag key={tag.id_tag} nome={tag.nome} />)
                     : <p className="text-sm text-gray-400 italic">Nenhuma tag atribuída.</p>}
             </div>
-            <button onClick={openTagModal} className="flex items-center gap-2 text-sm bg-green text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm hover:bg-green-600 transition-colors cursor-pointer">
-              <i className="bi bi-pencil-square"></i>
-              Gerenciar Tags
-            </button>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setIsIntervaloModalOpen(true)} className="flex items-center gap-2 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm hover:bg-blue-700 transition-colors cursor-pointer">
+                <i className="bi bi-calendar-week"></i>
+                Definir Intervalo
+              </button>
+              <button onClick={openTagModal} className="flex items-center gap-2 text-sm bg-green text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm hover:bg-green-600 transition-colors cursor-pointer">
+                <i className="bi bi-pencil-square"></i>
+                Gerenciar Tags
+              </button>
+            </div>
           </div>
         </div>
 
@@ -465,6 +496,12 @@ export default function FichaPaciente() {
               <div className="pt-3">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
                 <p className="text-sm text-gray-500 mb-4">Visualize e valide as atualizações feitas pelos estagiários a cada sessão.</p>
+                {paciente.intervalo_sessoes && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
+                    <i className="bi bi-info-circle-fill text-blue-600"></i>
+                    <p className="text-sm text-blue-800">O intervalo de atendimento definido para este paciente é <strong>{paciente.intervalo_sessoes}</strong>.</p>
+                  </div>
+                )}
 
 
                 <div id="ListaDeFolhas">
@@ -769,6 +806,43 @@ export default function FichaPaciente() {
               </button>
               <button onClick={handleSavePatientTags} className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">
                 Salvar Alterações
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE GERENCIAMENTO DE INTERVALO */}
+      {isIntervaloModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-6">Definir Intervalo de Atendimento</h3>
+
+            <div>
+              <label htmlFor="intervalo-select" className="block text-sm font-medium text-gray-700 mb-2">
+                Selecione a frequência das sessões
+              </label>
+              <select
+                id="intervalo-select"
+                value={intervalo}
+                onChange={(e) => setIntervalo(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+              >
+                <option value="" disabled>Selecione um intervalo...</option>
+                <option value="Semanal">Semanal</option>
+                <option value="Quinzenal">Quinzenal</option>
+                <option value="Mensal">Mensal</option>
+                <option value="Bimestral">Bimestral</option>
+              </select>
+            </div>
+
+            {/* Botões de Ação do Modal */}
+            <div className="mt-8 flex justify-end space-x-3">
+              <button onClick={() => setIsIntervaloModalOpen(false)} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                Cancelar
+              </button>
+              <button onClick={handleSaveIntervalo} className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90">
+                Salvar
               </button>
             </div>
           </div>

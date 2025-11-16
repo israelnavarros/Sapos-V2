@@ -319,6 +319,7 @@ def api_sup_ficha_paciente(id):
         'etnia':dados_paciente.etnia,
         'genero':dados_paciente.genero,
         'classe_social':dados_paciente.classe_social,
+        'intervalo_sessoes': dados_paciente.intervalo_sessoes,
         'tags': tags,
     }
 
@@ -593,3 +594,25 @@ def api_update_paciente_tags(id_paciente):
     cache.delete(f'ficha_paciente_{id_paciente}') # Limpa o cache para refletir a mudança
 
     return jsonify({'message': 'Tags do paciente atualizadas com sucesso.'})
+
+@app.route('/api/paciente/<int:id_paciente>/intervalo', methods=['PUT'])
+@login_required
+def api_update_paciente_intervalo(id_paciente):
+    """ Atualiza o intervalo de atendimento de um paciente. """
+    paciente = Pacientes.query.get_or_404(id_paciente)
+    data = request.get_json()
+    intervalo = data.get('intervalo')
+
+    # REGRA DE NEGÓCIO: Apenas o supervisor do paciente pode alterar o intervalo
+    if paciente.id_supervisor != current_user.id_usuario:
+        return jsonify({'message': 'Acesso não autorizado para alterar o intervalo deste paciente.'}), 403
+
+    # Atualiza o campo no banco de dados
+    paciente.intervalo_sessoes = intervalo
+    db.session.commit()
+
+    # Limpa o cache para que a mudança seja refletida imediatamente em qualquer lugar
+    # que consuma os dados da ficha do paciente.
+    cache.delete(f'ficha_paciente_{id_paciente}')
+
+    return jsonify({'message': 'Intervalo de atendimento atualizado com sucesso.'})
