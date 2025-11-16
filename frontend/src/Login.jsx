@@ -39,23 +39,29 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-screen h-screen">
-      <div className="flex-1 bg-green flex flex-col justify-center items-center text-white p-10 text-center">
-        <img src="src/assets/Logo.png" alt="Logo SAPO" className="w-32 h-32 mb-6" />
-        <h1 className="text-3xl font-bold mb-2">Bem-vindo ao SAPO</h1>
-        <p className="text-lg max-w-md mb-4">
-          Sistema de Assistência Psicológica Online
-        </p>
-        <p className="text-base font-light italic max-w-md text-white opacity-90">
-          Onde a prática encontra o cuidado humano.
+    <div className="flex flex-col md:flex-row w-screen min-h-screen bg-background">
+      {/* Seção Esquerda (Verde) */}
+      <div className="relative flex-grow-0 md:flex-1 bg-green flex flex-col justify-center items-center text-white p-8 md:p-10">
+        {/* Logo no canto superior esquerdo */}
+        <div className="absolute top-6 left-6 md:top-8 md:left-8 bg-white/90 p-2 md:p-3 rounded-2xl">
+          <img src="src/assets/Logo.png" alt="Logo SAPO" className="w-8 h-8 md:w-12 md:h-12" />
+        </div>
+
+        {/* Slogan quebrado em linhas */}
+        <p className="text-4xl md:text-5xl font-bold leading-tight text-center">
+          Onde a<br />
+          prática<br />
+          encontra o<br />
+          cuidado<br />
+          humano.
         </p>
       </div>
 
 
       {/* Direita (bege/login) */}
-      <div className="flex-1 bg-background flex flex-col justify-center items-center p-10 text-center">
+      <div className="flex-1 bg-background flex flex-col justify-center items-center p-8 md:p-10 text-center">
 
-        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
+        <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
           <h2 className="text-2xl font-semibold text-gray-700">Login</h2>
 
           <div>
