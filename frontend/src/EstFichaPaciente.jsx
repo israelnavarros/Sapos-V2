@@ -280,15 +280,16 @@ export default function EstFichaPaciente() {
             {tab === 'ficha' && (
               <div className="pt-3">
 
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                  <h1 className="text-3xl font-bold text-gray-900">Administração de Pacientes</h1>
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Dados do Paciente</h3>
+                    <p className="text-sm text-gray-500">Visualize e edite as informações cadastrais.</p>
+                  </div>
                   <Link
                     to={`/est_editar_paciente/${paciente.id_paciente}`}
                     className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                    </svg>
+                    <i className="bi bi-pencil-square"></i>
                     Editar Ficha do Paciente
                   </Link>
                 </div>
@@ -406,15 +407,15 @@ export default function EstFichaPaciente() {
             )}
             {tab === 'evolucao' && (
               <div className="pt-3">
-                <div className='flex mb-4'>
+                <div className='flex justify-between items-center mb-4'>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
-                    <p className="text-sm text-gray-500">Visualize e valide as atualizações feitas pelos estagiários sobre o paciente.</p>
+                    <p className="text-sm text-gray-500">Adicione e visualize as atualizações de cada sessão.</p>
                   </div>
 
                   <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="px-4 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors"
+                    className="flex-shrink-0 px-5 py-2.5 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors cursor-pointer hover:bg-green-600"
                   >
                     Adicionar Evolução
                   </button>
