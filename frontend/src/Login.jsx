@@ -42,9 +42,9 @@ function Login() {
     <div className="flex flex-col md:flex-row w-screen h-screen">
       <div className="flex-1 bg-green flex flex-col justify-center items-center text-white p-10 text-center">
         <img src="src/assets/Logo.png" alt="Logo SAPO" className="w-32 h-32 mb-6" />
-        <h1 className="text-3xl font-bold mb-2">Bem-vindo ao SAPOS</h1>
+        <h1 className="text-3xl font-bold mb-2">Bem-vindo ao SAPO</h1>
         <p className="text-lg max-w-md mb-4">
-          Sistema de Acompanhamento de Pacientes e Organização de Saúde.
+          Sistema de Assistência Psicológica Online
         </p>
         <p className="text-base font-light italic max-w-md text-white opacity-90">
           Onde a prática encontra o cuidado humano.
