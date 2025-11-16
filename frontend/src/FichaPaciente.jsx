@@ -382,6 +382,10 @@ export default function FichaPaciente() {
           <div className="painel-direito">
             {tab === 'ficha' && (
               <div className="pt-3">
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Dados do Paciente</h3>
+                  <p className="text-sm text-gray-500">Visualize as informações cadastrais do paciente.</p>
+                </div>
 
                 <div className="flex border-b border-gray-200 mb-4">
                   <button

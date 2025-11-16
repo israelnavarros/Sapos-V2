@@ -283,7 +283,7 @@ export default function EstFichaPaciente() {
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Dados do Paciente</h3>
-                    <p className="text-sm text-gray-500">Visualize e edite as informações cadastrais.</p>
+                    <p className="text-sm text-gray-500">Visualize as informações cadastrais do paciente.</p>
                   </div>
                   <Link
                     to={`/est_editar_paciente/${paciente.id_paciente}`}
