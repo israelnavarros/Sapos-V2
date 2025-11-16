@@ -19,7 +19,7 @@ function Header() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img src="/src/assets/Logo.png" alt="Logo SAPO" width={50} height={50} className='bg-amber-50 rounded-2xl' />
-          <span className="font-bold text-xl text-white ">SAPOS</span>
+          <span className="font-bold text-xl text-white ">SAPO</span>
         </Link>
 
         {/* Botão do menu mobile */}
