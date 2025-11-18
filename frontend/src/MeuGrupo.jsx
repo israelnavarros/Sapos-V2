@@ -219,7 +219,8 @@ export default function MeuGrupo() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Cabeçalho da Página */}
           <div className="mb-8 text-center md:text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 break-words">{grupoInfo.titulo}</h1>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Seu grupo</h3>
+            <h3 className="sm:text-5xl text-3xl font-bold text-gray-800 mb-2">{grupoInfo.titulo}</h3>
             <p className="mt-1 text-base sm:text-lg text-slate-600">Gerencie as informações do seu grupo de estágio.</p>
           </div>
 
