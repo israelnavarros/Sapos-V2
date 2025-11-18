@@ -218,14 +218,14 @@ export default function MeuGrupo() {
       <main className="bg-slate-50 min-h-screen pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Cabeçalho da Página */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-slate-900 break-words">{grupoInfo.titulo}</h1>
-            <p className="mt-1 text-lg text-slate-600">Gerencie as informações do seu grupo de estágio.</p>
+          <div className="mb-8 text-center md:text-left">
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 break-words">{grupoInfo.titulo}</h1>
+            <p className="mt-1 text-base sm:text-lg text-slate-600">Gerencie as informações do seu grupo de estágio.</p>
           </div>
 
           {/* --- NAVEGAÇÃO POR ABAS --- */}
-          <div className="border-b border-slate-200 mb-8">
-            <nav className="-mb-px flex space-x-6">
+          <div className="border-b border-slate-200 mb-8 overflow-x-auto">
+            <nav className="-mb-px flex space-x-2 sm:space-x-6">
               <TabButton aba="visaoGeral" label="Visão Geral" />
               <TabButton aba="membros" label="Membros" />
               <TabButton aba="reunioes" label="Reuniões" />
@@ -354,33 +354,35 @@ export default function MeuGrupo() {
                   </div>
 
                   {/* Tabela de reuniões */}
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Dia</th>
-                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Início</th>
-                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fim</th>
-                        <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {reunioes.map(reuniao => (
-                        <tr key={reuniao.id_reuniaogrupos} className="hover:bg-gray-50">
-                          <td className="px-4 py-2">{DIAS_DA_SEMANA[reuniao.dia]}</td>
-                          <td className="px-4 py-2">{reuniao.hora_inicio}</td>
-                          <td className="px-4 py-2">{reuniao.hora_fim}</td>
-                          <td className="px-4 py-2 text-center">
-                            <button
-                              className="text-red-600 hover:text-red-800"
-                              onClick={() => handleRemoveReuniao(reuniao.id_reuniaogrupos)}
-                            >
-                              <i className="bi bi-trash"></i>
-                            </button>
-                          </td>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Dia</th>
+                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Início</th>
+                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fim</th>
+                          <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">Ações</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {reunioes.map(reuniao => (
+                          <tr key={reuniao.id_reuniaogrupos} className="hover:bg-gray-50">
+                            <td className="px-4 py-2 whitespace-nowrap">{DIAS_DA_SEMANA[reuniao.dia]}</td>
+                            <td className="px-4 py-2">{reuniao.hora_inicio}</td>
+                            <td className="px-4 py-2">{reuniao.hora_fim}</td>
+                            <td className="px-4 py-2 text-center">
+                              <button
+                                className="text-red-600 hover:text-red-800"
+                                onClick={() => handleRemoveReuniao(reuniao.id_reuniaogrupos)}
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </section>
 
               </div>
@@ -389,8 +391,8 @@ export default function MeuGrupo() {
             {/* Aba: Dashboard de Pacientes */}
             {abaAtiva === 'dashboard' && (
               <div className="bg-white p-6 rounded-xl shadow-md">
-                <div className="flex justify-between items-center mb-6">
-                    <div className="text-left">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div className="text-center md:text-left">
                         <h2 className="text-xl font-semibold text-slate-800">Dashboard de Pacientes</h2>
                         <p className="mt-1 text-slate-500">Esta área mostra os pacientes do seu grupo.</p>
                     </div>
