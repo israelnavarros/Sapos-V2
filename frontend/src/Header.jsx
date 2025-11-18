@@ -1,5 +1,5 @@
-import { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 
 function Header() {
@@ -7,10 +7,20 @@ function Header() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const cargo = user?.cargo || 0;
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  // Fecha o menu ao navegar para outra página
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location]);
+
+  const NavLink = ({ to, children }) => {
+    return <Link to={to} className="block py-2 px-4 text-slate-800 md:text-white rounded hover:bg-green-50 md:hover:bg-transparent md:hover:text-green-200 transition-colors">{children}</Link>
   };
 
   return (
@@ -27,51 +37,69 @@ function Header() {
           className="md:hidden p-2 text-white"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Abrir menu"
+          aria-expanded={menuOpen}
         >
-          <span className="material-icons">menu</span>
+          {menuOpen ? (
+            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
         </button>
 
+        {/* Overlay para o menu mobile */}
+        {menuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/30 z-40 md:hidden"
+            onClick={() => setMenuOpen(false)}
+          ></div>
+        )}
+
         {/* Menu */}
-        <ul className={`flex flex-col md:flex-row md:items-center gap-4 md:gap-6 absolute md:static top-full left-0 w-full md:w-auto bg-white md:bg-transparent px-4 md:px-0 py-4 md:py-0 transition-all duration-300 ease-in-out ${menuOpen ? 'block' : 'hidden md:flex'}`}>
+        <ul className={`flex flex-col md:flex-row md:items-center gap-2 md:gap-6 fixed md:static top-0 right-0 h-full w-64 md:w-auto bg-white md:bg-transparent p-6 md:p-0 shadow-xl md:shadow-none transition-transform duration-300 ease-in-out z-50 ${menuOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+          {/* Links de Navegação */}
           <li>
-            <Link to="/" className="text-white">Página Inicial</Link>
+            <NavLink to="/">Página Inicial</NavLink>
           </li>
 
           {cargo === 0 && (
             <li>
-              <Link to="/administracao" className="text-white ">Administração</Link>
+              <NavLink to="/administracao">Administração</NavLink>
             </li>
           )}
           {cargo === 1 && (
             <li>
-              <Link to="/meugrupo" className="text-white ">Meu Grupo</Link>
+              <NavLink to="/meugrupo">Meu Grupo</NavLink>
             </li>
           )}
           {cargo === 2 && (
             <li>
-              <Link to="/meuspacientes" className="text-white ">Meus Pacientes</Link>
+              <NavLink to="/meuspacientes">Meus Pacientes</NavLink>
             </li>
           )}
 
-          <li className="flex items-center gap-3">
+          {/* Perfil do Usuário */}
+          <li className="flex items-center gap-3 mt-auto md:mt-0 pt-4 md:pt-0 border-t md:border-none border-slate-200">
             <img
               src={`/api/uploads/usuarios/${user.id}`}
               alt="Profile"
-              className="w-14 h-14 rounded-full object-cover"
+              className="w-10 h-10 rounded-full object-cover"
             />
             <div className="flex flex-col items-start">
-              <Link to="/meuperfil/" className="text-white text-base hover:font-medium transition">
+              <Link to="/meuperfil/" className="text-slate-800 md:text-white text-sm font-semibold hover:underline transition">
                 {user?.nome}
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-xs text-semiwhite transition cursor-pointer bg-transparent border-none font-thin"
+                className="text-xs text-slate-500 md:text-green-200 hover:text-red-500 md:hover:text-red-300 transition cursor-pointer bg-transparent border-none"
               >
                 Sair
               </button>
             </div>
           </li>
-
         </ul>
       </nav>
     </header>
