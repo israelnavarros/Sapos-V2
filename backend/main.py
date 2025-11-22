@@ -11,7 +11,9 @@ from flask_caching import Cache
 
 
 app = Flask(__name__)
-cors = CORS(app, supports_credentials=True, origins=['http://localhost:5173'])
+CORS(app, 
+     supports_credentials=True, 
+     origins=['http://localhost:5173', 'http://localhost:5000', 'https://sapos-4wdor6dn3-israelnavarros-projects.vercel.app'])
 app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
@@ -45,4 +47,5 @@ from views_comuns import *
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
