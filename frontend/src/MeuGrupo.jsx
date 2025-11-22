@@ -3,6 +3,7 @@ import { AuthContext } from './AuthContext';
 import Header from './Header';
 import AdicionarEstagiario from './AdicionarEstagiario';
 import { Link } from 'react-router-dom';
+import API_URL from './config';
 import Modal from './Modal';
 
 function ActionsDropdown({ paciente, onAtribuir }) {
@@ -85,7 +86,7 @@ export default function MeuGrupo() {
   const [selectedEstagiarioId, setSelectedEstagiarioId] = useState('');
 
   const fetchGrupoData = () => {
-    fetch('/api/meu_grupo', { credentials: 'include' })
+    fetch(`${API_URL}/api/meu_grupo`, { credentials: 'include' })
       .then(res => res.json())
       .then(grupoData => {
         setGrupoInfo(grupoData.grupo_info);
@@ -99,7 +100,7 @@ export default function MeuGrupo() {
 
   const fetchPacientes = () => {
     setLoadingPacientes(true);
-    fetch("/api/sup_pacientes_supervisionados", { credentials: "include" })
+    fetch(`${API_URL}/api/sup_pacientes_supervisionados`, { credentials: "include" })
       .then(res => res.json())
       .then(data => setPacientes(data || []))
       .catch(err => console.error("Erro ao carregar pacientes:", err))
@@ -115,7 +116,7 @@ export default function MeuGrupo() {
   }, [abaAtiva, pacientes.length]);
 
   const handleOpenAssignModal = (paciente) => {
-    fetch('/api/sup_estagiarios_do_grupo', { credentials: 'include' })
+    fetch(`${API_URL}/api/sup_estagiarios_do_grupo`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setListaEstagiariosModal(data);
@@ -127,7 +128,7 @@ export default function MeuGrupo() {
   const handleSaveAssignment = async () => {
     const { paciente } = modalState;
     try {
-      const response = await fetch(`/api/sup_atribuir_estagiario/${paciente.id_paciente}`, {
+      const response = await fetch(`${API_URL}/api/sup_atribuir_estagiario/${paciente.id_paciente}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -148,7 +149,7 @@ export default function MeuGrupo() {
       alert('Preencha todos os campos!');
       return;
     }
-    const res = await fetch('/api/adicionar_reuniao', {
+    const res = await fetch(`${API_URL}/api/adicionar_reuniao`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -180,7 +181,7 @@ export default function MeuGrupo() {
   // Remover reunião
   const handleRemoveReuniao = async (id_reuniao) => {
     console.log('Removendo reunião com ID:', id_reuniao);
-    const res = await fetch('/api/remover_reuniao', {
+    const res = await fetch(`${API_URL}/api/remover_reuniao`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_reuniao_grupo: Number(id_reuniao) }),
@@ -520,7 +521,7 @@ function MemberItem({ member, isIntern = false }) {
   return (
     <li>
       <Link to={linkTo} className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition">
-        <img className="w-10 h-10 rounded-full object-cover" src={`/api/uploads/usuarios/${member.id}`} alt={member.nome} />
+        <img className="w-10 h-10 rounded-full object-cover" src={`${API_URL}/api/uploads/usuarios/${member.id}`} alt={member.nome} />
         <span className="font-medium text-slate-700">{member.nome}</span>
       </Link>
     </li>

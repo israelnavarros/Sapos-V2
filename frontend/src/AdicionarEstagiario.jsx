@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import API_URL from './config';
 
 export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
   const [form, setForm] = useState({
@@ -19,7 +20,7 @@ export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
   const handleSubmit = async e => {
     e.preventDefault();
     setMensagem('');
-    const res = await fetch('/api/reg_estag_diretamente', {
+    const res = await fetch(`${API_URL}/api/reg_estag_diretamente`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

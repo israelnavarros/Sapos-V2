@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Header from './Header';
+import API_URL from './config';
 import { useNavigate } from 'react-router-dom';
 
 export default function SecTrocas() {
@@ -17,8 +18,8 @@ export default function SecTrocas() {
     setLoading(true);
     try {
       const [r1, r2] = await Promise.all([
-        fetch('/api/trocas_pendentes', { credentials: 'include' }),
-        fetch('/api/usuarios', { credentials: 'include' })
+        fetch(`${API_URL}/api/trocas_pendentes`, { credentials: 'include' }),
+        fetch(`${API_URL}/api/usuarios`, { credentials: 'include' })
       ]);
       const trocasJson = r1.ok ? await r1.json() : [];
       const usuariosJson = r2.ok ? await r2.json() : [];
@@ -41,7 +42,7 @@ export default function SecTrocas() {
     if (!window.confirm(`Confirma ${action} desta solicitação?`)) return;
     setActionLoading(id_troca);
     try {
-      const res = await fetch(`/api/secretaria_responder_troca/${id_troca}`, {
+      const res = await fetch(`${API_URL}/api/secretaria_responder_troca/${id_troca}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

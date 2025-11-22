@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from './config';
 import Header from './Header';
 
 export default function SecGrupos() {
@@ -10,7 +11,7 @@ export default function SecGrupos() {
 
   useEffect(() => {
     // Carrega os grupos do backend
-    fetch('/api/consulta_ids_grupos', { credentials: 'include' })
+    fetch(`${API_URL}/api/consulta_ids_grupos`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setListaGrupos(data))
       .catch(err => console.error('Erro ao carregar grupos:', err));
@@ -24,7 +25,7 @@ export default function SecGrupos() {
   };
 
   const confirmarEdicao = () => {
-    fetch('/api/adm_atualizar_vaga_grupo', {
+    fetch(`${API_URL}/api/adm_atualizar_vaga_grupo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

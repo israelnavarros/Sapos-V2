@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pie, Doughnut, Bar } from 'react-chartjs-2';
+import API_URL from './config';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title } from 'chart.js';
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
@@ -45,7 +46,7 @@ export default function IndexCoordenador() {
 
   useEffect(() => {
     // Troque pelo endpoint real da sua API
-    fetch('/api/consulta_ids_grupos')
+    fetch(`${API_URL}/api/consulta_ids_grupos`)
       .then(res => res.json())
       .then(data => setGrupos([{ id_grupo: '', titulo: 'Todos os grupos' }, ...data]));
   }, []);

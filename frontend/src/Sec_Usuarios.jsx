@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from './config';
 import Header from './Header';
 import moment from 'moment';
 import SecTrocas from './Sec_Trocas';
@@ -18,7 +19,7 @@ export default function SecUsuarios() {
   const habilitar_validade = moment().format('YYYY-MM-DD');
 
   useEffect(() => {
-    fetch('/api/usuarios', { credentials: 'include' })
+    fetch(`${API_URL}/api/usuarios`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setUsuarios(data))
       .catch(err => console.error('Erro ao carregar usuários:', err));

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import API_URL from './config';
 import Header from './Header';
 import Modal from './Modal';
 
@@ -83,7 +84,7 @@ export default function SecPacientes() {
 
     const fetchPacientes = () => {
         setLoading(true);
-        fetch("/api/pacientes", { credentials: "include" })
+        fetch(`${API_URL}/api/pacientes`, { credentials: "include" })
             .then(res => res.json())
             .then(data => {
                 setPacientes(data || []);
@@ -97,7 +98,7 @@ export default function SecPacientes() {
 
     const handleAssignSupervisor = (paciente) => {
         setModalState({ isOpen: true, mode: 'supervisor', paciente: paciente });
-        fetch('/api/lista_supervisores', { credentials: 'include' })
+        fetch(`${API_URL}/api/lista_supervisores`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 setUserList(data);
@@ -112,7 +113,7 @@ export default function SecPacientes() {
             return;
         }
         setModalState({ isOpen: true, mode: 'intern', paciente: paciente });
-        fetch(`/api/lista_estagiarios_por_supervisor/${paciente.id_supervisor}`, { credentials: 'include' })
+        fetch(`${API_URL}/api/lista_estagiarios_por_supervisor/${paciente.id_supervisor}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 setUserList(data);
@@ -128,7 +129,7 @@ export default function SecPacientes() {
             : { id_estagiario: selectedUserId };
 
         try {
-            const response = await fetch(`/api/atribuir_paciente/${paciente.id_paciente}`, {
+            const response = await fetch(`${API_URL}/api/atribuir_paciente/${paciente.id_paciente}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -223,7 +224,7 @@ export default function SecPacientes() {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-10 w-10">
-                                                        <img className="h-10 w-10 rounded-full object-cover bg-gray-200" src={`/api/uploads/pacientes/${paciente.id_paciente}`} alt="Foto do paciente" />
+                                                        <img className="h-10 w-10 rounded-full object-cover bg-gray-200" src={`${API_URL}/api/uploads/pacientes/${paciente.id_paciente}`} alt="Foto do paciente" />
                                                     </div>
                                                     <div className="ml-4">
                                                         <div className="text-sm font-medium text-gray-900">{paciente.nome_completo}</div>

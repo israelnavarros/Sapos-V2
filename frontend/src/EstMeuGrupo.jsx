@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import API_URL from './config'; // Importa a URL centralizada
 import Header from './Header';
 
 export default function EstMeuPacientes() {
@@ -17,7 +18,7 @@ export default function EstMeuPacientes() {
   const [carregandoSupervisores, setCarregandoSupervisores] = useState(false);
 
   useEffect(() => {
-    fetch('/api/meus_pacientes', { credentials: 'include' })
+    fetch(`${API_URL}/api/meus_pacientes`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setPacientes(data))
       .catch(err => console.error('Erro ao carregar pacientes do grupo:', err))
@@ -29,7 +30,7 @@ export default function EstMeuPacientes() {
     if (!modalOpen) return;
     setCarregandoSupervisores(true);
 
-    const pGrupo = fetch('/api/consulta_ids_supervisores', { credentials: 'include' })
+    const pGrupo = fetch(`${API_URL}/api/consulta_ids_supervisores`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('Erro ao carregar supervisores do grupo');
         return res.json();
@@ -39,7 +40,7 @@ export default function EstMeuPacientes() {
         return [];
       });
 
-    const pTodos = fetch('/api/consulta_todos_supervisores', { credentials: 'include' })
+    const pTodos = fetch(`${API_URL}/api/consulta_todos_supervisores`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('Erro ao carregar todos os supervisores');
         return res.json();
@@ -70,7 +71,7 @@ export default function EstMeuPacientes() {
     if (!selectedSupervisor) return alert('Selecione um supervisor novo.');
     setSubmitLoading(true);
     try {
-      const res = await fetch('/api/solicitar_troca_supervisor', {
+      const res = await fetch(`${API_URL}/api/solicitar_troca_supervisor`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -163,7 +164,7 @@ export default function EstMeuPacientes() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            <img className="h-10 w-10 rounded-full object-cover" src={`/api/uploads/pacientes/${paciente.id_paciente}`} alt="Foto do paciente" />
+                            <img className="h-10 w-10 rounded-full object-cover" src={`${API_URL}/api/uploads/pacientes/${paciente.id_paciente}`} alt="Foto do paciente" />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{paciente.nome_completo}</div>

@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import API_URL from './config';
 import Header from './Header';
 import { Pie } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -15,7 +16,7 @@ export default function SupMeuEstagiario() {
 
     useEffect(() => {
         async function fetchInfo() {
-            const res = await fetch(`/api/sup_meu_estagiario/${id_estagiario}`, { credentials: 'include' });
+            const res = await fetch(`${API_URL}/api/sup_meu_estagiario/${id_estagiario}`, { credentials: 'include' });
             const data = await res.json();
             setInfo(data);
         }
@@ -34,7 +35,7 @@ export default function SupMeuEstagiario() {
         if (!id_estagiario) return;
 
         // Idade dos pacientes
-        fetch(`/api/sup_primeira_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+        fetch(`${API_URL}/api/sup_primeira_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 // data é um array de idades, conte quantos de cada
@@ -54,7 +55,7 @@ export default function SupMeuEstagiario() {
             });
 
         // Gênero dos pacientes
-        fetch(`/api/sup_segunda_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+        fetch(`${API_URL}/api/sup_segunda_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 const traducaoMap = { 'M': 'Masculino', 'F': 'Feminino' };
@@ -70,7 +71,7 @@ export default function SupMeuEstagiario() {
             });
 
         // Escolaridade dos pacientes
-        fetch(`/api/sup_terceira_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+        fetch(`${API_URL}/api/sup_terceira_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 const traducao = {
@@ -90,7 +91,7 @@ export default function SupMeuEstagiario() {
             });
 
         // Renda familiar dos pacientes
-        fetch(`/api/sup_quarta_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
+        fetch(`${API_URL}/api/sup_quarta_estatistica_estagiario/${id_estagiario}`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 const translationMap = {

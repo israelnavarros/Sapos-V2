@@ -3,6 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import interactionPlugin from '@fullcalendar/interaction';
+import API_URL from './config';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import Modal from './Modal';
 
@@ -18,7 +19,7 @@ export default function ConsultasDashboard() {
 
 
   const fetchEventos = () => {
-    fetch('/api/consulta_estag')
+    fetch(`${API_URL}/api/consulta_estag`)
       .then(res => res.json())
       .then(data => {
         const eventosMapeados = data.map(evento => ({
@@ -32,12 +33,12 @@ export default function ConsultasDashboard() {
   };
 
   useEffect(() => {
-    fetch('/api/est_consulta_card').then(res => res.json()).then(data => {
+    fetch(`${API_URL}/api/est_consulta_card`).then(res => res.json()).then(data => {
       setConsultasHoje(data.hoje);
       setConsultasSemana(data.semana);
     });
 
-    fetch('/api/consulta_ids_pacientes').then(res => res.json()).then(data => setPacientes(data));
+    fetch(`${API_URL}/api/consulta_ids_pacientes`).then(res => res.json()).then(data => setPacientes(data));
 
     fetchEventos();
   }, []);
@@ -67,7 +68,7 @@ export default function ConsultasDashboard() {
     setIsSubmitting(true);
     try {
       const formBody = new URLSearchParams(formData).toString();
-      const response = await fetch('/api/cadastrar_consulta_estag', {
+      const response = await fetch(`${API_URL}/api/cadastrar_consulta_estag`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formBody
@@ -75,7 +76,7 @@ export default function ConsultasDashboard() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Erro ao cadastrar.');
 
-      alert(result.message);
+      // alert(result.message);
       fetchEventos(); 
       setModalState({ isOpen: false, mode: null, data: null });
     } catch (error) {
@@ -91,7 +92,7 @@ export default function ConsultasDashboard() {
     setIsSubmitting(true);
     try {
       const formBody = new URLSearchParams({ id_consulta: modalState.data.id }).toString();
-      const response = await fetch(`/api/${actionUrl}`, {
+      const response = await fetch(`${API_URL}/${actionUrl}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formBody

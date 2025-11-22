@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import API_URL from './config';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 
@@ -10,13 +11,13 @@ export default function AgendaEstagiarios() {
   const calendarRef = useRef();
 
   useEffect(() => {
-    fetch('/api/consulta_ids_grupos')
+    fetch(`${API_URL}/api/consulta_ids_grupos`)
       .then(res => res.json())
       .then(data => setGrupos([{ id_grupo: '', titulo: 'Consultas de todos os grupos' }, ...data]));
   }, []);
 
   useEffect(() => {
-    fetch(`/api/consulta_secretaria${grupoSelecionado ? `?gruposId=${grupoSelecionado}` : ''}`)
+    fetch(`${API_URL}/api/consulta_secretaria${grupoSelecionado ? `?gruposId=${grupoSelecionado}` : ''}`)
       .then(res => res.json())
       .then(data => setEventos(data));
   }, [grupoSelecionado]);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from './config';
 import Header from './Header';
 import moment from 'moment';
 import {
@@ -17,14 +18,14 @@ export default function SecAlertas() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/alertas', { credentials: 'include' })
+    fetch(`${API_URL}/api/alertas`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setAlertas(data))
       .catch(err => console.error('Erro ao carregar alertas:', err));
   }, []);
 
   const handleDelete = async (id) => {
-    await fetch(`/api/alertas/${id}`, { method: 'DELETE' });
+    await fetch(`${API_URL}/api/alertas/${id}`, { method: 'DELETE' });
     setAlertas(prev => prev.filter(a => a.id_alerta !== id));
     setModalId(null);
   };

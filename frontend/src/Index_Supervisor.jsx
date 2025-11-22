@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import API_URL from './config';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 
@@ -10,13 +11,13 @@ export default function AgendaMeusEstagiarios() {
   const calendarRef = useRef(null);
 
   useEffect(() => {
-    fetch('/api/consulta_ids_estagiarios')
+    fetch(`${API_URL}/api/consulta_ids_estagiarios`)
       .then(res => res.json())
       .then(data => setEstagiarios([{ id_estagiario: '', nome: 'Todos os estagiários' }, ...data]));
   }, []);
 
   useEffect(() => {
-    fetch(`/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`)
+    fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`)
       .then(res => res.json())
       .then(data => setEventos(data));
   }, [estagiarioSelecionado]);

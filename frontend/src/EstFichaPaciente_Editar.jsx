@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom"; // Importe useParams
 import Header from "./Header";
 import Cropper from "cropperjs";
+import API_URL from './config';
 import "cropperjs/dist/cropper.min.css";
 
 function FormField({ label, htmlFor, children, required = false }) {
@@ -75,11 +76,11 @@ export default function EstEditarPaciente() {
 
     // Efeito para buscar os dados do paciente ao carregar a página
     useEffect(() => {
-        fetch(`/api/ficha_paciente/${id_paciente}`, { credentials: "include" })
+        fetch(`${API_URL}/api/ficha_paciente/${id_paciente}`, { credentials: "include" })
             .then(res => res.json())
             .then(data => {
                 setFormData(data.paciente); // Preenche o formulário com os dados do paciente
-                setFinalPreviewUrl(`/api/uploads/pacientes/${id_paciente}?t=${new Date().getTime()}`);
+                setFinalPreviewUrl(`${API_URL}/api/uploads/pacientes/${id_paciente}?t=${new Date().getTime()}`);
                 setLoading(false);
             })
             .catch(err => {
@@ -115,7 +116,7 @@ export default function EstEditarPaciente() {
         }
 
         try {
-            const response = await fetch(`/api/est_editar_paciente/${id_paciente}`, {
+            const response = await fetch(`${API_URL}/api/est_editar_paciente/${id_paciente}`, {
                 method: "POST",
                 credentials: "include",
                 body: finalFormData

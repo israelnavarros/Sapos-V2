@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Header from './Header';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import API_URL from './config'; // Importa a URL centralizada
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -107,7 +108,7 @@ export default function FichaPaciente() {
   useEffect(() => {
     fetchPacienteData();
     // Fetch dos dados do paciente e folhas de evolução
-    fetch(`/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setInfo(data);
@@ -117,7 +118,7 @@ export default function FichaPaciente() {
       .catch(err => console.error('Erro ao carregar dados do paciente:', err));
 
     // Fetch das estatísticas
-    fetch(`/api/est_primeira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/est_primeira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setEstat1({
@@ -131,7 +132,7 @@ export default function FichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar estatística 1:', err));
 
-    fetch(`/api/est_segunda_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/est_segunda_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setEstat2({
@@ -145,7 +146,7 @@ export default function FichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar estatística 2:', err));
 
-    fetch(`/api/est_terceira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/est_terceira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setEstat3({
@@ -161,7 +162,7 @@ export default function FichaPaciente() {
   }, [id_paciente]);
 
   const fetchPacienteData = () => {
-    fetch(`/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setInfo(data);
@@ -183,7 +184,7 @@ export default function FichaPaciente() {
     if (!window.confirm("Tem certeza que deseja excluir esta folha?")) return;
 
     try {
-      const res = await fetch(`/api/est_ficha_deletada/${idFolha}`, {
+      const res = await fetch(`${API_URL}/api/est_ficha_deletada/${idFolha}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -205,7 +206,7 @@ export default function FichaPaciente() {
     }
 
     try {
-      const response = await fetch(`/api/sup_validar_folha/${selectedFolha.id_folha}`, {
+      const response = await fetch(`${API_URL}/api/sup_validar_folha/${selectedFolha.id_folha}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -217,7 +218,7 @@ export default function FichaPaciente() {
         setValidationModalOpen(false);
 
         // Atualizar a lista de folhas
-        const updatedFolhas = await fetch(`/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' });
+        const updatedFolhas = await fetch(`${API_URL}/api/sup_ficha_paciente/${id_paciente}`, { credentials: 'include' });
         const folhasData = await updatedFolhas.json();
         setFolhas(folhasData.folhas_pacientes || []);
       } else {
@@ -230,7 +231,7 @@ export default function FichaPaciente() {
 
   // --- Funções para o Modal de Tags ---
   const openTagModal = () => {
-    fetch('/api/tags', { credentials: 'include' })
+    fetch(`${API_URL}/api/tags`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setAllTags(data);
@@ -254,7 +255,7 @@ export default function FichaPaciente() {
   const handleCreateTag = async () => {
     if (!newTagName.trim()) return;
     try {
-      const res = await fetch('/api/tags', {
+      const res = await fetch(`${API_URL}/api/tags`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -275,7 +276,7 @@ export default function FichaPaciente() {
 
   const handleSavePatientTags = async () => {
     try {
-      const res = await fetch(`/api/paciente/${id_paciente}/tags`, {
+      const res = await fetch(`${API_URL}/api/paciente/${id_paciente}/tags`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -291,7 +292,7 @@ export default function FichaPaciente() {
 
   const handleSaveIntervalo = async () => {
     try {
-      const res = await fetch(`/api/paciente/${id_paciente}/intervalo`, {
+      const res = await fetch(`${API_URL}/api/paciente/${id_paciente}/intervalo`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -338,7 +339,7 @@ export default function FichaPaciente() {
         <div className="container-geral container-principal">
           <div className="painel-esquerdo">
             <img
-              src={`/api/uploads/pacientes/${paciente.id_paciente}`}
+              src={`${API_URL}/api/uploads/pacientes/${paciente.id_paciente}`}
               alt="Foto do paciente"
               className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
             />
@@ -529,7 +530,7 @@ export default function FichaPaciente() {
                           <div className="flex items-center justify-between p-4 md:p-4">
                             <div className="flex items-center gap-4">
                               <img
-                                src={`/api/uploads/usuarios/${folha.id_estagiario}`}
+                                src={`${API_URL}/api/uploads/usuarios/${folha.id_estagiario}`}
                                 alt="Estagiário"
                                 className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
                               />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from './config';
 import Header from './Header';
 
 export default function EstAssumirPaciente() {
@@ -10,7 +11,7 @@ export default function EstAssumirPaciente() {
 
     const fetchPacientesDisponiveis = () => {
         setLoading(true);
-        fetch('/api/pacientes_disponiveis', { credentials: 'include' })
+        fetch(`${API_URL}/api/pacientes_disponiveis`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 setPacientes(Array.isArray(data) ? data : []);
@@ -31,7 +32,7 @@ export default function EstAssumirPaciente() {
 
         setActionLoading(id_paciente);
         try {
-            const res = await fetch(`/api/assumir_paciente/${id_paciente}`, {
+            const res = await fetch(`${API_URL}/api/assumir_paciente/${id_paciente}`, {
                 method: 'POST',
                 credentials: 'include',
             });
@@ -96,8 +97,8 @@ export default function EstAssumirPaciente() {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-10 w-10">
-                                                        <img className="h-10 w-10 rounded-full object-cover bg-gray-200" 
-                                                             src={`/api/uploads/pacientes/${paciente.id_paciente}`} 
+                                                        <img className="h-10 w-10 rounded-full object-cover bg-gray-200"
+                                                             src={`${API_URL}/api/uploads/pacientes/${paciente.id_paciente}`}
                                                              alt="Foto do paciente"
                                                              onError={(e) => { e.target.onerror = null; e.target.src='https://via.placeholder.com/40?text=S/F'; }}/>
                                                     </div>

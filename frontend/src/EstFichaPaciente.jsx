@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import Header from './Header';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import API_URL from './config';
 import Modal from './Modal';
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -104,7 +105,7 @@ export default function EstFichaPaciente() {
     console.log('useEffect rodou', id_paciente);
 
     // Fetch dos dados do paciente e folhas de evolução
-    fetch(`/api/ficha_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/ficha_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setInfo(data);
@@ -120,7 +121,7 @@ export default function EstFichaPaciente() {
     //   .catch(err => console.error('Erro ao carregar folhas de evolução:', err));
     // ;
     // Fetch das estatísticas
-    fetch(`/api/est_primeira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/est_primeira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setEstat1({
@@ -134,7 +135,7 @@ export default function EstFichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar estatística 1:', err));
 
-    fetch(`/api/est_segunda_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/est_segunda_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setEstat2({
@@ -148,7 +149,7 @@ export default function EstFichaPaciente() {
       })
       .catch(err => console.error('Erro ao carregar estatística 2:', err));
 
-    fetch(`/api/est_terceira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
+    fetch(`${API_URL}/api/est_terceira_estatistica_paciente/${id_paciente}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setEstat3({
@@ -165,7 +166,7 @@ export default function EstFichaPaciente() {
   // Crie esta nova função logo abaixo da declaração dos seus estados
   const fetchFolhas = async () => {
     try {
-      const res = await fetch(`/api/ficha_paciente/${id_paciente}`, { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/ficha_paciente/${id_paciente}`, { credentials: 'include' });
       if (!res.ok) {
         // Lida com erros de API como 404 ou 500
         throw new Error('Não foi possível carregar as folhas de evolução.');
@@ -196,7 +197,7 @@ export default function EstFichaPaciente() {
     }).toString();
 
     try {
-      const res = await fetch('/api/est_ficha_adicionada', {
+      const res = await fetch(`${API_URL}/api/est_ficha_adicionada`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formDataUrl,
@@ -248,7 +249,7 @@ export default function EstFichaPaciente() {
         <div className="container-geral container-principal">
           <div className="painel-esquerdo">
             <img
-              src={`/api/uploads/pacientes/${paciente.id_paciente}`}
+              src={`${API_URL}/api/uploads/pacientes/${paciente.id_paciente}`}
               alt="Foto do paciente"
               className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
             />
@@ -448,7 +449,7 @@ export default function EstFichaPaciente() {
                             <div className="flex items-center justify-between p-4 md:p-4">
                               <div className="flex items-center gap-4">
                                 <img
-                                  src={`/api/uploads/usuarios/${folha.id_estagiario}`}
+                                  src={`${API_URL}/api/uploads/usuarios/${folha.id_estagiario}`}
                                   alt="Estagiário"
                                   className="rounded-full object-cover w-12 h-12 sm:w-15 sm:h-15 md:w-17 md:h-17"
                                 />

@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import AdicionarEstagiario from './AdicionarEstagiario';
 import Header from './Header';
+import API_URL from './config';
 
 export default function AdicionarEstagiarioWrapper() {
   const [grupoInfo, setGrupoInfo] = useState(null);
 
   useEffect(() => {
     async function fetchGrupo() {
-      const res = await fetch('/api/meu_grupo', { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/meu_grupo`, { credentials: 'include' });
       const data = await res.json();
       setGrupoInfo(data.grupo_info);
     }

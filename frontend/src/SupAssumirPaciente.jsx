@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from './config';
 import Header from './Header';
 import Modal from './Modal';
 
@@ -14,7 +15,7 @@ export default function SupAssumirPaciente() {
 
     const fetchPacientesParaAssumir = () => {
         setLoading(true);
-        fetch('/api/sup_pacientes_para_assumir', { credentials: 'include' })
+        fetch(`${API_URL}/api/sup_pacientes_para_assumir`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => setPacientes(Array.isArray(data) ? data : []))
             .catch(err => {
@@ -29,7 +30,7 @@ export default function SupAssumirPaciente() {
     }, []);
 
     const handleOpenModal = (paciente) => {
-        fetch('/api/sup_estagiarios_do_grupo', { credentials: 'include' })
+        fetch(`${API_URL}/api/sup_estagiarios_do_grupo`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => {
                 setEstagiarios(data);
@@ -48,7 +49,7 @@ export default function SupAssumirPaciente() {
         const { paciente } = modalState;
         setActionLoading(true);
         try {
-            const res = await fetch(`/api/sup_assumir_ou_atualizar_paciente/${paciente.id_paciente}`, {
+            const res = await fetch(`${API_URL}/api/sup_assumir_ou_atualizar_paciente/${paciente.id_paciente}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

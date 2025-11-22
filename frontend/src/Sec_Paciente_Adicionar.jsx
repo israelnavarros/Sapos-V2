@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from './config';
 import Header from "./Header";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.min.css";
@@ -120,7 +121,7 @@ export default function SecAdicionarPaciente() {
     }
 
     try {
-        const response = await fetch("/api/adicionar_paciente_secretaria", {
+        const response = await fetch(`${API_URL}/api/adicionar_paciente_secretaria`, {
             method: "POST",
             credentials: "include",
             body: finalFormData 

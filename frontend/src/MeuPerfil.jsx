@@ -1,5 +1,6 @@
 import { useContext, useRef, useState } from 'react';
 import { AuthContext } from './AuthContext';
+import API_URL from './config'; // Importa a URL centralizada
 import Header from './Header';
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.min.css";
@@ -17,7 +18,7 @@ const cargoLabel = (cargo) => {
 
 export default function MeuPerfil() {
   const { user, setUser } = useContext(AuthContext);
-  const [avatarUrl, setAvatarUrl] = useState(`/api/uploads/usuarios/${user.id}` || '/src/assets/capa_padrao.jpg');
+  const [avatarUrl, setAvatarUrl] = useState(`${API_URL}/api/uploads/usuarios/${user.id}` || '/src/assets/capa_padrao.jpg');
   const [showCrop, setShowCrop] = useState(false);
   const [imgPreview, setImgPreview] = useState('');
   const [croppedImg, setCroppedImg] = useState('');
@@ -64,7 +65,7 @@ export default function MeuPerfil() {
     formData.append('avatar', blob, 'avatar.jpg');
 
     // Envia para o backend
-    const res = await fetch('/api/upload_imagem_usuario_perfil', {
+    const res = await fetch(`${API_URL}/api/upload_imagem_usuario_perfil`, {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -95,7 +96,7 @@ export default function MeuPerfil() {
   } else {
     payload = {...eOrData };
   }
-    const res = await fetch(`/api/upload_imagem_usuario_perfil`, {
+    const res = await fetch(`${API_URL}/api/upload_imagem_usuario_perfil`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

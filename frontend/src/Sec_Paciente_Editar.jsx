@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import API_URL from './config';
 import Header from "./Header";
 
 // Se usar Cropper.js, instale: npm install cropperjs
@@ -18,12 +19,12 @@ export default function SecEditarPaciente() {
   const navigate = useNavigate();
     
   useEffect(() => {
-    fetch(`/api/editar_paciente/${id_paciente}`, { credentials: "include" })
+    fetch(`${API_URL}/api/editar_paciente/${id_paciente}`, { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setPaciente(data);
         setForm(data);
-        setImgPreview(data.img_url || '/src/assets/Logo.png');
+        setImgPreview(`${API_URL}${data.img_url}` || '/src/assets/Logo.png');
       });
   }, [id_paciente]);
 
@@ -99,7 +100,7 @@ export default function SecEditarPaciente() {
   const handleSubmit = async e => {
     e.preventDefault();
     const payload = { ...form, croppedData: croppedImg };
-    const res = await fetch(`/api/atualizar_paciente/${id_paciente}`, {
+    const res = await fetch(`${API_URL}/api/atualizar_paciente/${id_paciente}`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(payload),
@@ -120,7 +121,7 @@ export default function SecEditarPaciente() {
       <form className="shadow-lg row g-0 border rounded p-3" onSubmit={handleSubmit}>
         <div className="text-center d-flex justify-content-center">
           <figure className="img thumbnail col-md-4">
-            <img className="img-fluid" id="profile-img" src={`/api/uploads/pacientes/${id_paciente}?t=${Date.now()}`} alt="Paciente" onError={e => { e.target.src = "/src/usuarios/avatar_padrao.jpg"; }}/>
+            <img className="img-fluid" id="profile-img" src={`${API_URL}/api/uploads/pacientes/${id_paciente}?t=${Date.now()}`} alt="Paciente" onError={e => { e.target.src = "/src/usuarios/avatar_padrao.jpg"; }}/>
             <input type="hidden" name="croppedData" value={croppedImg} />
             <div className="d-grid gap-2 col-6 mx-auto mt-2">
               <label className="label custom-file-upload btn btn-primary btn-sm">
