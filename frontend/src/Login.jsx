@@ -19,7 +19,10 @@ function Login() {
     e.preventDefault();
     setMensagem('');
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      // Usa a variável de ambiente VITE_API_URL para definir o endereço do backend.
+      // Em desenvolvimento, será 'http://localhost:5000'. Em produção, será o URL do seu Cloud Run.
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
