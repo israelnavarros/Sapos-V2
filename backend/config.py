@@ -1,16 +1,24 @@
 import os
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 
 SECRET_KEY = 'sapo'
 SIMPLE_CRYPT_SECRET = 'saposecreto'
 
 # Lê DATABASE_URL do ambiente (Cloud Run / Secret Manager) ou usa localhost em dev
 DATABASE_URL = os.environ.get("DATABASE_URL")
+
 if DATABASE_URL:
-    # garante sslmode=require para Supabase
-    if "sslmode" not in DATABASE_URL:
-        SQLALCHEMY_DATABASE_URI = DATABASE_URL + "?sslmode=require"
-    else:
-        SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    # Analisa a URL original para manipular os parâmetros de forma segura
+    parsed_url = urlparse(DATABASE_URL)
+    query_params = parse_qs(parsed_url.query)
+
+    # Garante que sslmode=require e client_encoding=utf8 estejam presentes
+    query_params['sslmode'] = 'require'
+    query_params['client_encoding'] = 'utf8'
+
+    # Remonta a URL com os parâmetros corretos
+    new_query_string = urlencode(query_params, doseq=True)
+    SQLALCHEMY_DATABASE_URI = urlunparse(parsed_url._replace(query=new_query_string))
 else:
     # fallback para desenvolvimento local
     SQLALCHEMY_DATABASE_URI = '{SGBD}://{username}:{password}@{host}:{port}/{database}'.format(
@@ -36,4 +44,3 @@ MAIL_USE_SSL = False
 MAIL_USERNAME = "tcc.sapos@gmail.com"
 MAIL_DEFAULT_SENDER = "tcc.sapos@gmail.com"
 MAIL_PASSWORD = "jdkpozkzpawpnxjj"
-
