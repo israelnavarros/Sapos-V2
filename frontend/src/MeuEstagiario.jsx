@@ -160,7 +160,7 @@ export default function SupMeuEstagiario() {
                         {info.pacientes_info && info.pacientes_info.map(paciente => (
                             <Link
                                 key={paciente.id_paciente}
-                                href={`/sup_ficha_paciente/${paciente.id_paciente}`}
+                                to={`/sup_ficha_paciente/${paciente.id_paciente}`}
                                 className="list-group-item d-flex justify-content-between align-items-center"
                             >
                                 {paciente.nome_completo}
