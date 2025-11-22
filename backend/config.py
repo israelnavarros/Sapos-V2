@@ -3,7 +3,17 @@ import os
 SECRET_KEY = 'sapo'
 SIMPLE_CRYPT_SECRET = 'saposecreto'
 
-SQLALCHEMY_DATABASE_URI = '{SGBD}://{username}:{password}@{host}:{port}/{database}'.format(
+# Lê DATABASE_URL do ambiente (Cloud Run / Secret Manager) ou usa localhost em dev
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    # garante sslmode=require para Supabase
+    if "sslmode" not in DATABASE_URL:
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL + "?sslmode=require"
+    else:
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL
+else:
+    # fallback para desenvolvimento local
+    SQLALCHEMY_DATABASE_URI = '{SGBD}://{username}:{password}@{host}:{port}/{database}'.format(
         SGBD = 'postgresql',
         username = 'postgres',
         password = '123',

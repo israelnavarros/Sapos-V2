@@ -16,4 +16,6 @@ ENV PORT=8080
 ENV FLASK_ENV=production
 
 # comando de execução (ajuste se seu app tem outro entrypoint)
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app", "--workers", "2", "--threads", "4"]
+CMD ["waitress-serve", "--port=8080", "main:app"]
+
+
