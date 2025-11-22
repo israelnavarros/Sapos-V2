@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
+import API_URL from './config'; // Importa a URL centralizada
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -84,7 +85,7 @@ function Header() {
           {/* Perfil do Usuário */}
           <li className="flex items-center gap-3 mt-auto md:mt-0 pt-4 md:pt-0 border-t md:border-none border-slate-200">
             <img
-              src={`/api/uploads/usuarios/${user.id}`}
+              src={`${API_URL}/api/uploads/usuarios/${user.id}`}
               alt="Profile"
               className="w-10 h-10 rounded-full object-cover"
             />

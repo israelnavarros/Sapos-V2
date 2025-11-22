@@ -1,8 +1,7 @@
 import { createContext, useState } from 'react';
+import API_URL from './config'; // Importa a URL centralizada
 
 export const AuthContext = createContext();
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -12,7 +11,7 @@ export function AuthProvider({ children }) {
 
   // Função de logout
   const logout = async () => {
-    await fetch(`${BACKEND_URL}/api/logout`, { 
+    await fetch(`${API_URL}/api/logout`, { 
       method: 'POST',
       credentials: 'include'
     });

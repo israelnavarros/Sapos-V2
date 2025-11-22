@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
+import API_URL from './config'; // Importa a URL centralizada
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -19,10 +20,7 @@ function Login() {
     e.preventDefault();
     setMensagem('');
     try {
-      // Usa a variável de ambiente VITE_API_URL para definir o endereço do backend.
-      // Em desenvolvimento, será 'http://localhost:5000'. Em produção, será o URL do seu Cloud Run.
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/login`, {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
