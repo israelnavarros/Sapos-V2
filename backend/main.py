@@ -13,7 +13,12 @@ from flask_caching import Cache
 app = Flask(__name__)
 CORS(app, 
      supports_credentials=True, 
-     origins=['http://localhost:5173', 'http://localhost:5000', 'https://sapos-4wdor6dn3-israelnavarros-projects.vercel.app'])
+     origins=[
+         'http://localhost:5173', # Frontend local
+         'http://localhost:5000', # Backend local
+         'https://sapos-4wdor6dn3-israelnavarros-projects.vercel.app', # URL antiga da Vercel
+         'https://sapos-eight.vercel.app' # <-- URL NOVA DA VERCEL ADICIONADA AQUI
+        ])
 app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
