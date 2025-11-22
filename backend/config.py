@@ -30,8 +30,9 @@ else:
         database = 'sapos'
     )
 
-# SESSION_COOKIE_SAMESITE = "None"
-# SESSION_COOKIE_SECURE = True
+# Configurações essenciais para cookies de sessão em produção com domínios diferentes
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
 
 UPLOAD_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads'
 UPLOAD_PACIENTES_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads/pacientes'
