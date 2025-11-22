@@ -8,8 +8,5 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:5000',
     },
-  },
-  define: {
-    __VITE_BACKEND_URL__: JSON.stringify(process.env.VITE_BACKEND_URL || 'http://localhost:5000')
   }
 });
