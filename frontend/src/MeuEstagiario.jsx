@@ -158,7 +158,7 @@ export default function SupMeuEstagiario() {
                             <div className="list-group-item">Nenhum paciente cadastrado.</div>
                         )}
                         {info.pacientes_info && info.pacientes_info.map(paciente => (
-                            <a
+                            <Link
                                 key={paciente.id_paciente}
                                 href={`/sup_ficha_paciente/${paciente.id_paciente}`}
                                 className="list-group-item d-flex justify-content-between align-items-center"
@@ -168,7 +168,7 @@ export default function SupMeuEstagiario() {
                                     ? <span className="badge bg-primary rounded-pill">Ativo</span>
                                     : <span className="badge bg-danger rounded-pill">Desativado</span>
                                 }
-                            </a>
+                            </Link>
                         ))}
                     </div>
                 </div>
