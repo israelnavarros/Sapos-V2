@@ -44,8 +44,8 @@ function Login() {
       {/* Seção Esquerda (Verde) */}
       <div className="relative flex-grow-0 md:flex-1 bg-green flex flex-col justify-center items-center text-white p-8 md:p-10">
         {/* Logo no canto superior esquerdo */}
-        <div className="absolute top-6 left-6 md:top-8 md:left-8 bg-white/90 p-2 md:p-3 rounded-2xl">
-          <img src="src/assets/Logo.png" alt="Logo SAPO" className="w-8 h-8 md:w-12 md:h-12" />
+        <div className="absolute top-6 left-6 md:top-8 md:left-8 bg-white/90 p-2 md:p-3 rounded-2xl shadow-lg">
+          <img src="/Logo.png" alt="Logo SAPO" className="w-8 h-8 md:w-12 md:h-12" />
         </div>
 
         {/* Slogan quebrado em linhas */}
