@@ -52,10 +52,10 @@ export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField label="Email" htmlFor="email" required>
-            <input type="email" id="email" name="email" required value={form.email} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" />
+            <input type="email" id="email" name="email" required value={form.email} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" autoComplete="off" />
           </FormField>
           <FormField label="Senha" htmlFor="senha" required>
-            <input type="password" id="senha" name="senha" required value={form.senha} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" />
+            <input type="password" id="senha" name="senha" required value={form.senha} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" autoComplete="new-password" />
           </FormField>
         </div>
 
