@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import API_URL from './config';
 
+function FormField({ label, htmlFor, children, required = false }) {
+  return (
+    <div>
+      <label htmlFor={htmlFor} className="block text-sm font-semibold text-slate-700 mb-1">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
 export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
   const [form, setForm] = useState({
     email: '',
@@ -36,48 +48,52 @@ export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
   };
 
   return (
-    <div className="shadow-lg row p-3 border rounded my-4">
-      <form className="row g-3" onSubmit={handleSubmit}>
-        <div className="col-md-6">
-          <label className="form-label">Email</label>
-          <input type="email" className="form-control" name="email" required value={form.email} onChange={handleChange} />
+    <div className="bg-white p-6 rounded-xl shadow-md my-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField label="Email" htmlFor="email" required>
+            <input type="email" id="email" name="email" required value={form.email} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" />
+          </FormField>
+          <FormField label="Senha" htmlFor="senha" required>
+            <input type="password" id="senha" name="senha" required value={form.senha} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" />
+          </FormField>
         </div>
-        <div className="col-md-6">
-          <label className="form-label">Senha</label>
-          <input type="password" className="form-control" name="senha" required value={form.senha} onChange={handleChange} />
+
+        <FormField label="Nome Completo" htmlFor="nome" required>
+          <input type="text" id="nome" name="nome" required value={form.nome} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" />
+        </FormField>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FormField label="Matrícula" htmlFor="matricula" required>
+            <input type="text" id="matricula" name="matricula" required value={form.matricula} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300" />
+          </FormField>
+          <FormField label="Cargo" htmlFor="cargo">
+            <input type="text" id="cargo" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value="Estagiário" disabled />
+          </FormField>
+          <FormField label="Grupo" htmlFor="grupo">
+            <input type="text" id="grupo" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value={grupoInfo.titulo} disabled />
+          </FormField>
         </div>
-        <div className="col-12">
-          <label className="form-label">Nome completo</label>
-          <input type="text" className="form-control" name="nome" required value={form.nome} onChange={handleChange} />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FormField label="Status" htmlFor="status">
+            <input type="text" id="status" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value="Ativo" disabled />
+          </FormField>
+          <FormField label="Data de Entrada" htmlFor="criado_em">
+            <input type="date" id="criado_em" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value={form.criado_em} disabled />
+          </FormField>
+          <FormField label="Data de Validade" htmlFor="valido_ate">
+            <input type="date" id="valido_ate" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value={form.valido_ate} disabled />
+          </FormField>
         </div>
-        <div className="col-md-4">
-          <label className="form-label">Matricula</label>
-          <input type="text" className="form-control" name="matricula" required value={form.matricula} onChange={handleChange} />
+
+        <div className="pt-6 border-t text-right">
+          <button type="submit" className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors disabled:opacity-50">
+            Cadastrar Estagiário
+          </button>
         </div>
-        <div className="col-md-4">
-          <label className="form-label">Cargo</label>
-          <input type="text" className="form-control" value="Estagiario" disabled />
-        </div>
-        <div className="col-md-4">
-          <label className="form-label">Grupo</label>
-          <input type="text" className="form-control" value={grupoInfo.titulo} disabled />
-        </div>
-        <div className="col-md-4">
-          <label className="form-label">Status</label>
-          <input type="text" className="form-control" value="Ativo" disabled />
-        </div>
-        <div className="col-md-4">
-          <label className="form-label">Data de entrada</label>
-          <input type="date" className="form-control" value={form.criado_em} disabled />
-        </div>
-        <div className="col-md-4">
-          <label className="form-label">Data de validade</label>
-          <input type="date" className="form-control" value={form.valido_ate} disabled />
-        </div>
-        <div className="col-12">
-          <button type="submit" className="btn btn-primary">Cadastrar</button>
-        </div>
-        {mensagem && <div className="col-12"><span>{mensagem}</span></div>}
+
+        {mensagem && <div className="mt-4 text-center p-3 rounded-md text-sm bg-blue-50 text-blue-800">{mensagem}</div>}
       </form>
     </div>
   );
