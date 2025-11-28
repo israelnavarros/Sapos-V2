@@ -19,7 +19,9 @@ export default function AdicionarEstagiarioWrapper() {
   return (
     <>
       <Header />
-      <AdicionarEstagiario grupoInfo={grupoInfo} />
+      <main className="pt-20">
+        <AdicionarEstagiario grupoInfo={grupoInfo} />
+      </main>
     </>
   );
 }
