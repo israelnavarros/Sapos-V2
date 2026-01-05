@@ -165,6 +165,7 @@ class FolhaEvolucao(db.Model):
     evolucao_clinica = db.Column(db.Text)
     plano_proxima_sessao = db.Column(db.Text)
     observacoes = db.Column(db.Text)
+    valor = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
     data_check_supervisor = db.Column(db.DateTime, nullable=True)
     status_validacao = db.Column(db.String(20), nullable=False, default='Pendente')
     feedback = db.Column(db.Text, nullable=True)
@@ -195,9 +196,9 @@ class FolhaEvolucao(db.Model):
             'numero_sessao': self.numero_sessao,
             'status_validacao': self.status_validacao,
             'data_check_supervisor': self.data_check_supervisor.strftime('%d/%m/%Y %H:%M:%S') if self.data_check_supervisor else None,
-            'status_validacao': self.status_validacao,
             'feedback': self.feedback,
-            'data_status': self.data_status.strftime('%d/%m/%Y %H:%M:%S') if self.data_status else None
+            'data_status': self.data_status.strftime('%d/%m/%Y %H:%M:%S') if self.data_status else None,
+            'valor': float(self.valor) if self.valor else None
         }
 
 

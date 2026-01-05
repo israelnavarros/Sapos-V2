@@ -625,6 +625,16 @@ export default function FichaPaciente() {
                                   <div className="md:col-span-2">
                                     <CampoEvolucao label="Observações" texto={folha.observacoes} />
                                   </div>
+                                  {folha.valor && (
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-500">Valor</label>
+                                      <input
+                                        className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                                        value={folha.valor ? `R$ ${parseFloat(folha.valor).toFixed(2)}` : 'Não informado'}
+                                        readOnly
+                                      />
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               </div>

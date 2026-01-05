@@ -98,7 +98,8 @@ export default function EstFichaPaciente() {
     intervencoes_realizadas: '',
     evolucao_clinica: '',
     plano_proxima_sessao: '',
-    observacoes: ''
+    observacoes: '',
+    valor: ''
   });
 
   useEffect(() => {
@@ -214,7 +215,8 @@ export default function EstFichaPaciente() {
           intervencoes_realizadas: '',
           evolucao_clinica: '',
           plano_proxima_sessao: '',
-          observacoes: ''
+          observacoes: '',
+          valor: ''
         });
         setIsCreateModalOpen(false)
       } else {
@@ -542,6 +544,16 @@ export default function EstFichaPaciente() {
                                       <div className="md:col-span-2">
                                         <CampoEvolucao label="Observações" texto={folha.observacoes} />
                                       </div>
+                                      {folha.valor && (
+                                        <div>
+                                          <label className="block text-sm font-medium text-gray-500">Valor</label>
+                                          <input
+                                            className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                                            value={folha.valor ? `R$ ${parseFloat(folha.valor).toFixed(2)}` : 'Não informado'}
+                                            readOnly
+                                          />
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -632,6 +644,10 @@ export default function EstFichaPaciente() {
                 <div className="md:col-span-2">
                   <label htmlFor="observacoes" className="block text-sm font-semibold text-slate-700">Observações</label>
                   <textarea id="observacoes" name="observacoes" value={novaEvolucao.observacoes} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
+                </div>
+                <div>
+                  <label htmlFor="valor" className="block text-sm font-semibold text-slate-700">Valor (Opcional)</label>
+                  <input id="valor" type="number" name="valor" value={novaEvolucao.valor} onChange={handleEvolucaoChange} step="0.01" placeholder="0.00" className="mt-1 w-full p-2 border rounded-md shadow-sm" />
                 </div>
               </div>
             </div>

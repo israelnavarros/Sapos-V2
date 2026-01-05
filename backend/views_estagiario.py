@@ -488,6 +488,7 @@ def est_ficha_adicionada():
     evolucao_clinica = request.form['evolucao_clinica']
     plano_proxima_sessao = request.form['plano_proxima_sessao']
     observacoes = request.form['observacoes']
+    valor = request.form.get('valor', None)
     numero_sessao = FolhaEvolucao.query.filter_by(id_paciente=id_paciente).count() + 1
 
     nova_folha = FolhaEvolucao(
@@ -503,6 +504,7 @@ def est_ficha_adicionada():
         id_supervisor=id_supervisor,
         numero_sessao=numero_sessao,
         status_validacao='Validação Pendente', 
+        valor=valor,
         data_status=data_status
     )
     db.session.add(nova_folha)
