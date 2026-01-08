@@ -344,6 +344,7 @@ def api_ficha_paciente(id):
             'evolucao_clinica': folha.evolucao_clinica,
             'plano_proxima_sessao': folha.plano_proxima_sessao,
             'observacoes': folha.observacoes,
+            'valor': str(folha.valor) if folha.valor else None,
         }
         folhas_pacientes.append(folha_json)
 
