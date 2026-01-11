@@ -84,6 +84,7 @@ export default function MeuGrupo() {
   const [modalState, setModalState] = useState({ isOpen: false, paciente: null });
   const [listaEstagiariosModal, setListaEstagiariosModal] = useState([]);
   const [selectedEstagiarioId, setSelectedEstagiarioId] = useState('');
+  const [solicitacoes, setSolicitacoes] = useState([]);
 
   const fetchGrupoData = () => {
     fetch(`${API_URL}/api/meu_grupo`, { credentials: 'include' })
@@ -112,6 +113,9 @@ export default function MeuGrupo() {
   useEffect(() => {
     if (abaAtiva === 'dashboard' && pacientes.length === 0) {
       fetchPacientes();
+    }
+    if (abaAtiva === 'solicitacoes') {
+      fetchSolicitacoes();
     }
   }, [abaAtiva, pacientes.length]);
 
@@ -195,6 +199,33 @@ export default function MeuGrupo() {
     }
   };
 
+  const fetchSolicitacoes = () => {
+    fetch(`${API_URL}/api/sup_listar_solicitacoes_acesso`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setSolicitacoes(Array.isArray(data) ? data : []))
+      .catch(err => console.error(err));
+  };
+
+  const handleResponderSolicitacao = async (id, acao) => {
+    if (!window.confirm(`Tem certeza que deseja ${acao} o acesso?`)) return;
+    try {
+      const res = await fetch(`${API_URL}/api/sup_responder_solicitacao_acesso/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ acao })
+      });
+      if (res.ok) {
+        alert(`Solicitação ${acao === 'aprovar' ? 'aprovada' : 'rejeitada'} com sucesso.`);
+        fetchSolicitacoes();
+      } else {
+        alert('Erro ao processar solicitação.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (!grupoInfo) return <div>Carregando...</div>;
 
   const DIAS_DA_SEMANA = [
@@ -232,6 +263,7 @@ export default function MeuGrupo() {
               <TabButton aba="membros" label="Membros" />
               <TabButton aba="reunioes" label="Reuniões" />
               <TabButton aba="dashboard" label="Dashboard de Pacientes" />
+              <TabButton aba="solicitacoes" label="Solicitações de Acesso" />
             </nav>
           </div>
 
@@ -462,6 +494,42 @@ export default function MeuGrupo() {
                   </table>
                 </div>
 
+              </div>
+            )}
+
+            {/* Aba: Solicitações de Acesso */}
+            {abaAtiva === 'solicitacoes' && (
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h2 className="text-xl font-semibold text-slate-800 mb-4">Solicitações de Acesso à Pasta</h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Estagiário</th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Paciente</th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Data</th>
+                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {solicitacoes.length > 0 ? (
+                        solicitacoes.map(sol => (
+                          <tr key={sol.id_solicitacao}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sol.nome_estagiario}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sol.nome_paciente}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{sol.data_solicitacao}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <button onClick={() => handleResponderSolicitacao(sol.id_solicitacao, 'aprovar')} className="text-green-600 hover:text-green-900 font-semibold mr-4 cursor-pointer">Aprovar</button>
+                              <button onClick={() => handleResponderSolicitacao(sol.id_solicitacao, 'rejeitar')} className="text-red-600 hover:text-red-900 font-semibold cursor-pointer">Rejeitar</button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr><td colSpan="4" className="text-center py-4 text-gray-500">Nenhuma solicitação pendente.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
