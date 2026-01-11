@@ -102,17 +102,22 @@ export default function EstFichaPaciente() {
     valor: ''
   });
 
+  const fetchDadosPaciente = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/ficha_paciente/${id_paciente}`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Não foi possível carregar os dados.');
+      const data = await res.json();
+      setInfo(data);
+      setFolhas(data.folhas_pacientes || []);
+    } catch (err) {
+      console.error('Erro ao carregar dados do paciente:', err);
+      setFolhas([]);
+    }
+  };
+
   useEffect(() => {
     console.log('useEffect rodou', id_paciente);
-
-    // Fetch dos dados do paciente e folhas de evolução
-    fetch(`${API_URL}/api/ficha_paciente/${id_paciente}`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        setInfo(data);
-        setFolhas(data.folhas_pacientes || []);
-      })
-      .catch(err => console.error('Erro ao carregar dados do paciente:', err));
+    fetchDadosPaciente();
 
     // fetch(`/est_lista_folhas_atualizada/${id_paciente}`, { credentials: 'include' })
     //   .then(res => res.json())
@@ -179,6 +184,7 @@ export default function EstFichaPaciente() {
       setFolhas([]); // Limpa as folhas em caso de erro para evitar mostrar dados antigos
     }
   };
+
   const handleEvolucaoChange = (e) => {
     const { name, value } = e.target;
     setNovaEvolucao(prevState => ({
@@ -208,6 +214,7 @@ export default function EstFichaPaciente() {
       if (res.ok) {
         alert('Evolução publicada com sucesso!');
         fetchFolhas();
+        fetchDadosPaciente();
 
         setNovaEvolucao({
           hipotese_diagnostica: '',
