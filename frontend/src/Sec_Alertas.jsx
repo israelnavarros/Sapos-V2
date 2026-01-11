@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import API_URL from './config';
 import Header from './Header';
 import moment from 'moment';
@@ -75,12 +75,15 @@ export default function SecAlertas({ embedded = false }) {
       <div className="p-6 bg-white shadow-md rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Alertas</h2>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-            onClick={() => navigate('/adm_adicionar_alerta')}
+          <Link
+            to="/adm_adicionar_alerta"
+            className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
             Adicionar Alerta
-          </button>
+          </Link>
         </div>
 
         <input
