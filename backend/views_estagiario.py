@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao
+from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao, SolicitacaoAcesso
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido
 from sqlalchemy import text, desc, or_
 from flask_login import login_required, current_user
@@ -303,6 +303,7 @@ def api_ficha_paciente(id):
         'classe_social':dados_paciente.classe_social,
         'intervalo_sessoes': dados_paciente.intervalo_sessoes,
         'tags': tags,
+        'acesso_liberado': dados_paciente.acesso_liberado
     }
     Estagiario = aliased(Usuarios)
     Supervisor = aliased(Usuarios)
@@ -314,6 +315,11 @@ def api_ficha_paciente(id):
         )\
         .order_by(FolhaEvolucao.data_postagem.desc())\
         .all()
+    
+    # REGRA DE NEGÓCIO: Se o acesso não estiver liberado, esconde as folhas
+    if not dados_paciente.acesso_liberado:
+        folhas_db = []
+
     folhas_pacientes = []
     for folha in folhas_db:
         def descriptografar_campo(campo_criptografado):
@@ -462,6 +468,46 @@ def api_adicionar_paciente():
     
     return jsonify({'status': 'success', 'id_paciente': novo_paciente.id_paciente})
 
+@app.route('/api/solicitar_acesso_pasta', methods=['POST'])
+@login_required
+def api_solicitar_acesso_pasta():
+    data = request.get_json()
+    id_paciente = data.get('id_paciente')
+    paciente = Pacientes.query.get_or_404(id_paciente)
+    
+    if paciente.id_estagiario != current_user.id_usuario:
+        return jsonify({'message': 'Você não é o estagiário deste paciente.'}), 403
+
+    # Verifica se já existe solicitação pendente
+    solicitacao_existente = SolicitacaoAcesso.query.filter_by(
+        id_paciente=id_paciente,
+        id_estagiario=current_user.id_usuario,
+        status='pendente'
+    ).first()
+
+    if solicitacao_existente:
+        return jsonify({'message': 'Já existe uma solicitação pendente para este paciente.'}), 400
+
+    supervisor = Usuarios.query.get(paciente.id_supervisor)
+    if supervisor:
+        # Cria o registro na tabela
+        nova_solicitacao = SolicitacaoAcesso(
+            id_paciente=id_paciente,
+            id_estagiario=current_user.id_usuario,
+            id_supervisor=supervisor.id_usuario,
+            data_solicitacao=datetime.utcnow() - timedelta(hours=3)
+        )
+        db.session.add(nova_solicitacao)
+        db.session.commit()
+
+        msg = Message(f"Solicitação de Acesso: {paciente.nome_completo}",
+                      recipients=[supervisor.email])
+        msg.body = f"O estagiário {current_user.nome} solicitou acesso às folhas de evolução do paciente {paciente.nome_completo}. Acesse o sistema para liberar."
+        # mail.send(msg) # Descomente se o envio de email estiver configurado
+        print(f"--- EMAIL SIMULADO PARA {supervisor.email}: {msg.body} ---")
+    
+    return jsonify({'status': 'success', 'message': 'Solicitação enviada ao supervisor.'})
+
 @app.route('/api/consulta_ids_supervisores', methods=['GET'])
 @login_required
 def consulta_ids_supervisores():
@@ -475,8 +521,10 @@ def est_ficha_adicionada():
     id_paciente = request.form['id_paciente']
     id_estagiario = current_user.id_usuario
     id_supervisor = request.form['id_supervisor']
-    data_postagem = datetime.now().replace(microsecond=0)
-    data_status = datetime.now().replace(microsecond=0)
+    # Ajuste de fuso horário (UTC-3) para servidor UTC
+    data_atual = datetime.utcnow() - timedelta(hours=3)
+    data_postagem = data_atual.replace(microsecond=0)
+    data_status = data_atual.replace(microsecond=0)
     # hipotese_diagnostica = crypt.encrypt(request.form['hipotese_diagnostica']).decode('utf-8')
     # sintomas_atuais = crypt.encrypt(request.form['sintomas_atuais']).decode('utf-8')
     # intervencoes_realizadas = crypt.encrypt(request.form['intervencoes_realizadas']).decode('utf-8')

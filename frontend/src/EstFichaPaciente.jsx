@@ -238,6 +238,24 @@ export default function EstFichaPaciente() {
     }
   };
 
+  const handleSolicitarAcesso = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/solicitar_acesso_pasta`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_paciente: paciente.id_paciente }),
+        credentials: 'include',
+      });
+      if (res.ok) {
+        alert('Solicitação enviada ao supervisor com sucesso!');
+      } else {
+        alert('Erro ao enviar solicitação.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (!info || !info.paciente) return <div>Carregando...</div>;
   const paciente = info.paciente;
 
@@ -417,6 +435,24 @@ export default function EstFichaPaciente() {
             )}
             {tab === 'evolucao' && (
               <div className="pt-3">
+                {!paciente.acesso_liberado ? (
+                  <div className="flex flex-col items-center justify-center p-10 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                    <div className="bg-gray-200 p-4 rounded-full mb-4">
+                      <i className="bi bi-lock-fill text-4xl text-gray-500"></i>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Acesso Bloqueado</h3>
+                    <p className="text-gray-600 mb-6 max-w-md">
+                      Para visualizar ou adicionar folhas de evolução, você precisa solicitar a liberação de acesso ao seu supervisor.
+                    </p>
+                    <button
+                      onClick={handleSolicitarAcesso}
+                      className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow hover:bg-green-600 transition-colors"
+                    >
+                      Solicitar Acesso à Pasta
+                    </button>
+                  </div>
+                ) : (
+                  <>
                 <div className='flex justify-between items-center mb-4'>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
@@ -572,6 +608,8 @@ export default function EstFichaPaciente() {
                     })
                   )}
                 </div>
+                  </>
+                )}
               </div>
             )}
 

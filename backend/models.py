@@ -89,6 +89,7 @@ class Pacientes(db.Model):
     id_supervisor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
     status = db.Column(db.Boolean, nullable=True) 
     data_criacao = db.Column(db.Date, nullable=False) 
+    acesso_liberado = db.Column(db.Boolean, nullable=False, default=False)
 
     # Campos Obrigatórios
     nome_completo = db.Column(db.String(100), nullable=False)
@@ -327,3 +328,29 @@ class TrocaSupervisao(db.Model):
 
 #     def __repr__(self):
 #         return '<Name %r>' % self.name
+
+class SolicitacaoAcesso(db.Model):
+    __tablename__ = 'solicitacoes_acesso'
+
+    id_solicitacao = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_paciente = db.Column(db.Integer, db.ForeignKey('pacientes.id_paciente'), nullable=False)
+    id_estagiario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+    id_supervisor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+    status = db.Column(db.String(20), default='pendente', nullable=False) # pendente, aprovado, rejeitado
+    data_solicitacao = db.Column(db.DateTime, nullable=False)
+    data_resposta = db.Column(db.DateTime, nullable=True)
+
+    paciente = db.relationship('Pacientes', foreign_keys=[id_paciente])
+    estagiario = db.relationship('Usuarios', foreign_keys=[id_estagiario])
+    supervisor = db.relationship('Usuarios', foreign_keys=[id_supervisor])
+
+    def to_dict(self):
+        return {
+            'id_solicitacao': self.id_solicitacao,
+            'id_paciente': self.id_paciente,
+            'nome_paciente': self.paciente.nome_completo if self.paciente else 'Desconhecido',
+            'id_estagiario': self.id_estagiario,
+            'nome_estagiario': self.estagiario.nome if self.estagiario else 'Desconhecido',
+            'status': self.status,
+            'data_solicitacao': self.data_solicitacao.strftime('%d/%m/%Y %H:%M') if self.data_solicitacao else None
+        }

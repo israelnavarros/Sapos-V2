@@ -1,7 +1,7 @@
 from operator import or_
 from flask import request, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag
+from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag, SolicitacaoAcesso
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func
 from flask_login import login_required, current_user
@@ -321,6 +321,7 @@ def api_sup_ficha_paciente(id):
         'classe_social':dados_paciente.classe_social,
         'intervalo_sessoes': dados_paciente.intervalo_sessoes,
         'tags': tags,
+        'acesso_liberado': dados_paciente.acesso_liberado
     }
 
     Estagiario = aliased(Usuarios)
@@ -371,7 +372,8 @@ def api_sup_ficha_paciente(id):
 def api_sup_check_ficha(id):
     folha = FolhaEvolucao.query.get_or_404(id)
     folha.check_supervisor = f"{current_user.id_usuario}+{current_user.nome}"
-    folha.data_check_supervisor = datetime.now().replace(microsecond=0)
+    # Ajuste UTC-3
+    folha.data_check_supervisor = (datetime.utcnow() - timedelta(hours=3)).replace(microsecond=0)
     db.session.commit()
     return jsonify({
         'revisor': current_user.nome,
@@ -530,6 +532,66 @@ def sup_assumir_ou_atualizar_paciente(id_paciente):
     db.session.commit()
     return jsonify({'status': 'success', 'message': 'Paciente atualizado com sucesso!'})
 
+@app.route('/api/sup_alternar_acesso_pasta/<int:id_paciente>', methods=['POST'])
+@login_required
+def sup_alternar_acesso_pasta(id_paciente):
+    if current_user.cargo != 1:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    paciente = Pacientes.query.get_or_404(id_paciente)
+    if paciente.id_supervisor != current_user.id_usuario:
+        return jsonify({'message': 'Este paciente não pertence ao seu grupo.'}), 403
+
+    paciente.acesso_liberado = not paciente.acesso_liberado
+    db.session.commit()
+    cache.delete(f'ficha_paciente_{id_paciente}')
+    
+    return jsonify({'status': 'success', 'novo_status': paciente.acesso_liberado})
+
+@app.route('/api/sup_listar_solicitacoes_acesso', methods=['GET'])
+@login_required
+def sup_listar_solicitacoes_acesso():
+    if current_user.cargo != 1:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+    
+    solicitacoes = SolicitacaoAcesso.query.filter_by(
+        id_supervisor=current_user.id_usuario,
+        status='pendente'
+    ).order_by(SolicitacaoAcesso.data_solicitacao.desc()).all()
+
+    return jsonify([s.to_dict() for s in solicitacoes])
+
+@app.route('/api/sup_responder_solicitacao_acesso/<int:id_solicitacao>', methods=['POST'])
+@login_required
+def sup_responder_solicitacao_acesso(id_solicitacao):
+    if current_user.cargo != 1:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    solicitacao = SolicitacaoAcesso.query.get_or_404(id_solicitacao)
+    if solicitacao.id_supervisor != current_user.id_usuario:
+        return jsonify({'message': 'Solicitação não pertence a este supervisor.'}), 403
+
+    data = request.get_json()
+    acao = data.get('acao') # 'aprovar' ou 'rejeitar'
+
+    if acao == 'aprovar':
+        solicitacao.status = 'aprovado'
+        solicitacao.data_resposta = datetime.utcnow() - timedelta(hours=3)
+        
+        paciente = Pacientes.query.get(solicitacao.id_paciente)
+        if paciente:
+            paciente.acesso_liberado = True
+            cache.delete(f'ficha_paciente_{paciente.id_paciente}')
+            
+    elif acao == 'rejeitar':
+        solicitacao.status = 'rejeitado'
+        solicitacao.data_resposta = datetime.utcnow() - timedelta(hours=3)
+    else:
+        return jsonify({'message': 'Ação inválida.'}), 400
+
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': f'Solicitação {acao} com sucesso.'})
+
 @app.route('/api/sup_validar_folha/<int:id_folha>', methods=['POST'])
 @login_required
 def sup_validar_folha(id_folha):
@@ -540,7 +602,8 @@ def sup_validar_folha(id_folha):
     folha = FolhaEvolucao.query.get_or_404(id_folha)
     folha.status_validacao = status
     folha.feedback = feedback
-    folha.data_status = datetime.now()
+    # Ajuste UTC-3
+    folha.data_status = datetime.utcnow() - timedelta(hours=3)
 
     db.session.commit()
     return jsonify({'message': 'Folha validada com sucesso!'})
