@@ -489,7 +489,12 @@ def est_ficha_adicionada():
     evolucao_clinica = request.form['evolucao_clinica']
     plano_proxima_sessao = request.form['plano_proxima_sessao']
     observacoes = request.form['observacoes']
-    valor = request.form.get('valor', None)
+    valor = request.form.get('valor', '')
+    # Converter valor para float ou None
+    try:
+        valor = float(valor) if valor and str(valor).strip() else None
+    except (ValueError, TypeError):
+        valor = None
     numero_sessao = FolhaEvolucao.query.filter_by(id_paciente=id_paciente).count() + 1
 
     nova_folha = FolhaEvolucao(

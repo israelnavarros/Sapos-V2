@@ -646,7 +646,7 @@ export default function EstFichaPaciente() {
                   <textarea id="observacoes" name="observacoes" value={novaEvolucao.observacoes} onChange={handleEvolucaoChange} rows="3" className="mt-1 w-full p-2 border rounded-md shadow-sm"></textarea>
                 </div>
                 <div>
-                  <label htmlFor="valor" className="block text-sm font-semibold text-slate-700">Valor (Opcional)</label>
+                  <label htmlFor="valor" className="block text-sm font-semibold text-slate-700">Valor</label>
                   <input id="valor" type="number" name="valor" value={novaEvolucao.valor} onChange={handleEvolucaoChange} step="0.01" placeholder="0.00" className="mt-1 w-full p-2 border rounded-md shadow-sm" />
                 </div>
               </div>
