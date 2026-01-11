@@ -4,7 +4,6 @@ import API_URL from './config';
 import Header from './Header';
 
 export default function SecGrupos({ embedded = false }) {
-export default function SecGrupos({ embedded = false }) {
   const [listaGrupos, setListaGrupos] = useState([]);
   const [grupoSelecionado, setGrupoSelecionado] = useState(null);
   const [vagasNova, setVagasNova] = useState('');
@@ -51,9 +50,8 @@ export default function SecGrupos({ embedded = false }) {
   };
 
   return (
-    {!embedded && <>}
-    <Header/>
-    {!embedded && <Header/>}
+    <>
+    {!embedded && <Header />}
     <div className="shadow-lg row g-0 border rounded p-3">
       <div className="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
         <button className="btn btn-primary btn-lg" onClick={() => navigate('/criar_grupo')}>

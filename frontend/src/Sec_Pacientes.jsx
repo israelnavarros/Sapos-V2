@@ -263,7 +263,35 @@ export default function SecPacientes({ embedded = false }) {
         </div>
     );
 
-    if (embedded) return <>{Content}{modalState.isOpen && <Modal ... /> /* Modal logic handled below */}</>;
+    const ModalAssignment = modalState.isOpen && (
+        <Modal
+            onClose={() => setModalState({ isOpen: false, mode: null, paciente: null })}
+            title={`Alterar ${modalState.mode === 'supervisor' ? 'Supervisor' : 'Estagiário'} de ${modalState.paciente.nome_completo}`}
+        >
+            <div className="space-y-4">
+                <label htmlFor="user-select" className="block text-sm font-medium text-gray-700">
+                    Selecione o novo {modalState.mode === 'supervisor' ? 'supervisor' : 'estagiário'}:
+                </label>
+                <select
+                    id="user-select"
+                    value={selectedUserId}
+                    onChange={(e) => setSelectedUserId(e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                >
+                    <option value="">{userList.length > 0 ? `Selecione um ${modalState.mode}` : 'Carregando...'}</option>
+                    {userList.map(user => (
+                        <option key={user.id} value={user.id}>{user.nome}</option>
+                    ))}
+                </select>
+            </div>
+            <div className="mt-6 pt-4 border-t flex justify-end gap-3">
+                <button type="button" className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300" onClick={() => setModalState({ isOpen: false, mode: null, paciente: null })}>Cancelar</button>
+                <button type="button" className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600" onClick={handleSaveAssignment}>Salvar Alteração</button>
+            </div>
+        </Modal>
+    );
+
+    if (embedded) return <>{Content}{ModalAssignment}</>;
 
     return (
         <>
@@ -271,34 +299,7 @@ export default function SecPacientes({ embedded = false }) {
             <main className="bg-gray-50 min-h-screen pt-20">
                 {Content}
             </main>
-            {/* --- MODAL DE ATRIBUIÇÃO --- */}
-            {modalState.isOpen && (
-                <Modal
-                    onClose={() => setModalState({ isOpen: false, mode: null, paciente: null })}
-                    title={`Alterar ${modalState.mode === 'supervisor' ? 'Supervisor' : 'Estagiário'} de ${modalState.paciente.nome_completo}`}
-                >
-                    <div className="space-y-4">
-                        <label htmlFor="user-select" className="block text-sm font-medium text-gray-700">
-                            Selecione o novo {modalState.mode === 'supervisor' ? 'supervisor' : 'estagiário'}:
-                        </label>
-                        <select
-                            id="user-select"
-                            value={selectedUserId}
-                            onChange={(e) => setSelectedUserId(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm ..."
-                        >
-                            <option value="">{userList.length > 0 ? `Selecione um ${modalState.mode}` : 'Carregando...'}</option>
-                            {userList.map(user => (
-                                <option key={user.id} value={user.id}>{user.nome}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="mt-6 pt-4 border-t flex justify-end gap-3">
-                        <button type="button" onClick={() => setModalState({ isOpen: false, mode: null, paciente: null })}>Cancelar</button>
-                        <button type="button" onClick={handleSaveAssignment}>Salvar Alteração</button>
-                    </div>
-                </Modal>
-            )}
+            {ModalAssignment}
         </>
     );
 }
