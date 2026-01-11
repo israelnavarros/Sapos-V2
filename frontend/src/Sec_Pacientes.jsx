@@ -74,7 +74,7 @@ function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
     );
 }
 
-export default function SecPacientes() {
+export default function SecPacientes({ embedded = false }) {
     const [pacientes, setPacientes] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -181,11 +181,8 @@ export default function SecPacientes() {
         return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
     }
 
-    return (
-        <>
-            <Header />
-            <main className="bg-gray-50 min-h-screen pt-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    const Content = (
+        <div className={embedded ? "" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"}>
                     <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                         <h1 className="text-3xl font-bold text-gray-900">Administração de Pacientes</h1>
                         <Link
@@ -263,7 +260,16 @@ export default function SecPacientes() {
                             </tbody>
                         </table>
                     </div>
-                </div>
+        </div>
+    );
+
+    if (embedded) return <>{Content}{modalState.isOpen && <Modal ... /> /* Modal logic handled below */}</>;
+
+    return (
+        <>
+            <Header />
+            <main className="bg-gray-50 min-h-screen pt-20">
+                {Content}
             </main>
             {/* --- MODAL DE ATRIBUIÇÃO --- */}
             {modalState.isOpen && (

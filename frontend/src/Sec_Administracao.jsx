@@ -1,66 +1,56 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import Header from "./Header";
-
-// --- Componente Reutilizável para os Cards de Navegação ---
-// Ele recebe um ícone (como JSX), um título e o link de destino
-function AdminCard({ icon, title, to }) {
-    return (
-        <Link 
-            to={to} 
-            className="group block h-full bg-green p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-        >
-            <div className="flex flex-col items-center text-center">
-                <div className="flex-shrink-0 bg-green-100 p-4 rounded-full group-hover:bg-green-400 transition-colors duration-300">
-                    {icon}
-                </div>
-                <h3 className="mt-4 text-xl font-bold text-white">
-                    {title}
-                </h3>
-            </div>
-        </Link>
-    );
-}
-
+import SecPacientes from "./Sec_Pacientes";
+import SecGrupos from "./Sec_Grupos";
+import SecUsuarios from "./Sec_Usuarios";
+import SecAlertas from "./Sec_Alertas";
 
 export default function SecAdministracao() {
+    const [abaAtiva, setAbaAtiva] = useState('pacientes');
+
+    const TabButton = ({ aba, label }) => (
+        <button
+            onClick={() => setAbaAtiva(aba)}
+            className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${abaAtiva === aba
+                ? 'bg-white border-b-2 border-green text-green'
+                : 'bg-transparent text-slate-500 hover:text-slate-700'
+                }`}
+        >
+            {label}
+        </button>
+    );
+
     return (
         <>
             <Header />
-            <main className="bg-slate-50 min-h-screen pt-20">
+            <main className="bg-gray-50 min-h-screen pt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="text-center mb-12">
-                        <h1 className="text-4xl font-bold text-slate-900">Painel de Administração</h1>
-                        <p className="mt-2 text-lg text-slate-600">Selecione uma área para gerenciar.</p>
+                    
+                    {/* Cabeçalho Estilo MeuGrupo */}
+                    <div className="mb-8 text-center md:text-left">
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">Secretaria</h3>
+                        <h3 className="sm:text-5xl text-3xl font-bold text-gray-800 mb-2">Painel de Administração</h3>
+                        <p className="mt-1 text-base sm:text-lg text-slate-600">Gerencie pacientes, grupos, usuários e alertas do sistema.</p>
                     </div>
 
-                    {/* Grid responsivo para os cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        
-                        <AdminCard 
-                            to="/sec_pacientes"
-                            title="Pacientes"
-                            icon={<i className="bi bi-clipboard2-pulse text-3xl text-green"></i>}
-                        />
-
-                        <AdminCard 
-                            to="/sec_grupos"
-                            title="Grupos"
-                            icon={<i className="bi bi-diagram-2 text-3xl text-green"></i>}
-                        />
-
-                        <AdminCard 
-                            to="/sec_usuarios"
-                            title="Usuários"
-                            icon={<i className="bi bi-people text-3xl text-green"></i>}
-                        />
-
-                        <AdminCard 
-                            to="/sec_alertas"
-                            title="Alertas"
-                            icon={<i className="bi bi-exclamation-triangle text-3xl text-green"></i>}
-                        />
-
+                    {/* Navegação por Abas */}
+                    <div className="border-b border-slate-200 mb-8 overflow-x-auto">
+                        <nav className="-mb-px flex space-x-2 sm:space-x-6">
+                            <TabButton aba="pacientes" label="Pacientes" />
+                            <TabButton aba="grupos" label="Grupos" />
+                            <TabButton aba="usuarios" label="Usuários" />
+                            <TabButton aba="alertas" label="Alertas" />
+                        </nav>
                     </div>
+
+                    {/* Conteúdo das Abas */}
+                    <div>
+                        {abaAtiva === 'pacientes' && <SecPacientes embedded={true} />}
+                        {abaAtiva === 'grupos' && <SecGrupos embedded={true} />}
+                        {abaAtiva === 'usuarios' && <SecUsuarios embedded={true} />}
+                        {abaAtiva === 'alertas' && <SecAlertas embedded={true} />}
+                    </div>
+
                 </div>
             </main>
         </>

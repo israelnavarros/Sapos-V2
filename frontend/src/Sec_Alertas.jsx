@@ -11,7 +11,7 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 
-export default function SecAlertas() {
+export default function SecAlertas({ embedded = false }) {
   const [alertas, setAlertas] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [modalId, setModalId] = useState(null);
@@ -70,9 +70,8 @@ export default function SecAlertas() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  return (
+  const Content = (
     <>
-      <Header />
       <div className="p-6 bg-white shadow-md rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Alertas</h2>
@@ -164,6 +163,15 @@ export default function SecAlertas() {
           </div>
         </div>
       )}
+    </>
+  );
+
+  if (embedded) return Content;
+
+  return (
+    <>
+      <Header />
+      {Content}
     </>
   );
 }

@@ -12,7 +12,7 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 
-export default function SecUsuarios() {
+export default function SecUsuarios({ embedded = false }) {
   const [usuarios, setUsuarios] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const navigate = useNavigate();
@@ -82,11 +82,8 @@ export default function SecUsuarios() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  return (
-    <>
-      <Header />
-      <main className="pt-20 p-4">
-        <div className="max-w-7xl mx-auto">
+  const Content = (
+        <div className={embedded ? "" : "max-w-7xl mx-auto"}>
           <div className="p-6 bg-white shadow-md rounded-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Usuários</h2>
@@ -158,9 +155,17 @@ export default function SecUsuarios() {
               </button>
             </div>
           </div>
-        </div>
-      </main>
+    </div>
+  );
 
+  if (embedded) return Content;
+
+  return (
+    <>
+      <Header />
+      <main className="pt-20 p-4">
+        {Content}
+      </main>
     </>
   );
 }
