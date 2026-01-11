@@ -519,8 +519,10 @@ export default function MeuGrupo() {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sol.nome_paciente}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{sol.data_solicitacao}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <button onClick={() => handleResponderSolicitacao(sol.id_solicitacao, 'aprovar')} className="text-green-600 hover:text-green-900 font-semibold mr-4 cursor-pointer">Aprovar</button>
-                              <button onClick={() => handleResponderSolicitacao(sol.id_solicitacao, 'rejeitar')} className="text-red-600 hover:text-red-900 font-semibold cursor-pointer">Rejeitar</button>
+                              <div className="flex items-center justify-center gap-2">
+                                <button onClick={() => handleResponderSolicitacao(sol.id_solicitacao, 'aprovar')} className="px-3 py-1 text-sm rounded bg-green text-white hover:opacity-90 disabled:opacity-50 cursor-pointer">Aprovar</button>
+                                <button onClick={() => handleResponderSolicitacao(sol.id_solicitacao, 'rejeitar')} className="px-3 py-1 text-sm rounded bg-red-100 text-[#BD4343] hover:bg-red-200 disabled:opacity-50 cursor-pointer">Rejeitar</button>
+                              </div>
                             </td>
                           </tr>
                         ))
