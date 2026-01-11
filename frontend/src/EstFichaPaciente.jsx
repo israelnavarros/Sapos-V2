@@ -435,24 +435,6 @@ export default function EstFichaPaciente() {
             )}
             {tab === 'evolucao' && (
               <div className="pt-3">
-                {!paciente.acesso_liberado ? (
-                  <div className="flex flex-col items-center justify-center p-10 bg-gray-50 border border-gray-200 rounded-lg text-center">
-                    <div className="bg-gray-200 p-4 rounded-full mb-4">
-                      <i className="bi bi-lock-fill text-4xl text-gray-500"></i>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">Acesso Bloqueado</h3>
-                    <p className="text-gray-600 mb-6 max-w-md">
-                      Para visualizar ou adicionar folhas de evolução, você precisa solicitar a liberação de acesso ao seu supervisor.
-                    </p>
-                    <button
-                      onClick={handleSolicitarAcesso}
-                      className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow hover:bg-green-600 transition-colors"
-                    >
-                      Solicitar Acesso à Pasta
-                    </button>
-                  </div>
-                ) : (
-                  <>
                 <div className='flex justify-between items-center mb-4'>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
@@ -466,6 +448,25 @@ export default function EstFichaPaciente() {
                     Adicionar Evolução
                   </button>
                 </div>
+
+                {!paciente.acesso_liberado ? (
+                  <div className="flex flex-col items-center justify-center p-10 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                    <div className="bg-gray-200 p-4 rounded-full mb-4">
+                      <i className="bi bi-lock-fill text-4xl text-gray-500"></i>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Histórico Bloqueado</h3>
+                    <p className="text-gray-600 mb-6 max-w-md">
+                      Você ainda não tem acesso ao histórico de folhas de evolução. Você pode adicionar a sua folha de evolução.
+                    </p>
+                    <button
+                      onClick={handleSolicitarAcesso}
+                      className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow hover:bg-green-600 transition-colors"
+                    >
+                      Solicitar acesso ao supervisor
+                    </button>
+                  </div>
+                ) : (
+                  <>
                 {paciente.intervalo_sessoes && (
                   <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
                     <i className="bi bi-info-circle-fill text-blue-600"></i>
