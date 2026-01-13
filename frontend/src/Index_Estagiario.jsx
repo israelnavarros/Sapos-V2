@@ -115,7 +115,7 @@ export default function ConsultasDashboard() {
   return (
     <main className='pt-20'>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
-        
+        <BannerAlertas />
         <h1 className="text-3xl font-bold text-slate-800 mb-6">Minhas Consultas</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
@@ -142,7 +142,7 @@ export default function ConsultasDashboard() {
           </div>
 
         </div>
-        <BannerAlertas />
+
         {/* Calendário */}
         <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 px-4 items-center">
           <h3 className="text-sm font-semibold text-slate-600 mr-2">Legenda:</h3>
