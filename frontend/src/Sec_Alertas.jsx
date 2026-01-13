@@ -32,9 +32,18 @@ export default function SecAlertas({ embedded = false }) {
   }, []);
 
   const handleDelete = async (id) => {
-    await fetch(`${API_URL}/api/alertas/${id}`, { method: 'DELETE' });
-    setAlertas(prev => prev.filter(a => a.id_alerta !== id));
-    setModalId(null);
+    try {
+      const res = await fetch(`${API_URL}/api/deletar_alerta/${id}`, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) {
+        setAlertas(prev => prev.filter(a => a.id_alerta !== id));
+        setModalId(null);
+      } else {
+        alert('Erro ao excluir alerta.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro de conexão.');
+    }
   };
 
   const handleCreateAlerta = async (e) => {
@@ -178,27 +187,30 @@ export default function SecAlertas({ embedded = false }) {
 
       {/* Modal de confirmação */}
       {modalId !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-md text-center">
-            <h2 className="text-lg font-semibold mb-4">
-              Deseja excluir o alerta?
-            </h2>
-            <div className="flex justify-center gap-4">
+        <Modal
+          onClose={() => setModalId(null)}
+          title="Excluir Alerta"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Tem certeza que deseja excluir este alerta? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
               <button
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
                 onClick={() => setModalId(null)}
               >
                 Cancelar
               </button>
               <button
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 shadow-md"
                 onClick={() => handleDelete(modalId)}
               >
-                Confirmar
+                Excluir
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Modal de Criação de Alerta */}
