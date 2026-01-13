@@ -17,7 +17,7 @@ export default function BannerAlertas() {
       .catch(err => console.error('Erro ao carregar alertas:', err));
   }, []);
 
-//   if (alertas.length === 0) return null;
+if (alertas.length === 0) return null;
 
   return (
     <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md shadow-sm">
