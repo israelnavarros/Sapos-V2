@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import API_URL from './config';
 import Header from './Header';
 import moment from 'moment';
+import Modal from './Modal';
 import {
   useReactTable,
   getCoreRowModel,
@@ -15,6 +16,12 @@ export default function SecAlertas({ embedded = false }) {
   const [alertas, setAlertas] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [modalId, setModalId] = useState(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [novoAlerta, setNovoAlerta] = useState({
+    titulo: '',
+    mensagem: '',
+    validade: ''
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,6 +35,33 @@ export default function SecAlertas({ embedded = false }) {
     await fetch(`${API_URL}/api/alertas/${id}`, { method: 'DELETE' });
     setAlertas(prev => prev.filter(a => a.id_alerta !== id));
     setModalId(null);
+  };
+
+  const handleCreateAlerta = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/api/adicionar_alerta`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(novoAlerta)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Alerta criado com sucesso!');
+        setIsCreateModalOpen(false);
+        setNovoAlerta({ titulo: '', mensagem: '', validade: '' });
+        // Recarrega a lista
+        const resList = await fetch(`${API_URL}/api/alertas`, { credentials: 'include' });
+        const dataList = await resList.json();
+        setAlertas(dataList);
+      } else {
+        alert('Erro ao criar alerta: ' + data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro de conexão.');
+    }
   };
 
   const columns = useMemo(() => [
@@ -75,15 +109,15 @@ export default function SecAlertas({ embedded = false }) {
       <div className="p-6 bg-white shadow-md rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Alertas</h2>
-          <Link
-            to="/adm_adicionar_alerta"
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
             Adicionar Alerta
-          </Link>
+          </button>
         </div>
 
         <input
@@ -165,6 +199,62 @@ export default function SecAlertas({ embedded = false }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Criação de Alerta */}
+      {isCreateModalOpen && (
+        <Modal
+          onClose={() => setIsCreateModalOpen(false)}
+          title="Adicionar Novo Alerta"
+        >
+          <form onSubmit={handleCreateAlerta} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Título</label>
+              <input
+                type="text"
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
+                value={novoAlerta.titulo}
+                onChange={e => setNovoAlerta({ ...novoAlerta, titulo: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Validade</label>
+              <input
+                type="date"
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
+                value={novoAlerta.validade}
+                onChange={e => setNovoAlerta({ ...novoAlerta, validade: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Mensagem</label>
+              <textarea
+                required
+                rows="4"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
+                value={novoAlerta.mensagem}
+                onChange={e => setNovoAlerta({ ...novoAlerta, mensagem: e.target.value })}
+              ></textarea>
+            </div>
+            <div className="flex justify-end pt-4">
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 shadow-md"
+              >
+                Salvar Alerta
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
     </>
   );

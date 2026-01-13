@@ -292,6 +292,12 @@ class TrocaSupervisao(db.Model):
             'id_aprovador': self.id_aprovador
         }
 
+    def atualizar_acesso_pacientes(self):
+        if not self.levar_pacientes:
+            pacientes = Pacientes.query.filter_by(id_estagiario=self.id_estagiario).all()
+            for paciente in pacientes:
+                paciente.acesso_liberado = False
+
 # class Formularios(db.Model):
 #     id_form = db.Column(db.Integer, primary_key=True, autoincrement=True)
 #     status = db.Column(db.String(20))

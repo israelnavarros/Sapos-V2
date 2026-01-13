@@ -614,7 +614,12 @@ def api_adicionar_alerta():
     data = request.get_json()
     titulo = data.get('titulo')
     mensagem = data.get('mensagem')
-    validade = data.get('validade')
+    validade_str = data.get('validade')
+
+    try:
+        validade = datetime.strptime(validade_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return jsonify({'success': False, 'message': 'Data de validade inválida.'}), 400
 
     novo_alerta = Alertas(titulo=titulo, mensagem=mensagem, validade=validade)
     db.session.add(novo_alerta)
