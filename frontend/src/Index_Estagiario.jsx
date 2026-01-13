@@ -6,6 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import API_URL from './config';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import Modal from './Modal';
+import BannerAlertas from './BannerAlertas';
 
 
 export default function ConsultasDashboard() {
@@ -114,6 +115,7 @@ export default function ConsultasDashboard() {
   return (
     <main className='pt-20'>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+        <BannerAlertas />
         <h1 className="text-3xl font-bold text-slate-800 mb-6">Minhas Consultas</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 

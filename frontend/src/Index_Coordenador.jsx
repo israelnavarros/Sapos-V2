@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pie, Doughnut, Bar } from 'react-chartjs-2';
 import API_URL from './config';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title } from 'chart.js';
+import BannerAlertas from './BannerAlertas';
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
@@ -52,6 +53,8 @@ export default function IndexCoordenador() {
   }, []);
 
   return (
+    <>
+    <BannerAlertas />
     <div className="shadow-lg border rounded-lg p-6 bg-white">
       <div className="mb-6">
         <h3 className="text-center text-xl font-bold mb-4">Agenda dos estagiários</h3>
@@ -100,5 +103,6 @@ export default function IndexCoordenador() {
         <Bar data={chartData(consultasPorHoraLabels)} options={{ plugins: { title: { display: true, text: 'Consultas por Hora' } }, scales: { y: { beginAtZero: true } } }} />
       </div>
     </div>
+    </>
   );
 }

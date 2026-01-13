@@ -3,6 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import API_URL from './config';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
+import BannerAlertas from './BannerAlertas';
 
 export default function AgendaMeusEstagiarios() {
   const [estagiarios, setEstagiarios] = useState([{ id_estagiario: '', nome: 'Todos os estagiários' }]);
@@ -28,6 +29,8 @@ export default function AgendaMeusEstagiarios() {
   };
 
   return (
+    <>
+    <BannerAlertas />
     <div className="shadow-lg border rounded-lg bg-white">
       <div className="mb-4 p-6">
         <h3 className="text-center text-xl font-bold mb-4">Agenda dos meus estagiários</h3>
@@ -60,5 +63,6 @@ export default function AgendaMeusEstagiarios() {
         />
       </div>
     </div>
+    </>
   );
 }
