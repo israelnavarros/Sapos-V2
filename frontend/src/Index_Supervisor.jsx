@@ -22,7 +22,7 @@ export default function AgendaMeusEstagiarios() {
   const [tipoAgendamento, setTipoAgendamento] = useState('consulta'); // 'consulta' | 'reuniao'
 
   useEffect(() => {
-    fetch(`${API_URL}/api/consulta_ids_estagiarios`)
+    fetch(`${API_URL}/api/consulta_ids_estagiarios`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setEstagiarios([{ id_estagiario: '', nome: 'Todos os estagiários' }, ...data]));
 
@@ -33,7 +33,7 @@ export default function AgendaMeusEstagiarios() {
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`)
+    fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setEventos(data));
   }, [estagiarioSelecionado]);

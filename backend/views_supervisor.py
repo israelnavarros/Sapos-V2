@@ -74,7 +74,7 @@ def api_consulta_supervisor():
 @app.route('/api/consulta_ids_estagiarios', methods=['GET'])
 @login_required
 def api_consulta_ids_estagiarios():
-    estags = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status='true').all()
+    estags = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status=True).all()
     estagiarios = [{'id_estagiario': estagiario.id_usuario, 'nome': estagiario.nome} for estagiario in estags]
     return jsonify(estagiarios)
 
