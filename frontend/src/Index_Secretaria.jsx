@@ -28,37 +28,39 @@ export default function AgendaEstagiarios() {
   };
 
   return (
-    <div className="shadow-lg border rounded-lg bg-white">
-      <div className="mb-4 p-6">
-        <h3 className="text-center text-xl font-bold mb-4">Agenda dos estagiários</h3>
-        <form>
-          <select
-            className="form-select w-full md:w-1/2 mx-auto block px-3 py-2 border rounded"
-            id="inputGrupos"
-            value={grupoSelecionado}
-            onChange={handleGrupoChange}
-          >
-            {grupos.map(grupo => (
-              <option key={grupo.id_grupo} value={grupo.id_grupo}>{grupo.titulo}</option>
-            ))}
-          </select>
-        </form>
+    <main className='pt-20'>
+      <div className="shadow-lg border rounded-lg bg-white">
+        <div className="mb-4 p-6">
+          <h3 className="text-center text-xl font-bold mb-4">Agenda dos estagiários</h3>
+          <form>
+            <select
+              className="form-select w-full md:w-1/2 mx-auto block px-3 py-2 border rounded"
+              id="inputGrupos"
+              value={grupoSelecionado}
+              onChange={handleGrupoChange}
+            >
+              {grupos.map(grupo => (
+                <option key={grupo.id_grupo} value={grupo.id_grupo}>{grupo.titulo}</option>
+              ))}
+            </select>
+          </form>
+        </div>
+        <div className="p-6">
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin]}
+            initialView="dayGridWeek"
+            locale={ptBrLocale}
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridWeek,dayGridDay'
+            }}
+            events={eventos}
+            height="auto"
+          />
+        </div>
       </div>
-      <div className="p-6">
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin]}
-          initialView="dayGridWeek"
-          locale={ptBrLocale}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridWeek,dayGridDay'
-          }}
-          events={eventos}
-          height="auto"
-        />
-      </div>
-    </div>
+    </main>
   );
 }

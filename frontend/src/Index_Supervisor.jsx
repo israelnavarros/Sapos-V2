@@ -29,7 +29,7 @@ export default function AgendaMeusEstagiarios() {
   };
 
   return (
-    <>
+    <main className='pt-20'>
     <BannerAlertas />
     <div className="shadow-lg border rounded-lg bg-white">
       <div className="mb-4 p-6">
@@ -63,6 +63,6 @@ export default function AgendaMeusEstagiarios() {
         />
       </div>
     </div>
-    </>
+    </main>
   );
 }
