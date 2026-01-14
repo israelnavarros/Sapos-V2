@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import BannerAlertas from './BannerAlertas';
+import Modal from './Modal';
 
 export default function AgendaMeusEstagiarios() {
   const [estagiarios, setEstagiarios] = useState([{ id_estagiario: '', nome: 'Todos os estagiários' }]);
@@ -13,10 +14,22 @@ export default function AgendaMeusEstagiarios() {
   const [eventos, setEventos] = useState([]);
   const calendarRef = useRef(null);
 
+  // Estados para o Modal e Criação de Consulta
+  const [modalState, setModalState] = useState({ isOpen: false, mode: null, data: null });
+  const [pacientes, setPacientes] = useState([]);
+  const [formData, setFormData] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tipoAgendamento, setTipoAgendamento] = useState('consulta'); // 'consulta' | 'reuniao'
+
   useEffect(() => {
     fetch(`${API_URL}/api/consulta_ids_estagiarios`)
       .then(res => res.json())
       .then(data => setEstagiarios([{ id_estagiario: '', nome: 'Todos os estagiários' }, ...data]));
+
+    // Busca pacientes supervisionados pelo usuário logado (Supervisor)
+    fetch(`${API_URL}/api/sup_pacientes_supervisionados`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setPacientes(data || []));
   }, []);
 
   useEffect(() => {
@@ -28,6 +41,74 @@ export default function AgendaMeusEstagiarios() {
   const handleEstagiarioChange = (e) => {
     setEstagiarioSelecionado(e.target.value);
     // O useEffect acima já recarrega os eventos ao mudar o estagiário
+  };
+
+  // Lógica do Modal
+  const handleDateSelect = (selectInfo) => {
+    const defaultData = {
+      dia: selectInfo.startStr.split('T')[0],
+      inicio: selectInfo.startStr.split('T')[1]?.substring(0, 5) || '09:00',
+      final: selectInfo.endStr.split('T')[1]?.substring(0, 5) || '10:00',
+      paciente: '',
+      titulo: '',
+      participantes: []
+    };
+    setFormData(defaultData);
+    setTipoAgendamento('consulta');
+    setModalState({ isOpen: true, mode: 'create', data: defaultData });
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData(prev => {
+      const current = prev.participantes || [];
+      if (checked) return { ...prev, participantes: [...current, value] };
+      return { ...prev, participantes: current.filter(id => id !== value) };
+    });
+  };
+
+  const handleSaveEvent = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      let response;
+      if (tipoAgendamento === 'consulta') {
+        const formBody = new URLSearchParams(formData).toString();
+        response = await fetch(`${API_URL}/api/cadastrar_consulta_supervisor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          credentials: 'include',
+          body: formBody
+        });
+      } else {
+        // Reunião (envia JSON)
+        response = await fetch(`${API_URL}/api/criar_reuniao_supervisor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
+      }
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Erro ao cadastrar.');
+      
+      // Recarrega eventos
+      const resEventos = await fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`);
+      const dataEventos = await resEventos.json();
+      setEventos(dataEventos);
+
+      setModalState({ isOpen: false, mode: null, data: null });
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -85,12 +166,86 @@ export default function AgendaMeusEstagiarios() {
             }}
             events={eventos}
             height="auto"
+            selectable={true}
+            select={handleDateSelect}
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"
             nowIndicator={true}
           />
         </div>
       </div>
+
+      {/* Modal de Cadastro */}
+      {modalState.isOpen && modalState.mode === 'create' && (
+        <Modal
+          onClose={() => setModalState({ isOpen: false, mode: null, data: null })}
+          title={tipoAgendamento === 'consulta' ? "Agendar Consulta" : "Agendar Reunião"}
+        >
+          <form onSubmit={handleSaveEvent}>
+            <div className="space-y-4">
+              {/* Seletor de Tipo */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Agendamento</label>
+                <div className="flex gap-4">
+                  <label className="inline-flex items-center">
+                    <input type="radio" className="form-radio text-green" name="tipo" checked={tipoAgendamento === 'consulta'} onChange={() => setTipoAgendamento('consulta')} />
+                    <span className="ml-2">Consulta (Paciente)</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input type="radio" className="form-radio text-green" name="tipo" checked={tipoAgendamento === 'reuniao'} onChange={() => setTipoAgendamento('reuniao')} />
+                    <span className="ml-2">Reunião (Estagiários)</span>
+                  </label>
+                </div>
+              </div>
+
+              {tipoAgendamento === 'consulta' ? (
+                <div>
+                  <label htmlFor="paciente" className="block text-sm font-medium text-gray-700">Paciente</label>
+                  <select id="paciente" name="paciente" value={formData.paciente} onChange={handleFormChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                    <option value="">Selecione um paciente</option>
+                    {pacientes.map(p => <option key={p.id_paciente} value={p.id_paciente}>{p.nome_completo}</option>)}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="titulo" className="block text-sm font-medium text-gray-700">Título da Reunião</label>
+                  <input type="text" id="titulo" name="titulo" value={formData.titulo} onChange={handleFormChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" placeholder="Ex: Supervisão em Grupo" />
+                  
+                  <label className="block text-sm font-medium text-gray-700 mt-3 mb-2">Participantes (Estagiários)</label>
+                  <div className="max-h-40 overflow-y-auto border rounded-md p-2 bg-gray-50">
+                    {estagiarios.filter(e => e.id_estagiario).map(est => (
+                      <label key={est.id_estagiario} className="flex items-center space-x-2 mb-1">
+                        <input type="checkbox" value={est.id_estagiario} onChange={handleCheckboxChange} checked={(formData.participantes || []).includes(String(est.id_estagiario))} className="rounded text-green focus:ring-green" />
+                        <span className="text-sm text-gray-700">{est.nome}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="dia" className="block text-sm font-medium text-gray-700">Data</label>
+                <input type="date" id="dia" name="dia" value={formData.dia} onChange={handleFormChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+              </div>
+              <div className='flex gap-4'>
+                <div className='flex-1'>
+                  <label htmlFor="inicio" className="block text-sm font-medium text-gray-700">Início</label>
+                  <input type="time" id="inicio" name="inicio" value={formData.inicio} onChange={handleFormChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+                <div className='flex-1'>
+                  <label htmlFor="final" className="block text-sm font-medium text-gray-700">Término</label>
+                  <input type="time" id="final" name="final" value={formData.final} onChange={handleFormChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t flex justify-end">
+              <button type="submit" className="cursor-pointer px-3 py-1.5 bg-green text-white text-sm font-semibold rounded-md shadow-sm hover:bg-green-600 transition-colors disabled:opacity-50" disabled={isSubmitting}>
+                {isSubmitting ? 'Salvando...' : 'Salvar Agendamento'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </main>
   );
 }

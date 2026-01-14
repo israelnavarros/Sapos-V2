@@ -360,3 +360,19 @@ class SolicitacaoAcesso(db.Model):
             'status': self.status,
             'data_solicitacao': self.data_solicitacao.strftime('%d/%m/%Y %H:%M') if self.data_solicitacao else None
         }
+
+class Reunioes(db.Model):
+    __tablename__ = 'reunioes'
+    id_reuniao = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_supervisor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+    titulo = db.Column(db.String(100), nullable=False)
+    dia = db.Column(db.Date, nullable=False)
+    hora_inicio = db.Column(db.Time, nullable=False)
+    hora_fim = db.Column(db.Time, nullable=False)
+    participantes = db.relationship('ReuniaoParticipantes', backref='reuniao', cascade='all, delete-orphan')
+
+class ReuniaoParticipantes(db.Model):
+    __tablename__ = 'reuniao_participantes'
+    id_reuniao = db.Column(db.Integer, db.ForeignKey('reunioes.id_reuniao'), primary_key=True)
+    id_participante = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), primary_key=True)
+    participante = db.relationship('Usuarios', foreign_keys=[id_participante])

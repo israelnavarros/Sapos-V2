@@ -1,7 +1,7 @@
 from operator import or_
 from flask import request, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag, SolicitacaoAcesso
+from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func
 from flask_login import login_required, current_user
@@ -52,6 +52,23 @@ def api_consulta_supervisor():
         }
         consultas_serializadas.append(reuniao_dict)
 
+    # Busca reuniões agendadas (específicas)
+    reunioes_agendadas = Reunioes.query.filter_by(id_supervisor=current_user.id_usuario).all()
+    for r in reunioes_agendadas:
+        start_datetime = datetime.combine(r.dia, r.hora_inicio).isoformat()
+        end_datetime = datetime.combine(r.dia, r.hora_fim).isoformat()
+        part_names = [p.participante.nome for p in r.participantes]
+        
+        reuniao_dict = {
+            'id': f"reuniao_{r.id_reuniao}",
+            'title': f"{r.titulo}",
+            'start': start_datetime,
+            'end': end_datetime,
+            'color': 'black',
+            'extendedProps': {'type': 'reuniao', 'participantes': part_names}
+        }
+        consultas_serializadas.append(reuniao_dict)
+
     return jsonify(consultas_serializadas)
 
 @app.route('/api/consulta_ids_estagiarios', methods=['GET'])
@@ -60,6 +77,70 @@ def api_consulta_ids_estagiarios():
     estags = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status='true').all()
     estagiarios = [{'id_estagiario': estagiario.id_usuario, 'nome': estagiario.nome} for estagiario in estags]
     return jsonify(estagiarios)
+
+@app.route('/api/cadastrar_consulta_supervisor', methods=['POST'])
+@login_required
+def api_cadastrar_consulta_supervisor():
+    paciente = request.form['paciente']
+    dia = request.form['dia']
+    inicio = request.form['inicio']
+    final = request.form['final']
+    iso_dia = datetime.strptime(dia, '%Y-%m-%d').date()
+    iso_hora_inicio = datetime.strptime(inicio + ':00', '%H:%M:%S').time()
+    iso_hora_fim = datetime.strptime(final + ':00', '%H:%M:%S').time()
+
+    # Verifica conflitos (opcional, mas recomendado)
+    consulta_existente = Consultas.query.filter(
+        Consultas.id_usuario == current_user.id_usuario,
+        Consultas.dia == iso_dia,
+        Consultas.hora_inicio < iso_hora_fim,
+        Consultas.hora_fim > iso_hora_inicio
+    ).first()
+    if consulta_existente:
+        return jsonify({'status': 'error', 'message': 'Horário ocupado.'}), 400
+
+    nova_consulta = Consultas(
+        id_usuario=current_user.id_usuario,
+        id_grupo=current_user.grupo,
+        id_paciente=paciente,
+        dia=iso_dia,
+        hora_inicio=iso_hora_inicio,
+        hora_fim=iso_hora_fim
+    )
+    db.session.add(nova_consulta)
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': 'Consulta cadastrada com sucesso!'})
+
+@app.route('/api/criar_reuniao_supervisor', methods=['POST'])
+@login_required
+def api_criar_reuniao_supervisor():
+    data = request.get_json()
+    titulo = data.get('titulo')
+    dia_str = data.get('dia')
+    inicio_str = data.get('inicio')
+    final_str = data.get('final')
+    participantes_ids = data.get('participantes', [])
+
+    dia = datetime.strptime(dia_str, '%Y-%m-%d').date()
+    inicio = datetime.strptime(inicio_str + ':00', '%H:%M:%S').time()
+    final = datetime.strptime(final_str + ':00', '%H:%M:%S').time()
+
+    nova_reuniao = Reunioes(
+        id_supervisor=current_user.id_usuario,
+        titulo=titulo,
+        dia=dia,
+        hora_inicio=inicio,
+        hora_fim=final
+    )
+    db.session.add(nova_reuniao)
+    db.session.flush() # Gera o ID
+
+    for pid in participantes_ids:
+        part = ReuniaoParticipantes(id_reuniao=nova_reuniao.id_reuniao, id_participante=pid)
+        db.session.add(part)
+    
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': 'Reunião agendada com sucesso!'})
 
 # Administração do grupo
 @app.route('/api/meu_grupo', methods=['GET'])
