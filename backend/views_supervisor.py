@@ -1,9 +1,8 @@
-from operator import or_
 from flask import request, jsonify
 from main import app, db, mail, crypt, cache
 from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
-from sqlalchemy import text, func
+from sqlalchemy import text, func, or_
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_mail import Message
@@ -21,7 +20,12 @@ def api_consulta_supervisor():
     if estagiarioId:
         consulta_estag = db.session.query(Consultas, Pacientes.nome_completo).join(
             Pacientes, Consultas.id_paciente == Pacientes.id_paciente
-        ).filter(Consultas.id_usuario == estagiarioId).all()
+        ).filter(
+            or_(
+                Consultas.id_usuario == estagiarioId,
+                (Consultas.id_usuario == current_user.id_usuario) & (Pacientes.id_estagiario == estagiarioId)
+            )
+        ).all()
     else:
         consulta_estag = db.session.query(Consultas, Pacientes.nome_completo).join(
             Pacientes, Consultas.id_paciente == Pacientes.id_paciente
@@ -53,7 +57,16 @@ def api_consulta_supervisor():
         consultas_serializadas.append(reuniao_dict)
 
     # Busca reuniões agendadas (específicas)
-    reunioes_agendadas = Reunioes.query.filter_by(id_supervisor=current_user.id_usuario).all()
+    if estagiarioId:
+        reunioes_agendadas = db.session.query(Reunioes).join(
+            ReuniaoParticipantes, Reunioes.id_reuniao == ReuniaoParticipantes.id_reuniao
+        ).filter(
+            Reunioes.id_supervisor == current_user.id_usuario,
+            ReuniaoParticipantes.id_participante == estagiarioId
+        ).all()
+    else:
+        reunioes_agendadas = Reunioes.query.filter_by(id_supervisor=current_user.id_usuario).all()
+
     for r in reunioes_agendadas:
         start_datetime = datetime.combine(r.dia, r.hora_inicio).isoformat()
         end_datetime = datetime.combine(r.dia, r.hora_fim).isoformat()
