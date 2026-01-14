@@ -46,7 +46,7 @@ def consulta_estag():
 @app.route('/api/consulta_ids_pacientes', methods=['GET'])
 @login_required
 def consulta_ids_pacientes():
-    pacientes_do_usuario = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario, status='true').all()
+    pacientes_do_usuario = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario, status=True).all()
     pacientes = [{'id_paciente': paciente.id_paciente, 'nome_completo': paciente.nome_completo} for paciente in pacientes_do_usuario]
     return jsonify(pacientes)
 
@@ -230,8 +230,7 @@ def minhas_trocas():
 @app.route('/api/meus_pacientes', methods=['GET'])
 @login_required
 def api_meus_pacientes():
-    pacientes = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario, status='True').order_by(Pacientes.nome_completo).all()
-    #pacientes = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario).order_by(Pacientes.nome_completo).all()
+    pacientes = Pacientes.query.filter_by(id_estagiario=current_user.id_usuario, status=True).order_by(Pacientes.nome_completo).all()
     
     lista = []
     for paciente in pacientes:
@@ -459,7 +458,7 @@ def api_adicionar_paciente():
         email=data['email'],
         motivo=data['motivo'],
         medicamentos=data['medicamentos'],
-        status='True',
+        status=True,
         data_criacao=date.today().strftime('%d/%m/%Y')
     )
     

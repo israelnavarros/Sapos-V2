@@ -20,7 +20,7 @@ export default function ConsultasDashboard() {
 
 
   const fetchEventos = () => {
-    fetch(`${API_URL}/api/consulta_estag`)
+    fetch(`${API_URL}/api/consulta_estag`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         const eventosMapeados = data.map(evento => ({
@@ -34,12 +34,12 @@ export default function ConsultasDashboard() {
   };
 
   useEffect(() => {
-    fetch(`${API_URL}/api/est_consulta_card`).then(res => res.json()).then(data => {
+    fetch(`${API_URL}/api/est_consulta_card`, { credentials: 'include' }).then(res => res.json()).then(data => {
       setConsultasHoje(data.hoje);
       setConsultasSemana(data.semana);
     });
 
-    fetch(`${API_URL}/api/consulta_ids_pacientes`).then(res => res.json()).then(data => setPacientes(data));
+    fetch(`${API_URL}/api/consulta_ids_pacientes`, { credentials: 'include' }).then(res => res.json()).then(data => setPacientes(data));
 
     fetchEventos();
   }, []);
@@ -72,6 +72,7 @@ export default function ConsultasDashboard() {
       const response = await fetch(`${API_URL}/api/cadastrar_consulta_estag`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'include',
         body: formBody
       });
       const result = await response.json();
@@ -96,6 +97,7 @@ export default function ConsultasDashboard() {
       const response = await fetch(`${API_URL}/${actionUrl}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'include',
         body: formBody
       });
       const result = await response.json();
