@@ -79,6 +79,7 @@ export default function AgendaMeusEstagiarios() {
       let response;
       if (tipoAgendamento === 'consulta') {
         const formBody = new URLSearchParams(formData).toString();
+        console.log('Enviando consulta:', formBody);
         response = await fetch(`${API_URL}/api/cadastrar_consulta_supervisor`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -87,6 +88,7 @@ export default function AgendaMeusEstagiarios() {
         });
       } else {
         // Reunião (envia JSON)
+        console.log('Enviando reunião:', formData);
         response = await fetch(`${API_URL}/api/criar_reuniao_supervisor`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -95,22 +97,43 @@ export default function AgendaMeusEstagiarios() {
         });
       }
 
+      console.log('Response status cadastro:', response.status, response.statusText);
+      
       let result;
+      const contentType = response.headers.get('content-type');
+      console.log('Content-Type da resposta:', contentType);
+      
       try {
-        result = await response.json();
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        result = JSON.parse(responseText);
       } catch (err) {
+        console.error('Erro ao fazer parse JSON:', err);
         throw new Error(`Erro na resposta do servidor: ${response.status} ${response.statusText}`);
       }
 
       if (!response.ok) throw new Error(result?.message || 'Erro ao cadastrar.');
       
+      console.log('Cadastro bem-sucedido, recarregando eventos...');
+      
       // Recarrega eventos
-      const resEventos = await fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`, { credentials: 'include' });
+      const urlEventos = `${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`;
+      console.log('URL para recarregar eventos:', urlEventos);
+      
+      const resEventos = await fetch(urlEventos, { credentials: 'include' });
+      console.log('Response status eventos:', resEventos.status, resEventos.statusText);
+      
+      if (!resEventos.ok) {
+        throw new Error(`Erro ao carregar eventos: ${resEventos.status} ${resEventos.statusText}`);
+      }
+      
       const dataEventos = await resEventos.json();
+      console.log('Eventos carregados:', dataEventos);
       setEventos(dataEventos);
 
       setModalState({ isOpen: false, mode: null, data: null });
     } catch (error) {
+      console.error('Erro completo:', error);
       alert(error.message);
     } finally {
       setIsSubmitting(false);
