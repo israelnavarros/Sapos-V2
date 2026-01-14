@@ -95,11 +95,17 @@ export default function AgendaMeusEstagiarios() {
         });
       }
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Erro ao cadastrar.');
+      let result;
+      try {
+        result = await response.json();
+      } catch (err) {
+        throw new Error(`Erro na resposta do servidor: ${response.status} ${response.statusText}`);
+      }
+
+      if (!response.ok) throw new Error(result?.message || 'Erro ao cadastrar.');
       
       // Recarrega eventos
-      const resEventos = await fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`);
+      const resEventos = await fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`, { credentials: 'include' });
       const dataEventos = await resEventos.json();
       setEventos(dataEventos);
 
