@@ -72,6 +72,37 @@ export default function AgendaMeusEstagiarios() {
     });
   };
 
+  const handleEventClick = (clickInfo) => {
+    setModalState({ isOpen: true, mode: 'view', data: clickInfo.event });
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!window.confirm("Tem certeza que deseja excluir este evento?")) return;
+    
+    setIsSubmitting(true);
+    try {
+        const response = await fetch(`${API_URL}/api/excluir_evento_supervisor`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ id_evento: modalState.data.id })
+        });
+        
+        if (!response.ok) throw new Error('Erro ao excluir evento.');
+
+        // Recarrega eventos
+        const resEventos = await fetch(`${API_URL}/api/consulta_supervisor${estagiarioSelecionado ? `?estagiarioId=${estagiarioSelecionado}` : ''}`, { credentials: 'include' });
+        const dataEventos = await resEventos.json();
+        setEventos(dataEventos);
+
+        setModalState({ isOpen: false, mode: null, data: null });
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
   const handleSaveEvent = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -196,6 +227,7 @@ export default function AgendaMeusEstagiarios() {
             events={eventos}
             height="auto"
             selectable={true}
+            eventClick={handleEventClick}
             select={handleDateSelect}
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"
@@ -205,11 +237,53 @@ export default function AgendaMeusEstagiarios() {
       </div>
 
       {/* Modal de Cadastro */}
-      {modalState.isOpen && modalState.mode === 'create' && (
+      {modalState.isOpen && (
         <Modal
           onClose={() => setModalState({ isOpen: false, mode: null, data: null })}
-          title={tipoAgendamento === 'consulta' ? "Agendar Consulta" : "Agendar Reunião"}
+          title={
+            modalState.mode === 'create' ? (tipoAgendamento === 'consulta' ? "Agendar Consulta" : "Agendar Reunião") :
+            "Detalhes do Evento"
+          }
         >
+          {modalState.mode === 'view' ? (
+            <div className="space-y-4">
+                <div>
+                    <h4 className="text-lg font-bold text-slate-800">{modalState.data.title}</h4>
+                    <p className="text-sm text-slate-600">
+                        {new Date(modalState.data.start).toLocaleDateString('pt-BR')} - {new Date(modalState.data.start).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}
+                        {modalState.data.end && ` até ${new Date(modalState.data.end).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`}
+                    </p>
+                </div>
+                
+                {modalState.data.extendedProps?.participantes && (
+                    <div>
+                        <h5 className="font-semibold text-sm text-slate-700">Participantes:</h5>
+                        <ul className="list-disc list-inside text-sm text-slate-600">
+                            {modalState.data.extendedProps.participantes.map((p, idx) => (
+                                <li key={idx}>{p}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {!modalState.data.groupId && (
+                    <div className="pt-4 border-t flex justify-end">
+                        <button 
+                            onClick={handleDeleteEvent} 
+                            disabled={isSubmitting}
+                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 shadow-sm disabled:opacity-50 cursor-pointer"
+                        >
+                            {isSubmitting ? 'Excluindo...' : 'Excluir Evento'}
+                        </button>
+                    </div>
+                )}
+                {modalState.data.groupId && (
+                    <div className="pt-4 border-t text-center text-sm text-gray-500 italic">
+                        Reunião recorrente. Gerencie na aba "Meu Grupo".
+                    </div>
+                )}
+            </div>
+          ) : (
           <form onSubmit={handleSaveEvent}>
             <div className="space-y-4">
               {/* Seletor de Tipo */}
@@ -273,6 +347,7 @@ export default function AgendaMeusEstagiarios() {
               </button>
             </div>
           </form>
+          )}
         </Modal>
       )}
     </main>

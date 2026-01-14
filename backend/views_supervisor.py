@@ -142,6 +142,40 @@ def api_criar_reuniao_supervisor():
     db.session.commit()
     return jsonify({'status': 'success', 'message': 'Reunião agendada com sucesso!'})
 
+@app.route('/api/excluir_evento_supervisor', methods=['POST'])
+@login_required
+def api_excluir_evento_supervisor():
+    data = request.get_json()
+    id_evento = str(data.get('id_evento'))
+    
+    if id_evento.startswith('reuniao_'):
+        # É uma reunião pontual
+        try:
+            id_reuniao = int(id_evento.split('_')[1])
+            reuniao = Reunioes.query.filter_by(id_reuniao=id_reuniao, id_supervisor=current_user.id_usuario).first()
+            if reuniao:
+                db.session.delete(reuniao)
+                db.session.commit()
+                return jsonify({'status': 'success', 'message': 'Reunião excluída com sucesso!'})
+            else:
+                return jsonify({'status': 'error', 'message': 'Reunião não encontrada ou permissão negada.'}), 404
+        except Exception as e:
+             return jsonify({'status': 'error', 'message': str(e)}), 500
+    else:
+        # É uma consulta
+        try:
+            id_consulta = int(id_evento)
+            consulta = Consultas.query.filter_by(id_consulta=id_consulta).first()
+            # Permite excluir se for do mesmo grupo (ou criado pelo supervisor)
+            if consulta and consulta.id_grupo == current_user.grupo:
+                db.session.delete(consulta)
+                db.session.commit()
+                return jsonify({'status': 'success', 'message': 'Consulta excluída com sucesso!'})
+            else:
+                return jsonify({'status': 'error', 'message': 'Consulta não encontrada ou permissão negada.'}), 404
+        except ValueError:
+             return jsonify({'status': 'error', 'message': 'ID inválido.'}), 400
+
 # Administração do grupo
 @app.route('/api/meu_grupo', methods=['GET'])
 @login_required

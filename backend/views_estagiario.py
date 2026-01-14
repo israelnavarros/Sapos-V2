@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao, SolicitacaoAcesso
+from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido
 from sqlalchemy import text, desc, or_
 from flask_login import login_required, current_user
@@ -41,6 +41,25 @@ def consulta_estag():
             'groupId': 'Reuniao'
         }
         consultas_serializadas.append(reuniao_dict)
+
+    # Busca reuniões pontuais onde o estagiário é participante
+    reunioes_participante = db.session.query(Reunioes).join(
+        ReuniaoParticipantes, Reunioes.id_reuniao == ReuniaoParticipantes.id_reuniao
+    ).filter(
+        ReuniaoParticipantes.id_participante == current_user.id_usuario
+    ).all()
+
+    for r in reunioes_participante:
+        reuniao_dict = {
+            'id': f"reuniao_{r.id_reuniao}",
+            'title': f"{r.titulo}",
+            'start': datetime.combine(r.dia, r.hora_inicio).isoformat(),
+            'end': datetime.combine(r.dia, r.hora_fim).isoformat(),
+            'color': 'black',
+            'extendedProps': {'type': 'reuniao'}
+        }
+        consultas_serializadas.append(reuniao_dict)
+
     return jsonify(consultas_serializadas)
 
 @app.route('/api/consulta_ids_pacientes', methods=['GET'])

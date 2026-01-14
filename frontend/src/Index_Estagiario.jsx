@@ -25,7 +25,7 @@ export default function ConsultasDashboard() {
       .then(data => {
         const eventosMapeados = data.map(evento => ({
           ...evento,
-          className: evento.groupId ? 'fc-event-black' :
+          className: (evento.groupId || evento.extendedProps?.type === 'reuniao') ? 'fc-event-black' :
             evento.status === 'Realizado' ? 'fc-event-green' :
               evento.status === 'Cancelado' ? 'fc-event-red' : 'fc-event-blue'
         }));
