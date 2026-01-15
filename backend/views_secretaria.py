@@ -384,8 +384,22 @@ def adicionar_paciente_secretaria():
 def lista_supervisores():
     # Supondo que cargo '1' é Supervisor
     supervisores = Usuarios.query.filter_by(cargo='1', status='true').all()
-    lista = [{'id': user.id_usuario, 'nome': user.nome} for user in supervisores]
+    lista = [{'id': user.id_usuario, 'nome': user.nome, 'grupo': user.grupo} for user in supervisores]
     return jsonify(lista)
+
+@app.route('/api/atribuir_supervisor_grupo', methods=['POST'])
+@login_required
+def atribuir_supervisor_grupo():
+    data = request.get_json()
+    id_supervisor = data.get('id_supervisor')
+    id_grupo = data.get('id_grupo')
+    
+    supervisor = Usuarios.query.get(id_supervisor)
+    if supervisor:
+        supervisor.grupo = id_grupo
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': 'Supervisor não encontrado'}), 404
 
 # Rota para buscar ESTAGIÁRIOS de um SUPERVISOR específico
 @app.route('/api/lista_estagiarios_por_supervisor/<int:id_supervisor>', methods=['GET'])

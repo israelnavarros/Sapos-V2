@@ -1,8 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API_URL from './config';
 import Header from './Header';
 import Modal from './Modal';
+
+function ActionsDropdown({ grupo, onEditVagas, onEditGroup, onManageCoordinators }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        }
+        if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [isOpen]);
+
+    const itemStyle = "group flex w-full items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-green hover:text-white transition-colors cursor-pointer";
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+            </button>
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
+                    <div className="p-1">
+                        <button onClick={() => { onEditGroup(grupo); setIsOpen(false); }} className={itemStyle}>
+                            <i className="bi bi-pencil-square mr-2"></i> Editar Grupo
+                        </button>
+                        <button onClick={() => { onEditVagas(grupo); setIsOpen(false); }} className={itemStyle}>
+                            <i className="bi bi-people mr-2"></i> Editar Vagas
+                        </button>
+                        <button onClick={() => { onManageCoordinators(grupo); setIsOpen(false); }} className={itemStyle}>
+                            <i className="bi bi-person-badge mr-2"></i> Coordenadores
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function SecGrupos({ embedded = false }) {
   const [listaGrupos, setListaGrupos] = useState([]);
@@ -10,6 +52,10 @@ export default function SecGrupos({ embedded = false }) {
   const [vagasNova, setVagasNova] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
+  const [isCoordModalOpen, setIsCoordModalOpen] = useState(false);
+  const [supervisores, setSupervisores] = useState([]);
+  const [editGroupData, setEditGroupData] = useState({});
   const [newGroupData, setNewGroupData] = useState({
     titulo: '',
     vagas_estagiarios: '',
@@ -101,6 +147,60 @@ export default function SecGrupos({ embedded = false }) {
     }
   };
 
+  const handleEditGroupChange = (e) => {
+    const { name, value } = e.target;
+    setEditGroupData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveEditGroup = async (e) => {
+    e.preventDefault();
+    try {
+        const res = await fetch(`${API_URL}/api/atualizar_grupo`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(editGroupData)
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('Grupo atualizado com sucesso!');
+            setIsEditGroupModalOpen(false);
+            // Recarrega a lista
+            const resList = await fetch(`${API_URL}/api/grupos`, { credentials: 'include' });
+            const dataList = await resList.json();
+            setListaGrupos(dataList);
+        } else {
+            alert(data.message || 'Erro ao atualizar grupo.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão.');
+    }
+  };
+
+  const openCoordModal = (grupo) => {
+    setGrupoSelecionado(grupo);
+    fetch(`${API_URL}/api/lista_supervisores`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            setSupervisores(data);
+            setIsCoordModalOpen(true);
+        });
+  };
+
+  const handleAssignCoordinator = async (id_supervisor, id_grupo) => {
+      await fetch(`${API_URL}/api/atribuir_supervisor_grupo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ id_supervisor, id_grupo })
+      });
+      // Refresh list
+      const res = await fetch(`${API_URL}/api/lista_supervisores`, { credentials: 'include' });
+      const data = await res.json();
+      setSupervisores(data);
+  };
+
   return (
     <>
     {!embedded && <Header />}
@@ -136,26 +236,12 @@ export default function SecGrupos({ embedded = false }) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">{grupo.titulo}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">{grupo.vagas_estagiarios}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="flex justify-center gap-2">
-                        <button
-                        className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => abrirModal(grupo)}
-                        >
-                        Editar Vagas
-                        </button>
-                        <button
-                        className="text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => navigate(`/editar_grupo/${grupo.id_grupo}`)}
-                        >
-                        Editar Grupo
-                        </button>
-                        <button
-                        className="text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                        onClick={() => navigate(`/coordenador_por_grupo/${grupo.id_grupo}`)}
-                        >
-                        Coordenador
-                        </button>
-                    </div>
+                        <ActionsDropdown 
+                            grupo={grupo}
+                            onEditVagas={abrirModal}
+                            onEditGroup={(g) => { setEditGroupData(g); setIsEditGroupModalOpen(true); }}
+                            onManageCoordinators={openCoordModal}
+                        />
                     </td>
                 </tr>
                 ))}
@@ -251,6 +337,87 @@ export default function SecGrupos({ embedded = false }) {
             </div>
           </form>
         </Modal>
+      )}
+
+      {/* Modal de Edição de Grupo */}
+      {isEditGroupModalOpen && (
+        <Modal onClose={() => setIsEditGroupModalOpen(false)} title="Editar Grupo">
+          <form onSubmit={handleSaveEditGroup} className="space-y-4 max-h-[70vh] overflow-y-auto p-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Título</label>
+                    <input type="text" name="titulo" value={editGroupData.titulo} onChange={handleEditGroupChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Vagas</label>
+                    <input type="number" name="vagas_estagiarios" value={editGroupData.vagas_estagiarios} onChange={handleEditGroupChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Local</label>
+                    <input type="text" name="local" value={editGroupData.local} onChange={handleEditGroupChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Convênio</label>
+                    <input type="text" name="convenio" value={editGroupData.convenio} onChange={handleEditGroupChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Resumo</label>
+                <textarea name="resumo" value={editGroupData.resumo} onChange={handleEditGroupChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Objetivos</label>
+                <textarea name="objetivos" value={editGroupData.objetivos} onChange={handleEditGroupChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Atividades</label>
+                <textarea name="atividades" value={editGroupData.atividades} onChange={handleEditGroupChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Bibliografia</label>
+                <textarea name="bibliografia" value={editGroupData.bibliografia} onChange={handleEditGroupChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+                <button type="button" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onClick={() => setIsEditGroupModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 shadow-md">Salvar Alterações</button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Modal de Coordenadores */}
+      {isCoordModalOpen && (
+          <Modal onClose={() => setIsCoordModalOpen(false)} title={`Gerenciar Coordenadores - ${grupoSelecionado?.titulo}`}>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                  <p className="text-sm text-gray-600">Selecione os supervisores que atuarão como coordenadores deste grupo.</p>
+                  <div className="divide-y divide-gray-200 border rounded-md">
+                      {supervisores.map(sup => {
+                          const isInGroup = sup.grupo === grupoSelecionado.id_grupo;
+                          return (
+                              <div key={sup.id} className="flex items-center justify-between p-3 hover:bg-gray-50">
+                                  <div>
+                                      <p className="font-medium text-gray-800">{sup.nome}</p>
+                                      <p className="text-xs text-gray-500">{sup.grupo ? (isInGroup ? 'Neste Grupo' : `Em outro grupo (ID: ${sup.grupo})`) : 'Sem grupo'}</p>
+                                  </div>
+                                  <button 
+                                      onClick={() => handleAssignCoordinator(sup.id, isInGroup ? null : grupoSelecionado.id_grupo)}
+                                      className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                                          isInGroup 
+                                          ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                      }`}
+                                  >
+                                      {isInGroup ? 'Remover' : 'Adicionar'}
+                                  </button>
+                              </div>
+                          );
+                      })}
+                  </div>
+              </div>
+              <div className="flex justify-end pt-4">
+                  <button type="button" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onClick={() => setIsCoordModalOpen(false)}>Fechar</button>
+              </div>
+          </Modal>
       )}
     </div>
     </>
