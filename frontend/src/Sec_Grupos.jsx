@@ -37,7 +37,7 @@ function ActionsDropdown({ grupo, onEditVagas, onEditGroup, onManageCoordinators
                             <i className="bi bi-people mr-2"></i> Editar Vagas
                         </button>
                         <button onClick={() => { onManageCoordinators(grupo); setIsOpen(false); }} className={itemStyle}>
-                            <i className="bi bi-person-badge mr-2"></i> Coordenadores
+                            <i className="bi bi-person-badge mr-2"></i> Supervisores
                         </button>
                     </div>
                 </div>
@@ -387,9 +387,9 @@ export default function SecGrupos({ embedded = false }) {
 
       {/* Modal de Coordenadores */}
       {isCoordModalOpen && (
-          <Modal onClose={() => setIsCoordModalOpen(false)} title={`Gerenciar Coordenadores - ${grupoSelecionado?.titulo}`}>
+          <Modal onClose={() => setIsCoordModalOpen(false)} title={`Gerenciar Supervisores - ${grupoSelecionado?.titulo}`}>
               <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-                  <p className="text-sm text-gray-600">Selecione os supervisores que atuarão como coordenadores deste grupo.</p>
+                  <p className="text-sm text-gray-600">Selecione os supervisores que atuarão neste grupo.</p>
                   <div className="divide-y divide-gray-200 border rounded-md">
                       {supervisores.map(sup => {
                           const isInGroup = sup.grupo === grupoSelecionado.id_grupo;
