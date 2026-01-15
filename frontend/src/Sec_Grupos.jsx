@@ -9,6 +9,17 @@ export default function SecGrupos({ embedded = false }) {
   const [grupoSelecionado, setGrupoSelecionado] = useState(null);
   const [vagasNova, setVagasNova] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newGroupData, setNewGroupData] = useState({
+    titulo: '',
+    vagas_estagiarios: '',
+    local: '',
+    convenio: '',
+    resumo: '',
+    objetivos: '',
+    atividades: '',
+    bibliografia: ''
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +60,47 @@ export default function SecGrupos({ embedded = false }) {
       });
   };
 
+  const handleCreateChange = (e) => {
+    const { name, value } = e.target;
+    setNewGroupData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateGroup = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/api/cadastrar_grupo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newGroupData)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert('Grupo criado com sucesso!');
+        setIsCreateModalOpen(false);
+        setNewGroupData({
+            titulo: '',
+            vagas_estagiarios: '',
+            local: '',
+            convenio: '',
+            resumo: '',
+            objetivos: '',
+            atividades: '',
+            bibliografia: ''
+        });
+        // Recarrega a lista
+        const resList = await fetch(`${API_URL}/api/grupos`, { credentials: 'include' });
+        const dataList = await resList.json();
+        setListaGrupos(dataList);
+      } else {
+        alert(data.message || 'Erro ao criar grupo.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro de conexão.');
+    }
+  };
+
   return (
     <>
     {!embedded && <Header />}
@@ -57,7 +109,7 @@ export default function SecGrupos({ embedded = false }) {
         <h2 className="text-3xl font-bold text-gray-900">Gerenciar Grupos</h2>
         <button 
             className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105" 
-            onClick={() => navigate('/criar_grupo')}
+            onClick={() => setIsCreateModalOpen(true)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -152,6 +204,52 @@ export default function SecGrupos({ embedded = false }) {
                     </button>
                 </div>
             </div>
+        </Modal>
+      )}
+
+      {/* Modal de Criação de Grupo */}
+      {isCreateModalOpen && (
+        <Modal onClose={() => setIsCreateModalOpen(false)} title="Criar Novo Grupo">
+          <form onSubmit={handleCreateGroup} className="space-y-4 max-h-[70vh] overflow-y-auto p-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Título</label>
+                    <input type="text" name="titulo" value={newGroupData.titulo} onChange={handleCreateChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Vagas</label>
+                    <input type="number" name="vagas_estagiarios" value={newGroupData.vagas_estagiarios} onChange={handleCreateChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Local</label>
+                    <input type="text" name="local" value={newGroupData.local} onChange={handleCreateChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Convênio</label>
+                    <input type="text" name="convenio" value={newGroupData.convenio} onChange={handleCreateChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                </div>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Resumo</label>
+                <textarea name="resumo" value={newGroupData.resumo} onChange={handleCreateChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Objetivos</label>
+                <textarea name="objetivos" value={newGroupData.objetivos} onChange={handleCreateChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Atividades</label>
+                <textarea name="atividades" value={newGroupData.atividades} onChange={handleCreateChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Bibliografia</label>
+                <textarea name="bibliografia" value={newGroupData.bibliografia} onChange={handleCreateChange} required rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+                <button type="button" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onClick={() => setIsCreateModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 shadow-md">Criar Grupo</button>
+            </div>
+          </form>
         </Modal>
       )}
     </div>
