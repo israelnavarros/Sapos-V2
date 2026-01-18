@@ -199,6 +199,10 @@ def api_meu_grupo():
     lista_estag_count = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status=True).count()
     botao_vagas = 'disabled' if lista_estag_count >= grupo_info.vagas_estagiarios else ''
 
+    # Buscar informações do supervisor
+    supervisor = Usuarios.query.filter_by(id_usuario=current_user.id_supervisor).first()
+    supervisor_nome = supervisor.nome if supervisor else 'Não informado'
+
     DIAS_DA_SEMANA = {
         0: 'Domingo', 1: 'Segunda-feira', 2: 'Terça-feira', 3: 'Quarta-feira',
         4: 'Quinta-feira', 5: 'Sexta-feira', 6: 'Sábado'
@@ -217,7 +221,9 @@ def api_meu_grupo():
     return jsonify({
     'grupo_info': {
         'id_grupo': grupo_info.id_grupo,
+        'nome': grupo_info.titulo,
         'titulo': grupo_info.titulo,
+        'supervisor_nome': supervisor_nome,
         'vagas_estagiarios': grupo_info.vagas_estagiarios,
         'local': grupo_info.local,
         'convenio': grupo_info.convenio,

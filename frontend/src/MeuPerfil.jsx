@@ -22,8 +22,21 @@ export default function MeuPerfil() {
   const [showCrop, setShowCrop] = useState(false);
   const [imgPreview, setImgPreview] = useState('');
   const [croppedImg, setCroppedImg] = useState('');
+  const [grupoInfo, setGrupoInfo] = useState(null);
   const fileInputRef = useRef();
   const cropperRef = useRef();
+
+  // Buscar informações do grupo (para estagiários)
+  useEffect(() => {
+    if (user.cargo === 2 && user.grupo) {
+      fetch(`${API_URL}/api/meu_grupo`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          setGrupoInfo(data.grupo_info);
+        })
+        .catch(err => console.error('Erro ao carregar dados do grupo:', err));
+    }
+  }, [user]);
 
   // Função para upload de imagem (substitua pela sua API)
   const handleImageChange = e => {
@@ -112,7 +125,18 @@ export default function MeuPerfil() {
   return (
     <>
       <Header />
-      <main className='mt-20 p-4'>
+      <main className='mt-20 p-4 bg-gray-50'>
+        {/* Botão Voltar no Topo */}
+        <div className="max-w-7xl mx-auto mb-4">
+          <button 
+            onClick={() => window.history.back()}
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors flex items-center"
+          >
+            <i className="bi bi-arrow-left mr-2"></i>
+            Voltar
+          </button>
+        </div>
+
         <div className="container-geral container-principal">
           {/* Painel Esquerdo */}
           <div className="painel-esquerdo">
@@ -138,13 +162,6 @@ export default function MeuPerfil() {
               >
                 <i className="bi bi-pencil-square mr-2"></i>
                 Editar Perfil
-              </button>
-              <button
-                onClick={() => window.history.back()}
-                className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] bg-white text-gray-700 hover:bg-gray-100 transition-colors`}
-              >
-                <i className="bi bi-arrow-left mr-2"></i>
-                Voltar
               </button>
             </div>
           </div>
@@ -194,7 +211,7 @@ export default function MeuPerfil() {
                   <label className="block text-sm font-medium text-gray-500">Grupo</label>
                   <input
                     className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
-                    value={user.grupo ? `Grupo ${user.grupo}` : 'Não informado'}
+                    value={grupoInfo?.nome || (user.grupo ? `Grupo ${user.grupo}` : 'Não informado')}
                     readOnly
                   />
                 </div>
@@ -218,20 +235,6 @@ export default function MeuPerfil() {
                     readOnly
                   />
                 </div>
-
-                {/* ID do Supervisor (se for estagiário) */}
-                {user.cargo === 2 && (
-                  <>
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-500">ID do Supervisor</label>
-                      <input
-                        className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
-                        value={user.id_supervisor || 'Não informado'}
-                        readOnly
-                      />
-                    </div>
-                  </>
-                )}
               </div>
 
               {/* Informações Adicionais para Estagiário */}
@@ -240,12 +243,12 @@ export default function MeuPerfil() {
                   <h4 className="text-md font-bold text-blue-800 mb-3">Informações do Estagiário</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-3 bg-white rounded border border-blue-100">
-                      <p className="text-sm text-gray-600">ID do Supervisor</p>
-                      <p className="text-lg font-bold text-blue-600">{user.id_supervisor || 'N/A'}</p>
+                      <p className="text-sm text-gray-600">Nome do Supervisor</p>
+                      <p className="text-lg font-bold text-blue-600">{grupoInfo?.supervisor_nome || 'Carregando...'}</p>
                     </div>
                     <div className="p-3 bg-white rounded border border-blue-100">
                       <p className="text-sm text-gray-600">Grupo Atual</p>
-                      <p className="text-lg font-bold text-blue-600">{user.grupo ? `Grupo ${user.grupo}` : 'N/A'}</p>
+                      <p className="text-lg font-bold text-blue-600">{grupoInfo?.nome || 'Carregando...'}</p>
                     </div>
                   </div>
                 </div>
