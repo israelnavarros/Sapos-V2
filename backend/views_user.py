@@ -98,7 +98,7 @@ def meuperfil(profile):
         "matricula": usuario.matricula,
         "cargo": usuario.cargo,
         "grupo": usuario.grupo,
-        "status": usuario.status,
+        "status": True if (usuario.status is True or str(usuario.status).upper() == 'TRUE') else False,
         "criado_em": str(usuario.criado_em),
         "valido_ate": str(usuario.valido_ate) 
     }), 200
