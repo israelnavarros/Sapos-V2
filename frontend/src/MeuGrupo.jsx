@@ -441,7 +441,10 @@ export default function MeuGrupo() {
                   {abaMembroAtiva === 'estagiarios' && (
                     <div>
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800"></h3>
+                        <div className="text-center md:text-left">
+                          <h3 className="text-lg font-semibold text-slate-800">Lista de Estagiários do Grupo</h3>
+                          <p className="mt-1 text-slate-500 text-sm">Gerenciar os estagiários que fazem parte deste grupo.</p>
+                        </div>
                         <div className="relative">
                           <button
                             className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
