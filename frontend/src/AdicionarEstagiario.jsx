@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import API_URL from './config';
 
 function FormField({ label, htmlFor, children, required = false }) {
@@ -20,12 +20,22 @@ export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
     nome: '',
     matricula: '',
     cargo: '2',
-    grupo: grupoInfo.id_grupo,
+    grupo: grupoInfo ? grupoInfo.id_grupo : '',
     status: true,
     criado_em: new Date().toISOString().slice(0, 10),
     valido_ate: new Date(Date.now() + 182 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   });
   const [mensagem, setMensagem] = useState('');
+  const [grupos, setGrupos] = useState([]);
+
+  useEffect(() => {
+    if (!grupoInfo) {
+      fetch(`${API_URL}/api/consulta_ids_grupos`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => setGrupos(data))
+        .catch(err => console.error('Erro ao carregar grupos:', err));
+    }
+  }, [grupoInfo]);
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -70,9 +80,18 @@ export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
           <FormField label="Cargo" htmlFor="cargo">
             <input type="text" id="cargo" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value="Estagiário" disabled />
           </FormField>
-          <FormField label="Grupo" htmlFor="grupo">
-            <input type="text" id="grupo" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value={grupoInfo.titulo} disabled />
-          </FormField>
+          {grupoInfo ? (
+            <FormField label="Grupo" htmlFor="grupo">
+              <input type="text" id="grupo" className="mt-1 w-full p-2 border rounded-md shadow-sm bg-slate-100 border-gray-300" value={grupoInfo.titulo} disabled />
+            </FormField>
+          ) : (
+            <FormField label="Grupo" htmlFor="grupo">
+              <select id="grupo" name="grupo" value={form.grupo} onChange={handleChange} className="mt-1 w-full p-2 border rounded-md shadow-sm focus:ring-green focus:border-green border-gray-300">
+                <option value="">Selecione um grupo...</option>
+                {grupos.map(g => <option key={g.id_grupo} value={g.id_grupo}>{g.titulo}</option>)}
+              </select>
+            </FormField>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

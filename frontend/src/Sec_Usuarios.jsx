@@ -83,16 +83,7 @@ function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
 export default function SecUsuarios({ embedded = false }) {
   const [usuarios, setUsuarios] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [grupos, setGrupos] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(null); // 'supervisor' | 'estagiario'
-  const [newUser, setNewUser] = useState({
-    nome: '',
-    email: '',
-    senha: '',
-    matricula: '',
-    grupo: ''
-  });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${API_URL}/api/usuarios`, { credentials: 'include' })
@@ -100,53 +91,6 @@ export default function SecUsuarios({ embedded = false }) {
       .then(data => setUsuarios(data))
       .catch(err => console.error('Erro ao carregar usuários:', err));
   }, []);
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/consulta_ids_grupos`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setGrupos(data))
-      .catch(err => console.error('Erro ao carregar grupos:', err));
-  }, []);
-
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
-    const cargo = modalType === 'supervisor' ? 1 : 2;
-    // Validade: Supervisor ~5 anos, Estagiário ~6 meses
-    const validadeDias = cargo === 1 ? 1825 : 182;
-    const valido_ate = new Date();
-    valido_ate.setDate(valido_ate.getDate() + validadeDias);
-
-    const payload = {
-        ...newUser,
-        cargo,
-        criado_em: new Date().toISOString().slice(0, 10),
-        valido_ate: valido_ate.toISOString().slice(0, 10)
-    };
-
-    try {
-        const res = await fetch(`${API_URL}/api/registrar_usuario`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert('Usuário cadastrado com sucesso!');
-            setIsModalOpen(false);
-            setNewUser({ nome: '', email: '', senha: '', matricula: '', grupo: '' });
-            // Recarrega a lista
-            const resUsers = await fetch(`${API_URL}/api/usuarios`, { credentials: 'include' });
-            const dataUsers = await resUsers.json();
-            setUsuarios(dataUsers);
-        } else {
-            alert(data.message || 'Erro ao cadastrar usuário.');
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Erro de conexão.');
-    }
-  };
 
   const handleExtendValidity = async (usuario) => {
     const id = usuario.id || usuario.id_usuario;
@@ -262,14 +206,14 @@ export default function SecUsuarios({ embedded = false }) {
               <h2 className="text-xl font-bold">Usuários</h2>
               <div className="flex gap-3">
                 <button
-                    onClick={() => { setModalType('supervisor'); setIsModalOpen(true); }}
+                    onClick={() => navigate('/sec_adicionar_supervisor')}
                     className="flex items-center gap-2 bg-green text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
                 >
                     <i className="bi bi-person-badge"></i>
                     Adicionar Supervisor
                 </button>
                 <button
-                    onClick={() => { setModalType('estagiario'); setIsModalOpen(true); }}
+                    onClick={() => navigate('/sec_adicionar_estagiario')}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-blue-700 cursor-pointer transition-transform transform hover:scale-105"
                 >
                     <i className="bi bi-person-plus"></i>
@@ -338,50 +282,6 @@ export default function SecUsuarios({ embedded = false }) {
               </button>
             </div>
           </div>
-
-          {/* Modal de Cadastro de Usuário */}
-          {isModalOpen && (
-            <Modal onClose={() => setIsModalOpen(false)} title={`Adicionar ${modalType === 'supervisor' ? 'Supervisor' : 'Estagiário'}`}>
-                <form onSubmit={handleCreateUser} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
-                        <input type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
-                            value={newUser.nome} onChange={e => setNewUser({...newUser, nome: e.target.value})} />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
-                                value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Senha</label>
-                            <input type="password" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
-                                value={newUser.senha} onChange={e => setNewUser({...newUser, senha: e.target.value})} />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Matrícula</label>
-                            <input type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
-                                value={newUser.matricula} onChange={e => setNewUser({...newUser, matricula: e.target.value})} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Grupo (Opcional)</label>
-                            <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
-                                value={newUser.grupo} onChange={e => setNewUser({...newUser, grupo: e.target.value})}>
-                                <option value="">Selecione um grupo...</option>
-                                {grupos.map(g => <option key={g.id_grupo} value={g.id_grupo}>{g.titulo}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="flex justify-end pt-4">
-                        <button type="button" className="mr-3 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                        <button type="submit" className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 shadow-md">Cadastrar</button>
-                    </div>
-                </form>
-            </Modal>
-          )}
     </div>
   );
 
