@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API_URL from './config';
 import Header from './Header';
@@ -12,11 +12,48 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 
+function ActionsDropdown({ usuario, onExtendValidity }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const habilitar_validade = moment().format('YYYY-MM-DD');
+    // Verifica se a validade é maior que hoje (ainda válido)
+    const isValid = usuario.valido_ate > habilitar_validade;
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        }
+        if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [isOpen]);
+
+    const itemStyle = "group flex w-full items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-green hover:text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-700";
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+            </button>
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
+                    <div className="p-1">
+                        <button onClick={() => { onExtendValidity(usuario); setIsOpen(false); }} className={itemStyle} disabled={isValid} title={isValid ? "Usuário ainda possui validade vigente" : "Estender validade"}>
+                            <i className="bi bi-calendar-plus mr-3"></i> Alterar Validade
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function SecUsuarios({ embedded = false }) {
   const [usuarios, setUsuarios] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
-  const navigate = useNavigate();
-  const habilitar_validade = moment().format('YYYY-MM-DD');
 
   useEffect(() => {
     fetch(`${API_URL}/api/usuarios`, { credentials: 'include' })
@@ -24,6 +61,32 @@ export default function SecUsuarios({ embedded = false }) {
       .then(data => setUsuarios(data))
       .catch(err => console.error('Erro ao carregar usuários:', err));
   }, []);
+
+  const handleExtendValidity = async (usuario) => {
+    const id = usuario.id || usuario.id_usuario;
+    if (!window.confirm(`Deseja estender a validade do usuário ${usuario.nome}?`)) return;
+
+    try {
+        const res = await fetch(`${API_URL}/api/alterar_validade_usuario/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('Validade estendida com sucesso!');
+            setUsuarios(prev => prev.map(u => {
+                const uid = u.id || u.id_usuario;
+                return uid === id ? { ...u, valido_ate: data.valido_ate } : u;
+            }));
+        } else {
+            alert(data.message || 'Erro ao alterar validade.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão.');
+    }
+  };
 
   const cargoLabel = (cargo) => {
     switch (cargo) {
@@ -58,14 +121,9 @@ export default function SecUsuarios({ embedded = false }) {
       id: 'acoes',
       header: '',
       cell: ({ row }) => (
-        <button
-          className={`px-3 py-1 text-sm rounded text-white bg-indigo-600 hover:bg-indigo-700 transition ${row.original.valido_ate > habilitar_validade ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          onClick={() => navigate(`/adm_alterar_validade/${row.original.id_usuario}`)}
-          disabled={row.original.valido_ate > habilitar_validade}
-        >
-          Alterar validade
-        </button>
+        <div className="flex justify-end">
+            <ActionsDropdown usuario={row.original} onExtendValidity={handleExtendValidity} />
+        </div>
       ),
     },
   ], []);
