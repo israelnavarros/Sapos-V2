@@ -638,53 +638,79 @@ def api_sec_ficha_paciente(id):
 @app.route('/api/atualizar_paciente/<int:id>', methods=['POST'])
 @login_required
 def api_atualizar_paciente(id):
-    data = request.get_json()
-    paciente = Pacientes.query.filter_by(id_paciente=id).first()
-    if not paciente:
-        return jsonify({'success': False, 'message': 'Paciente não encontrado'}), 404
+    paciente_para_atualizar = Pacientes.query.get_or_404(id)
+    data = request.form
+    try:
+        if not all(data.get(key) for key in ['nome_completo', 'idade', 'celular1']):
+            return jsonify({'message': 'Nome completo, idade e celular 1 são obrigatórios.'}), 400
+        
+        def to_int_or_none(value):
+            if value is None or str(value).strip() == '': return None
+            return int(value)
+            
+        def to_numeric_or_none(value):
+            if value is None or str(value).strip() == '': return None
+            return float(value)
 
-    paciente.nome_completo = data.get('nome_completo')
-    paciente.nome_responsavel = data.get('nome_responsavel')
-    paciente.grau_parentesco = data.get('grau_parentesco')
-    paciente.data_nascimento = data.get('data_nascimento')
-    paciente.idade = data.get('idade')
-    paciente.sexo = data.get('sexo')
-    paciente.escolaridade = data.get('escolaridade')
-    paciente.profissao = data.get('profissao')
-    paciente.ocupacao = data.get('ocupacao')
-    paciente.salario = data.get('salario')
-    paciente.renda_familiar = data.get('renda_familiar')
-    paciente.cep = data.get('cep')
-    paciente.cidade = data.get('cidade')
-    paciente.bairro = data.get('bairro')
-    paciente.logradouro = data.get('logradouro')
-    paciente.complemento = data.get('complemento')
-    paciente.telefone = data.get('telefone')
-    paciente.celular1 = data.get('celular1')
-    paciente.celular2 = data.get('celular2')
-    paciente.origem_encaminhamento = data.get('origem_encaminhamento')
-    paciente.nome_instituicao = data.get('nome_instituicao')
-    paciente.nome_resp_encaminhamento = data.get('nome_resp_encaminhamento')
-    paciente.motivo = data.get('motivo')
-    paciente.medicamentos = data.get('medicamentos')
-    paciente.id_estagiario = data.get('id_estagiario')
-    paciente.id_supervisor = data.get('id_supervisor')
-    paciente.status = data.get('status')
-    paciente.data_criacao = data.get('data_criacao')
+        def to_date_or_none(value_str):
+            if not value_str: return None
+            try: return datetime.strptime(value_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError): return None
 
-    cropped_data = data.get('croppedData')
-    print(data.get('croppedData'))
-    if cropped_data:
-        match = re.match(r'data:image/(png|jpg|jpeg);base64,(.*)', cropped_data)
-        if match:
-            img_str = match.group(2)
-            img_bytes = base64.b64decode(img_str)
-            img_path = os.path.join(app.config['UPLOAD_PACIENTES_PATH'], f"{id}.png")
-            with open(img_path, "wb") as f:
-                f.write(img_bytes)
+        def to_bool_or_none(value_str):
+            if value_str is None or str(value_str).strip() == '': return None
+            return str(value_str).lower() == 'true'
+        
+        paciente_para_atualizar.nome_completo=data.get('nome_completo')
+        paciente_para_atualizar.idade=to_int_or_none(data.get('idade'))
+        paciente_para_atualizar.celular1=data.get('celular1')
+        
+        paciente_para_atualizar.id_supervisor=to_int_or_none(data.get('id_supervisor'))
+        paciente_para_atualizar.nome_responsavel=data.get('nome_responsavel') or None
+        paciente_para_atualizar.grau_parentesco=data.get('grau_parentesco') or None
+        paciente_para_atualizar.data_nascimento=to_date_or_none(data.get('data_nascimento'))
+        paciente_para_atualizar.sexo=data.get('sexo') or None
+        paciente_para_atualizar.escolaridade=data.get('escolaridade') or None
+        paciente_para_atualizar.profissao=data.get('profissao') or None
+        paciente_para_atualizar.ocupacao=data.get('ocupacao') or None
+        paciente_para_atualizar.salario=to_numeric_or_none(data.get('salario'))
+        paciente_para_atualizar.renda_familiar=to_numeric_or_none(data.get('renda_familiar'))
+        paciente_para_atualizar.email=data.get('email') or None
+        paciente_para_atualizar.cep=to_int_or_none(data.get('cep'))
+        paciente_para_atualizar.cidade=data.get('cidade') or None
+        paciente_para_atualizar.bairro=data.get('bairro') or None
+        paciente_para_atualizar.logradouro=data.get('logradouro') or None
+        paciente_para_atualizar.complemento=data.get('complemento') or None
+        paciente_para_atualizar.telefone=data.get('telefone') or None
+        paciente_para_atualizar.celular2=data.get('celular2') or None
+        paciente_para_atualizar.origem_encaminhamento=data.get('origem_encaminhamento') or None
+        paciente_para_atualizar.nome_instituicao=data.get('nome_instituicao') or None
+        paciente_para_atualizar.nome_resp_encaminhamento=data.get('nome_resp_encaminhamento') or None
+        paciente_para_atualizar.motivo=data.get('motivo') or None
+        paciente_para_atualizar.medicamentos=data.get('medicamentos') or None
+        paciente_para_atualizar.hipotese_diagnostica=data.get('hipotese_diagnostica') or None
+        paciente_para_atualizar.ja_fez_terapia=to_bool_or_none(data.get('ja_fez_terapia'))
+        paciente_para_atualizar.etnia=data.get('etnia') or None
+        paciente_para_atualizar.genero=data.get('genero') or None
+        paciente_para_atualizar.classe_social=data.get('classe_social') or None
+        paciente_para_atualizar.status=True
 
-    db.session.commit()
-    return jsonify({'success': True})
+        # Tratamento da imagem
+        if 'imagem_paciente' in request.files:
+            arquivo = request.files['imagem_paciente']
+            if arquivo and arquivo.filename != '':
+                deleta_imagem_pacientes(id)
+                img_array = base64.b64encode(arquivo.read()).decode('utf-8')
+                img_path = os.path.join(app.config['UPLOAD_PACIENTES_PATH'], f"{id}.png")
+                with open(img_path, "wb") as f:
+                    f.write(base64.b64decode(img_array))
+
+        db.session.commit()
+        return jsonify({'message': 'Paciente atualizado com sucesso.', 'success': True}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Erro ao atualizar: {str(e)}', 'success': False}), 500
 
 @app.route('/api/mudar_status_paciente/<int:id>', methods=['POST'])
 @login_required
