@@ -112,128 +112,145 @@ export default function MeuPerfil() {
   return (
     <>
       <Header />
-      <main className="pt-20 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pb-12">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          {/* Card Principal - Avatar e Info Básica */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-            <div className="bg-gradient-to-r from-green to-green-600 h-32"></div>
-            
-            <div className="px-6 pb-6">
-              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16 mb-6">
-                {/* Avatar */}
-                <div className="relative z-10">
-                  <img
-                    src={avatarUrl}
-                    alt={user.nome}
-                    className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-gray-200"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/128?text=Perfil';
-                    }}
+      <main className='mt-20 p-4'>
+        <div className="container-geral container-principal">
+          {/* Painel Esquerdo */}
+          <div className="painel-esquerdo">
+            <img
+              src={avatarUrl}
+              alt={user.nome}
+              className="w-32 h-32 rounded-full object-cover mx-auto mb-4 bg-gray-200"
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/128?text=Perfil';
+              }}
+            />
+            <h2 className="text-xl font-semibold text-gray-800">{user.nome}</h2>
+            <p className="text-sm text-gray-600">Cargo: {cargoLabel(user.cargo)}</p>
+            <p className="text-sm text-gray-600 mb-4">
+              Status:
+            </p>
+            <h2 className="text-lg font-semibold text-gray-800">{user.status ? 'Ativo' : 'Inativo'}</h2>
+
+            <div className="flex flex-col mt-6">
+              <button
+                onClick={() => window.location.href = '/editar_perfil'}
+                className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] bg-green text-white hover:bg-green-600 transition-colors`}
+              >
+                <i className="bi bi-pencil-square mr-2"></i>
+                Editar Perfil
+              </button>
+              <button
+                onClick={() => window.history.back()}
+                className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] bg-white text-gray-700 hover:bg-gray-100 transition-colors`}
+              >
+                <i className="bi bi-arrow-left mr-2"></i>
+                Voltar
+              </button>
+            </div>
+          </div>
+
+          {/* Painel Direito */}
+          <div className="painel-direito">
+            <div className="pt-3">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Dados do Perfil</h3>
+                <p className="text-sm text-gray-500">Visualize as informações cadastrais do seu perfil.</p>
+              </div>
+
+              {/* Grid de Informações */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                {/* Email */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-gray-500">Email</label>
+                  <input
+                    className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                    value={user.email || 'Não informado'}
+                    readOnly
                   />
                 </div>
-                
-                {/* Info Básica */}
-                <div className="flex-1 text-center sm:text-left">
-                  <h1 className="text-3xl font-bold text-gray-800">{user.nome}</h1>
-                  <p className="text-green text-lg font-semibold mt-1">{cargoLabel(user.cargo)}</p>
-                  <p className="text-gray-500 text-sm mt-2">Matrícula: {user.matricula}</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Grid de Informações */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Card - Contato */}
-            <div className="bg-white rounded-xl shadow p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
+                {/* Matrícula */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-gray-500">Matrícula</label>
+                  <input
+                    className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                    value={user.matricula || 'Não informado'}
+                    readOnly
+                  />
                 </div>
-                <h3 className="text-lg font-bold text-gray-800">Email</h3>
-              </div>
-              <p className="text-gray-600 break-all">{user.email}</p>
-            </div>
 
-            {/* Card - Grupo */}
-            <div className="bg-white rounded-xl shadow p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 8.646 4 4 0 010-8.646M9 9h6m-6 4h6m2-5a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                {/* Cargo */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-gray-500">Cargo</label>
+                  <input
+                    className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                    value={cargoLabel(user.cargo) || 'Não informado'}
+                    readOnly
+                  />
                 </div>
-                <h3 className="text-lg font-bold text-gray-800">Grupo</h3>
-              </div>
-              <p className="text-gray-600 text-lg font-semibold">Grupo {user.grupo}</p>
-            </div>
 
-            {/* Card - Status */}
-            <div className="bg-white rounded-xl shadow p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                {/* Grupo */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-gray-500">Grupo</label>
+                  <input
+                    className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                    value={user.grupo ? `Grupo ${user.grupo}` : 'Não informado'}
+                    readOnly
+                  />
                 </div>
-                <h3 className="text-lg font-bold text-gray-800">Status</h3>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`inline-block w-3 h-3 rounded-full ${user.status ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                <p className="text-gray-600 font-medium">{user.status ? 'Ativo' : 'Inativo'}</p>
-              </div>
-            </div>
 
-            {/* Card - Datas */}
-            <div className="bg-white rounded-xl shadow p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-orange-100 rounded-lg">
-                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+                {/* Data de Criação */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-gray-500">Criado em</label>
+                  <input
+                    className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                    value={user.criado_em ? new Date(user.criado_em).toLocaleDateString('pt-BR') : 'Não informado'}
+                    readOnly
+                  />
                 </div>
-                <h3 className="text-lg font-bold text-gray-800">Datas</h3>
-              </div>
-              <div className="space-y-2 text-gray-600">
-                <p className="text-sm"><span className="font-semibold">Criado em:</span> {new Date(user.criado_em).toLocaleDateString('pt-BR')}</p>
-                <p className="text-sm"><span className="font-semibold">Válido até:</span> {new Date(user.valido_ate).toLocaleDateString('pt-BR')}</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Card - Informações Adicionais */}
-          {user.cargo === 3 && (
-            <div className="bg-white rounded-xl shadow p-6 mb-8">
-              <h3 className="text-lg font-bold text-gray-800 mb-4">Informações do Estagiário</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-gray-600">ID do Supervisor</p>
-                  <p className="text-xl font-bold text-blue-600">{user.id_supervisor || 'N/A'}</p>
+                {/* Data de Validade */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-gray-500">Válido até</label>
+                  <input
+                    className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                    value={user.valido_ate ? new Date(user.valido_ate).toLocaleDateString('pt-BR') : 'Não informado'}
+                    readOnly
+                  />
                 </div>
-                <div className="p-4 bg-indigo-50 rounded-lg">
-                  <p className="text-sm text-gray-600">Grupo Atual</p>
-                  <p className="text-xl font-bold text-indigo-600">Grupo {user.grupo}</p>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Botões de Ação */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => window.history.back()}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-            >
-              Voltar
-            </button>
-            <button
-              onClick={() => window.location.href = '/editar_perfil'}
-              className="px-6 py-3 bg-green text-white rounded-lg font-semibold hover:bg-green-600 transition-colors"
-            >
-              Editar Perfil
-            </button>
+                {/* ID do Supervisor (se for estagiário) */}
+                {user.cargo === 2 && (
+                  <>
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-500">ID do Supervisor</label>
+                      <input
+                        className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                        value={user.id_supervisor || 'Não informado'}
+                        readOnly
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Informações Adicionais para Estagiário */}
+              {user.cargo === 2 && (
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <h4 className="text-md font-bold text-blue-800 mb-3">Informações do Estagiário</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-3 bg-white rounded border border-blue-100">
+                      <p className="text-sm text-gray-600">ID do Supervisor</p>
+                      <p className="text-lg font-bold text-blue-600">{user.id_supervisor || 'N/A'}</p>
+                    </div>
+                    <div className="p-3 bg-white rounded border border-blue-100">
+                      <p className="text-sm text-gray-600">Grupo Atual</p>
+                      <p className="text-lg font-bold text-blue-600">{user.grupo ? `Grupo ${user.grupo}` : 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
