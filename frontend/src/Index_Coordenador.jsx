@@ -3,6 +3,7 @@ import { Pie, Doughnut, Bar } from 'react-chartjs-2';
 import API_URL from './config';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title } from 'chart.js';
 import BannerAlertas from './BannerAlertas';
+import BannerNotificacoes from './BannerNotificacoes';
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
@@ -55,6 +56,7 @@ export default function IndexCoordenador() {
   return (
     <main className='pt-20'>
     <BannerAlertas />
+    <BannerNotificacoes />
     <div className="shadow-lg border rounded-lg p-6 bg-white">
       <div className="mb-6">
         <h3 className="text-center text-xl font-bold mb-4">Agenda dos estagiários</h3>

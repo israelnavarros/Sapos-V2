@@ -1,6 +1,6 @@
 from flask import  jsonify, request, session, flash, url_for, send_from_directory
 from main import app, db, mail
-from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao, Tag, PacienteTag
+from models import Usuarios, Grupos, Pacientes, Alertas, Notificacoes, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao, Tag, PacienteTag
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func
 from flask_login import login_required, current_user
@@ -814,3 +814,84 @@ def api_deletar_alerta(id):
     Alertas.query.filter_by(id_alerta=id).delete()
     db.session.commit()
     return jsonify({'success': True})
+
+# ===== NOTIFICAÇÕES =====
+
+@app.route('/api/notificacoes', methods=['GET'])
+@login_required
+def api_notificacoes():
+    """
+    Retorna as notificações destinadas ao cargo do usuário logado
+    """
+    cargo_usuario = current_user.cargo
+    notificacoes = Notificacoes.query.filter_by(id_cargo_destinatario=cargo_usuario).order_by(Notificacoes.data_criacao.desc()).all()
+    return jsonify([n.to_dict() for n in notificacoes])
+
+@app.route('/api/notificacoes_secretaria', methods=['GET'])
+@login_required
+def api_notificacoes_secretaria():
+    """
+    Retorna todas as notificações (apenas para secretaria ver as que ela criou)
+    """
+    if current_user.cargo != 0:
+        return jsonify({'success': False, 'message': 'Acesso não autorizado'}), 403
+    
+    notificacoes = Notificacoes.query.order_by(Notificacoes.data_criacao.desc()).all()
+    return jsonify([{
+        'id_notificacao': n.id_notificacao,
+        'mensagem': n.mensagem,
+        'tipo': n.tipo,
+        'id_cargo_destinatario': n.id_cargo_destinatario,
+        'cargo_nome': {0: 'Secretaria', 1: 'Supervisor', 2: 'Estagiário', 3: 'Coordenador'}.get(n.id_cargo_destinatario, 'Desconhecido'),
+        'data_criacao': str(n.data_criacao)
+    } for n in notificacoes])
+
+@app.route('/api/adicionar_notificacao', methods=['POST'])
+@login_required
+def api_adicionar_notificacao():
+    """
+    Adiciona uma nova notificação (apenas secretaria pode fazer)
+    """
+    if current_user.cargo != 0:
+        return jsonify({'success': False, 'message': 'Acesso não autorizado'}), 403
+    
+    data = request.get_json()
+    mensagem = data.get('mensagem')
+    tipo = data.get('tipo')
+    id_cargo_destinatario = data.get('id_cargo_destinatario')
+    
+    if not all([mensagem, tipo, id_cargo_destinatario is not None]):
+        return jsonify({'success': False, 'message': 'Campos obrigatórios faltando'}), 400
+    
+    try:
+        nova_notificacao = Notificacoes(
+            mensagem=mensagem,
+            tipo=tipo,
+            id_cargo_destinatario=id_cargo_destinatario,
+            data_criacao=date.today()
+        )
+        db.session.add(nova_notificacao)
+        db.session.commit()
+        return jsonify({'success': True, 'id_notificacao': nova_notificacao.id_notificacao}), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERRO ao criar notificação: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/deletar_notificacao/<int:id>', methods=['DELETE'])
+@login_required
+def api_deletar_notificacao(id):
+    """
+    Deleta uma notificação (apenas secretaria pode fazer)
+    """
+    if current_user.cargo != 0:
+        return jsonify({'success': False, 'message': 'Acesso não autorizado'}), 403
+    
+    try:
+        notificacao = Notificacoes.query.get_or_404(id)
+        db.session.delete(notificacao)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500

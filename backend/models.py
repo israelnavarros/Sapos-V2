@@ -81,6 +81,24 @@ class Alertas(db.Model):
     mensagem = db.Column(db.String(2000), nullable=False)
     validade = db.Column(db.Date, nullable=False)
 
+class Notificacoes(db.Model):
+    __tablename__ = 'notificacoes'
+    
+    id_notificacao = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    mensagem = db.Column(db.String(2000), nullable=False)
+    tipo = db.Column(db.String(50), nullable=False)
+    id_cargo_destinatario = db.Column(db.Integer, nullable=False)
+    data_criacao = db.Column(db.Date, nullable=False)
+    
+    def to_dict(self):
+        return {
+            'id_notificacao': self.id_notificacao,
+            'mensagem': self.mensagem,
+            'tipo': self.tipo,
+            'id_cargo_destinatario': self.id_cargo_destinatario,
+            'data_criacao': str(self.data_criacao)
+        }
+
 class Pacientes(db.Model):
     __tablename__ = 'pacientes'
 

@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import BannerAlertas from './BannerAlertas';
+import BannerNotificacoes from './BannerNotificacoes';
 import Modal from './Modal';
 
 export default function AgendaMeusEstagiarios() {
@@ -175,6 +176,7 @@ export default function AgendaMeusEstagiarios() {
     <main className='pt-20'>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
         <BannerAlertas />
+        <BannerNotificacoes />
         
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos meus estagiários</h1>

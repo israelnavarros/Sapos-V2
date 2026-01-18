@@ -5,6 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
+import BannerNotificacoes from './BannerNotificacoes';
 
 export default function AgendaEstagiarios() {
   const [grupos, setGrupos] = useState([{ id_grupo: '', titulo: 'Consultas de todos os grupos' }]);
@@ -27,7 +28,7 @@ export default function AgendaEstagiarios() {
   return (
     <main className='pt-20'>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
-        
+        <BannerNotificacoes />
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos estagiários</h1>
           <div className="flex border-b border-gray-200 mb-4 overflow-x-auto">
