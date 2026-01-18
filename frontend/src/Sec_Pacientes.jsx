@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
 import API_URL from './config';
 import Header from './Header';
@@ -7,6 +8,7 @@ import Modal from './Modal';
 function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const [position, setPosition] = useState({ top: 0, left: 0 });
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -14,13 +16,26 @@ function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
                 setIsOpen(false);
             }
         }
+        function handleScroll() {
+            setIsOpen(false);
+        }
         if (isOpen) {
             document.addEventListener("mousedown", handleClickOutside);
+            window.addEventListener("scroll", handleScroll, true);
         }
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+            window.removeEventListener("scroll", handleScroll, true);
         };
     }, [isOpen]);
+
+    const toggleDropdown = () => {
+        if (!isOpen && dropdownRef.current) {
+            const rect = dropdownRef.current.getBoundingClientRect();
+            setPosition({ top: rect.bottom, left: rect.right - 256 }); // w-64 = 256px
+        }
+        setIsOpen(!isOpen);
+    };
 
     // Estilo base para todos os itens do menu, para manter a consistência
     const itemStyle = "group flex w-full items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-green hover:text-white transition-colors cursor-pointer";
@@ -29,7 +44,7 @@ function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
         <div className="relative" ref={dropdownRef}>
             {/* Botão de ícone (sem grandes alterações) */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={toggleDropdown}
                 className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green cursor-pointer"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -38,8 +53,11 @@ function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
             </button>
 
             {/* Menu Dropdown Estilizado */}
-            {isOpen && (
-                <div className="absolute right-0 mt-2 w-64 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
+            {isOpen && createPortal(
+                <div 
+                    className="fixed mt-2 w-64 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-50"
+                    style={{ top: position.top, left: position.left }}
+                >
                     <div className="p-1">
                         {/* Grupo de Ações de Navegação */}
                         <Link to={`/sec_ficha_paciente/${paciente.id_paciente}`} className={itemStyle} onClick={() => setIsOpen(false)}>
@@ -68,7 +86,8 @@ function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
                             Alterar Status
                         </button>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

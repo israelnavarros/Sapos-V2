@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { AuthContext } from './AuthContext';
 import Header from './Header';
 import AdicionarEstagiario from './AdicionarEstagiario';
@@ -9,30 +10,52 @@ import Modal from './Modal';
 function ActionsDropdown({ paciente, onAtribuir }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    const handleScroll = () => setIsOpen(false);
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener("scroll", handleScroll, true);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
   }, [dropdownRef]);
+
+  const toggleDropdown = () => {
+    if (!isOpen && dropdownRef.current) {
+        const rect = dropdownRef.current.getBoundingClientRect();
+        setPosition({ top: rect.bottom, left: rect.right - 224 }); // w-56 = 224px
+    }
+    setIsOpen(!isOpen);
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green">
+      <button onClick={toggleDropdown} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
         </svg>
       </button>
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 ring-1 ring-slate-200">
+      {isOpen && createPortal(
+        <div 
+          className="fixed mt-2 w-56 bg-white rounded-md shadow-lg z-50 ring-1 ring-slate-200"
+          style={{ top: position.top, left: position.left }}
+        >
           <div className="py-1">
             <Link to={`/sup_ficha_paciente/${paciente.id_paciente}`} className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Ver Ficha</Link>
             <button onClick={() => { onAtribuir(paciente); setIsOpen(false); }} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
               Atribuir/Trocar Estagiário
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

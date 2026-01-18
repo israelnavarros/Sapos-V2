@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
 import API_URL from './config';
 import Header from './Header';
@@ -15,6 +16,7 @@ import {
 function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const [position, setPosition] = useState({ top: 0, left: 0 });
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -22,21 +24,41 @@ function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
                 setIsOpen(false);
             }
         }
-        if (isOpen) document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        function handleScroll() {
+            setIsOpen(false);
+        }
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+            window.addEventListener("scroll", handleScroll, true);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            window.removeEventListener("scroll", handleScroll, true);
+        };
     }, [isOpen]);
+
+    const toggleDropdown = () => {
+        if (!isOpen && dropdownRef.current) {
+            const rect = dropdownRef.current.getBoundingClientRect();
+            setPosition({ top: rect.bottom, left: rect.right - 224 }); // w-56 = 224px
+        }
+        setIsOpen(!isOpen);
+    };
 
     const itemStyle = "group flex w-full items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-green hover:text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-700";
 
     return (
         <div className="relative" ref={dropdownRef}>
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green cursor-pointer">
+            <button onClick={toggleDropdown} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                 </svg>
             </button>
-            {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
+            {isOpen && createPortal(
+                <div 
+                    className="fixed mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-50"
+                    style={{ top: position.top, left: position.left }}
+                >
                     <div className="p-1">
                         <button onClick={() => { onExtendValidity(usuario); setIsOpen(false); }} className={itemStyle} title="Estender validade">
                             <i className="bi bi-calendar-plus mr-3"></i> Alterar Validade
@@ -45,7 +67,8 @@ function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
                             <i className={`bi ${usuario.status ? 'bi-person-x' : 'bi-person-check'} mr-3`}></i> {usuario.status ? 'Desativar' : 'Ativar'}
                         </button>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
