@@ -95,7 +95,7 @@ export default function ConsultasDashboard() {
     setIsSubmitting(true);
     try {
       const formBody = new URLSearchParams({ id_consulta: modalState.data.id }).toString();
-      const response = await fetch(`${API_URL}/${actionUrl}`, {
+      const response = await fetch(`${API_URL}/api/${actionUrl}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         credentials: 'include',
