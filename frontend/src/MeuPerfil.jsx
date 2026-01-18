@@ -26,9 +26,9 @@ export default function MeuPerfil() {
   const fileInputRef = useRef();
   const cropperRef = useRef();
 
-  // Buscar informações do grupo (para estagiários)
+  // Buscar informações do grupo (para estagiários e supervisores)
   useEffect(() => {
-    if (user.cargo === 2 && user.grupo) {
+    if ((user.cargo === 2 || user.cargo === 1) && user.grupo) {
       fetch(`${API_URL}/api/meu_grupo`, { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
