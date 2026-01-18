@@ -8,7 +8,7 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import BannerNotificacoes from './BannerNotificacoes';
 
 export default function AgendaEstagiarios() {
-  const [grupos, setGrupos] = useState([{ id_grupo: '', titulo: 'Consultas de todos os grupos' }]);
+  const [grupos, setGrupos] = useState([{ id_grupo: '', titulo: 'Todos os grupos' }]);
   const [grupoSelecionado, setGrupoSelecionado] = useState('');
   const [eventos, setEventos] = useState([]);
   const calendarRef = useRef();
@@ -16,7 +16,7 @@ export default function AgendaEstagiarios() {
   useEffect(() => {
     fetch(`${API_URL}/api/consulta_ids_grupos`, { credentials: 'include' })
       .then(res => res.json())
-      .then(data => setGrupos([{ id_grupo: '', titulo: 'Consultas de todos os grupos' }, ...data]));
+      .then(data => setGrupos([{ id_grupo: '', titulo: 'Todos os grupos' }, ...data]));
   }, []);
 
   useEffect(() => {

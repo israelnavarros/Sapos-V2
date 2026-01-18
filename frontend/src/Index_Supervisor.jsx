@@ -180,18 +180,18 @@ export default function AgendaMeusEstagiarios() {
         
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos meus estagiários</h1>
-          <form className="max-w-md">
+          <div className="flex gap-4 items-center">
+            <label className="font-semibold text-slate-700">Filtrar por Estagiário:</label>
             <select
-              className="form-select w-full block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-              id="inputEstagiarios"
               value={estagiarioSelecionado}
               onChange={handleEstagiarioChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
             >
               {estagiarios.map(estagiario => (
                 <option key={estagiario.id_estagiario} value={estagiario.id_estagiario}>{estagiario.nome}</option>
               ))}
             </select>
-          </form>
+          </div>
         </div>
 
         {/* Legenda */}
