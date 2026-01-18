@@ -106,6 +106,8 @@ export default function MeuGrupo() {
   const [novoReuniao, setNovoReuniao] = useState({ dia: '', horaini: '', horafim: '' });
   const [showAdicionar, setShowAdicionar] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState('visaoGeral');
+  const [isSelectInternsModalOpen, setIsSelectInternsModalOpen] = useState(false);
+  const [allEstagiarios, setAllEstagiarios] = useState([]);
 
   const [pacientes, setPacientes] = useState([]);
   const [loadingPacientes, setLoadingPacientes] = useState(true);
@@ -174,6 +176,59 @@ export default function MeuGrupo() {
       fetchPacientes(); // Recarrega a lista de pacientes
     } catch (error) {
       alert(`Erro: ${error.message}`);
+    }
+  };
+
+  const handleOpenSelectInternsModal = () => {
+    fetch(`${API_URL}/api/lista_estagiarios`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setAllEstagiarios(data);
+        setIsSelectInternsModalOpen(true);
+      })
+      .catch(err => console.error('Erro ao carregar estagiários:', err));
+  };
+
+  const handleAssignIntern = async (id_estagiario, id_grupo) => {
+    try {
+      const response = await fetch(`${API_URL}/api/atribuir_estagiario_grupo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id_estagiario, id_grupo })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Erro ao atribuir estagiário');
+      
+      // Recarrega os dados do grupo
+      fetchGrupoData();
+    } catch (err) {
+      console.error('Erro ao atribuir estagiário:', err);
+      alert('Erro ao atribuir estagiário: ' + err.message);
+    }
+  };
+
+  const handleUnassignIntern = async (id_estagiario) => {
+    try {
+      const response = await fetch(`${API_URL}/api/atribuir_estagiario_grupo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id_estagiario, id_grupo: null })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Erro ao remover estagiário');
+      
+      // Recarrega a lista
+      fetch(`${API_URL}/api/lista_estagiarios`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => setAllEstagiarios(data));
+      
+      // Recarrega os dados do grupo
+      fetchGrupoData();
+    } catch (err) {
+      console.error('Erro ao remover estagiário:', err);
+      alert('Erro ao remover estagiário: ' + err.message);
     }
   };
   const handleAddReuniao = async () => {
@@ -363,7 +418,7 @@ export default function MeuGrupo() {
                             </button>
                           </li>
                           <li>
-                            <button className="block w-full text-left px-4 py-2 hover:bg-green hover:text-white ">
+                            <button className="block w-full text-left px-4 py-2 hover:bg-green hover:text-white" onClick={() => { handleOpenSelectInternsModal(); setShowDropdown(false); }}>
                               Adicionar por lista de estagiários
                             </button>
                           </li>
@@ -409,6 +464,48 @@ export default function MeuGrupo() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Modal de seleção de estagiários por lista */}
+            {isSelectInternsModalOpen && grupoInfo && (
+              <Modal onClose={() => setIsSelectInternsModalOpen(false)} title={`Gerenciar Estagiários - ${grupoInfo.titulo}`}>
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                  <p className="text-sm text-gray-600">Selecione os estagiários que atuarão neste grupo.</p>
+                  <div className="divide-y divide-gray-200 border rounded-md">
+                    {allEstagiarios.length > 0 ? (
+                      allEstagiarios.map(est => {
+                        const isInGroup = est.grupo === grupoInfo.id_grupo;
+                        return (
+                          <div key={est.id} className="flex items-center justify-between p-3 hover:bg-gray-50">
+                            <div>
+                              <p className="font-medium text-gray-800">{est.nome}</p>
+                              <p className="text-xs text-gray-500">{est.grupo ? (isInGroup ? 'Neste Grupo' : `Em outro grupo (ID: ${est.grupo})`) : 'Sem grupo'}</p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                if (isInGroup) {
+                                  handleUnassignIntern(est.id);
+                                } else {
+                                  handleAssignIntern(est.id, grupoInfo.id_grupo);
+                                }
+                              }}
+                              className={`px-4 py-2 rounded-md font-semibold transition-colors cursor-pointer ${
+                                isInGroup
+                                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                                  : 'bg-green text-white hover:bg-green-600'
+                              }`}
+                            >
+                              {isInGroup ? 'Remover' : 'Adicionar'}
+                            </button>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p className="p-3 text-center text-gray-500">Nenhum estagiário encontrado.</p>
+                    )}
+                  </div>
+                </div>
+              </Modal>
             )}
 
             {/* Aba: Reuniões */}
