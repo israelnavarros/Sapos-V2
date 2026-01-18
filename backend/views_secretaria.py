@@ -185,6 +185,10 @@ def api_registrar_usuario():
     data = request.get_json()
     nome = data.get('nome')
     email = data.get('email')
+
+    if Usuarios.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'message': 'Email já cadastrado.'}), 400
+
     senha = generate_password_hash(data.get('senha')).decode('utf-8')
     matricula = data.get('matricula')
     cargo = int(data.get('cargo'))

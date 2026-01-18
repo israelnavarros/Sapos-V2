@@ -42,7 +42,7 @@ export default function AdicionarEstagiario({ grupoInfo, onSuccess }) {
   const handleSubmit = async e => {
     e.preventDefault();
     setMensagem('');
-    const res = await fetch(`${API_URL}/api/reg_estag_diretamente`, {
+    const res = await fetch(`${API_URL}/api/registrar_usuario`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
