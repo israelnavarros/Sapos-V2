@@ -821,10 +821,21 @@ def api_deletar_alerta(id):
 @login_required
 def api_notificacoes():
     """
-    Retorna as notificações destinadas ao cargo do usuário logado
+    Retorna as notificações destinadas ao cargo do usuário logado e que ainda estão válidas
     """
+    from datetime import date
     cargo_usuario = current_user.cargo
-    notificacoes = Notificacoes.query.filter_by(id_cargo_destinatario=cargo_usuario).order_by(Notificacoes.data_criacao.desc()).all()
+    hoje = date.today()
+    
+    # Filtra notificações do cargo do usuário que estão dentro da validade
+    notificacoes = Notificacoes.query.filter(
+        Notificacoes.id_cargo_destinatario == cargo_usuario,
+        db.or_(
+            Notificacoes.validade.is_(None),  # Sem validade = válida indefinidamente
+            Notificacoes.validade >= hoje  # Ou dentro da validade
+        )
+    ).order_by(Notificacoes.data_criacao.desc()).all()
+    
     return jsonify([n.to_dict() for n in notificacoes])
 
 @app.route('/api/notificacoes_secretaria', methods=['GET'])
@@ -843,7 +854,8 @@ def api_notificacoes_secretaria():
         'tipo': n.tipo,
         'id_cargo_destinatario': n.id_cargo_destinatario,
         'cargo_nome': {0: 'Secretaria', 1: 'Supervisor', 2: 'Estagiário', 3: 'Coordenador'}.get(n.id_cargo_destinatario, 'Desconhecido'),
-        'data_criacao': str(n.data_criacao)
+        'data_criacao': str(n.data_criacao),
+        'validade': str(n.validade) if n.validade else None
     } for n in notificacoes])
 
 @app.route('/api/adicionar_notificacao', methods=['POST'])
@@ -859,6 +871,7 @@ def api_adicionar_notificacao():
     mensagem = data.get('mensagem')
     tipo = data.get('tipo')
     id_cargo_destinatario = data.get('id_cargo_destinatario')
+    validade = data.get('validade')
     
     if not all([mensagem, tipo, id_cargo_destinatario is not None]):
         return jsonify({'success': False, 'message': 'Campos obrigatórios faltando'}), 400
@@ -868,7 +881,8 @@ def api_adicionar_notificacao():
             mensagem=mensagem,
             tipo=tipo,
             id_cargo_destinatario=id_cargo_destinatario,
-            data_criacao=date.today()
+            data_criacao=date.today(),
+            validade=validade if validade else None
         )
         db.session.add(nova_notificacao)
         db.session.commit()

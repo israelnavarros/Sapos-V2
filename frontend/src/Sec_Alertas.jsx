@@ -28,7 +28,8 @@ export default function SecAlertas({ embedded = false }) {
   const [novaNotificacao, setNovaNotificacao] = useState({
     mensagem: '',
     tipo: '',
-    id_cargo_destinatario: ''
+    id_cargo_destinatario: '',
+    validade: ''
   });
   const navigate = useNavigate();
 
@@ -124,7 +125,7 @@ export default function SecAlertas({ embedded = false }) {
       if (data.success) {
         alert('Notificação criada com sucesso!');
         setIsCreateNotifModalOpen(false);
-        setNovaNotificacao({ mensagem: '', tipo: '', id_cargo_destinatario: '' });
+        setNovaNotificacao({ mensagem: '', tipo: '', id_cargo_destinatario: '', validade: '' });
         // Recarrega a lista
         const resList = await fetch(`${API_URL}/api/notificacoes_secretaria`, { credentials: 'include' });
         const dataList = await resList.json();
@@ -299,6 +300,7 @@ export default function SecAlertas({ embedded = false }) {
                     <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Tipo</th>
                     <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Cargo Destinatário</th>
                     <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Data Criação</th>
+                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Validade</th>
                     <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Ações</th>
                   </tr>
                 </thead>
@@ -309,6 +311,7 @@ export default function SecAlertas({ embedded = false }) {
                       <td className="px-4 py-2 text-sm text-gray-600">{notif.tipo}</td>
                       <td className="px-4 py-2 text-sm text-gray-600">{notif.cargo_nome}</td>
                       <td className="px-4 py-2 text-sm text-gray-600">{moment(notif.data_criacao).format('DD/MM/YYYY')}</td>
+                      <td className="px-4 py-2 text-sm text-gray-600">{notif.validade ? moment(notif.validade).format('DD/MM/YYYY') : '-'}</td>
                       <td className="px-4 py-2 text-sm">
                         <button
                           className="px-3 py-1 text-sm rounded text-white bg-[#BD4343] hover:bg-red-600 transition cursor-pointer"
@@ -464,6 +467,15 @@ export default function SecAlertas({ embedded = false }) {
                 <option value="2">Estagiário</option>
                 <option value="3">Coordenador</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Validade</label>
+              <input
+                type="date"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
+                value={novaNotificacao.validade}
+                onChange={e => setNovaNotificacao({ ...novaNotificacao, validade: e.target.value })}
+              />
             </div>
             <div className="flex justify-end pt-4">
               <button

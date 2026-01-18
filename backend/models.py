@@ -89,14 +89,18 @@ class Notificacoes(db.Model):
     tipo = db.Column(db.String(50), nullable=False)
     id_cargo_destinatario = db.Column(db.Integer, nullable=False)
     data_criacao = db.Column(db.Date, nullable=False)
+    validade = db.Column(db.Date, nullable=True)
     
     def to_dict(self):
+        cargo_labels = {0: 'Secretaria', 1: 'Supervisor', 2: 'Estagiário', 3: 'Coordenador'}
         return {
             'id_notificacao': self.id_notificacao,
             'mensagem': self.mensagem,
             'tipo': self.tipo,
             'id_cargo_destinatario': self.id_cargo_destinatario,
-            'data_criacao': str(self.data_criacao)
+            'cargo_nome': cargo_labels.get(self.id_cargo_destinatario, 'Desconhecido'),
+            'data_criacao': str(self.data_criacao),
+            'validade': str(self.validade) if self.validade else None
         }
 
 class Pacientes(db.Model):
