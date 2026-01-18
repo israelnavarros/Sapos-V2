@@ -311,23 +311,36 @@ export default function MeuGrupo() {
 
             {/* Aba: Membros */}
             {abaAtiva === 'membros' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Coordenadores */}
-                <div>
+              <div className="space-y-8">
+                {/* Supervisores */}
+                <div className="bg-white p-6 rounded-xl shadow-md">
                   <h2 className="text-xl font-semibold text-slate-800 mb-4">Supervisores</h2>
-                  <ul className="space-y-3">
-                    {coordenadores.map(coord => <MemberItem key={coord.id} member={coord} />)}
-                  </ul>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Nome</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {coordenadores.length > 0 ? (
+                          coordenadores.map(coord => (
+                            <tr key={coord.id} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 text-sm text-slate-700 font-medium">{coord.nome}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="1" className="px-4 py-4 text-center text-sm text-gray-500">Nenhum supervisor.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                {/* Estagiários */}
-                <div>
 
-                  {showAdicionar && (
-                    <AdicionarEstagiario
-                      grupoInfo={grupoInfo}
-                      onSuccess={() => setShowAdicionar(false)}
-                    />
-                  )}
+                {/* Estagiários */}
+                <div className="bg-white p-6 rounded-xl shadow-md">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-slate-800">Estagiários</h2>
                     <div className="relative">
@@ -358,10 +371,42 @@ export default function MeuGrupo() {
                       )}
                     </div>
                   </div>
-                  <p className="text-sm text-slate-500 mb-4">Vagas: {vagas.ocupadas} / {vagas.total}</p>
-                  <ul className="space-y-3">
-                    {estagiarios.map(estag => <MemberItem key={estag.id} member={estag} isIntern={true} />)}
-                  </ul>
+                  <p className="text-sm text-slate-600 mb-4"><span className="font-semibold">Vagas:</span> {vagas.ocupadas} / {vagas.total} <span className="text-slate-500">({vagas.total - vagas.ocupadas} disponível{vagas.total - vagas.ocupadas !== 1 ? 's' : ''})</span></p>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Foto</th>
+                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Nome</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {estagiarios.length > 0 ? (
+                          estagiarios.map(estag => (
+                            <tr key={estag.id} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 text-sm">
+                                <img 
+                                  src={`${API_URL}/api/uploads/usuarios/${estag.id}`} 
+                                  alt={estag.nome}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                  onError={(e) => {e.target.src = 'https://via.placeholder.com/40?text=Sem+foto'}}
+                                />
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                <Link to={`/sup_meu_estagiario/${estag.id}`} className="text-slate-700 font-medium hover:text-green transition">
+                                  {estag.nome}
+                                </Link>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="2" className="px-4 py-4 text-center text-sm text-gray-500">Nenhum estagiário.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}
