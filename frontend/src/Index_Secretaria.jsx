@@ -14,16 +14,20 @@ export default function AgendaEstagiarios() {
   const calendarRef = useRef();
 
   useEffect(() => {
-    fetch(`${API_URL}/api/consulta_ids_grupos`)
+    fetch(`${API_URL}/api/consulta_ids_grupos`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setGrupos([{ id_grupo: '', titulo: 'Consultas de todos os grupos' }, ...data]));
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/consulta_secretaria${grupoSelecionado ? `?gruposId=${grupoSelecionado}` : ''}`)
+    fetch(`${API_URL}/api/consulta_secretaria${grupoSelecionado ? `?gruposId=${grupoSelecionado}` : ''}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setEventos(data));
   }, [grupoSelecionado]);
+
+  const handleGrupoChange = (e) => {
+    setGrupoSelecionado(e.target.value);
+  };
 
   return (
     <main className='pt-20'>
@@ -31,17 +35,19 @@ export default function AgendaEstagiarios() {
         <BannerNotificacoes />
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos estagiários</h1>
-          <div className="flex border-b border-gray-200 mb-4 overflow-x-auto">
-            {grupos.map(grupo => (
-              <button
-                key={grupo.id_grupo}
-                onClick={() => setGrupoSelecionado(grupo.id_grupo)}
-                className={`py-2 px-4 font-medium transition-colors whitespace-nowrap ${grupoSelecionado === grupo.id_grupo ? 'border-b-2 border-green text-green' : 'text-gray-500 hover:bg-gray-100'
-                  }`}
-              >
-                {grupo.titulo}
-              </button>
-            ))}
+          <div className="flex gap-4 items-center">
+            <label className="font-semibold text-slate-700">Filtrar por Grupo:</label>
+            <select
+              value={grupoSelecionado}
+              onChange={handleGrupoChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+            >
+              {grupos.map(grupo => (
+                <option key={grupo.id_grupo} value={grupo.id_grupo}>
+                  {grupo.titulo}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
