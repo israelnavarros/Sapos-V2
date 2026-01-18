@@ -1,10 +1,9 @@
-import { useContext, useRef, useState } from 'react';
+import { useContext, useRef, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
 import API_URL from './config'; // Importa a URL centralizada
 import Header from './Header';
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.min.css";
-import { useEffect } from 'react';
 
 const cargoLabel = (cargo) => {
   switch (cargo) {
@@ -26,9 +25,23 @@ export default function MeuPerfil() {
   const fileInputRef = useRef();
   const cropperRef = useRef();
 
+  // Buscar dados completos do perfil (status, datas, etc)
+  useEffect(() => {
+    if (user?.id) {
+      fetch(`${API_URL}/api/meuperfil/${user.id}`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.error) {
+             setUser(prev => ({ ...prev, ...data }));
+          }
+        })
+        .catch(err => console.error('Erro ao carregar perfil:', err));
+    }
+  }, [user?.id, setUser]);
+
   // Buscar informações do grupo (para estagiários e supervisores)
   useEffect(() => {
-    if ((user.cargo === 2 || user.cargo === 1) && user.grupo) {
+    if ((user?.cargo === 2 || user?.cargo === 1) && user?.grupo) {
       fetch(`${API_URL}/api/meu_grupo`, { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
@@ -36,7 +49,7 @@ export default function MeuPerfil() {
         })
         .catch(err => console.error('Erro ao carregar dados do grupo:', err));
     }
-  }, [user]);
+  }, [user?.cargo, user?.grupo]);
 
   // Função para upload de imagem (substitua pela sua API)
   const handleImageChange = e => {
