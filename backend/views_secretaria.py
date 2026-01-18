@@ -408,6 +408,15 @@ def lista_supervisores():
     lista = [{'id': user.id_usuario, 'nome': user.nome, 'grupo': user.grupo} for user in supervisores]
     return jsonify(lista)
 
+# Rota para buscar todos os ESTAGIÁRIOS disponíveis
+@app.route('/api/lista_estagiarios', methods=['GET'])
+@login_required
+def lista_estagiarios():
+    # Supondo que cargo '2' é Estagiário
+    estagiarios = Usuarios.query.filter_by(cargo='2', status='true').all()
+    lista = [{'id': user.id_usuario, 'nome': user.nome, 'grupo': user.grupo} for user in estagiarios]
+    return jsonify(lista)
+
 @app.route('/api/atribuir_supervisor_grupo', methods=['POST'])
 @login_required
 def atribuir_supervisor_grupo():
@@ -421,6 +430,20 @@ def atribuir_supervisor_grupo():
         db.session.commit()
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': 'Supervisor não encontrado'}), 404
+
+@app.route('/api/atribuir_estagiario_grupo', methods=['POST'])
+@login_required
+def atribuir_estagiario_grupo():
+    data = request.get_json()
+    id_estagiario = data.get('id_estagiario')
+    id_grupo = data.get('id_grupo')
+    
+    estagiario = Usuarios.query.get(id_estagiario)
+    if estagiario:
+        estagiario.grupo = id_grupo
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': 'Estagiário não encontrado'}), 404
 
 # Rota para buscar ESTAGIÁRIOS de um SUPERVISOR específico
 @app.route('/api/lista_estagiarios_por_supervisor/<int:id_supervisor>', methods=['GET'])

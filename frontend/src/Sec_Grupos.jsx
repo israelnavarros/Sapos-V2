@@ -5,7 +5,7 @@ import API_URL from './config';
 import Header from './Header';
 import Modal from './Modal';
 
-function ActionsDropdown({ grupo, onEditVagas, onEditGroup, onManageCoordinators }) {
+function ActionsDropdown({ grupo, onEditVagas, onEditGroup, onManageCoordinators, onManageInterns }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const menuRef = useRef(null);
@@ -67,6 +67,9 @@ function ActionsDropdown({ grupo, onEditVagas, onEditGroup, onManageCoordinators
                         <button onClick={() => { onManageCoordinators(grupo); setIsOpen(false); }} className={itemStyle}>
                             <i className="bi bi-person-badge mr-2"></i> Supervisores
                         </button>
+                        <button onClick={() => { onManageInterns(grupo); setIsOpen(false); }} className={itemStyle}>
+                            <i className="bi bi-person-fill mr-2"></i> Estagiários
+                        </button>
                     </div>
                 </div>,
                 document.body
@@ -83,7 +86,9 @@ export default function SecGrupos({ embedded = false }) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
   const [isCoordModalOpen, setIsCoordModalOpen] = useState(false);
+  const [isInternsModalOpen, setIsInternsModalOpen] = useState(false);
   const [supervisores, setSupervisores] = useState([]);
+  const [estagiarios, setEstagiarios] = useState([]);
   const [editGroupData, setEditGroupData] = useState({});
   const [newGroupData, setNewGroupData] = useState({
     titulo: '',
@@ -230,6 +235,29 @@ export default function SecGrupos({ embedded = false }) {
       setSupervisores(data);
   };
 
+  const openInternsModal = (grupo) => {
+    setGrupoSelecionado(grupo);
+    fetch(`${API_URL}/api/lista_estagiarios`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            setEstagiarios(data);
+            setIsInternsModalOpen(true);
+        });
+  };
+
+  const handleAssignIntern = async (id_estagiario, id_grupo) => {
+      await fetch(`${API_URL}/api/atribuir_estagiario_grupo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ id_estagiario, id_grupo })
+      });
+      // Refresh list
+      const res = await fetch(`${API_URL}/api/lista_estagiarios`, { credentials: 'include' });
+      const data = await res.json();
+      setEstagiarios(data);
+  };
+
   return (
     <>
     {!embedded && <Header />}
@@ -270,6 +298,7 @@ export default function SecGrupos({ embedded = false }) {
                             onEditVagas={abrirModal}
                             onEditGroup={(g) => { setEditGroupData(g); setIsEditGroupModalOpen(true); }}
                             onManageCoordinators={openCoordModal}
+                            onManageInterns={openInternsModal}
                         />
                     </td>
                 </tr>
@@ -445,6 +474,41 @@ export default function SecGrupos({ embedded = false }) {
               </div>
               <div className="flex justify-end pt-4">
                   <button type="button" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onClick={() => setIsCoordModalOpen(false)}>Fechar</button>
+              </div>
+          </Modal>
+      )}
+
+      {/* Modal de Estagiários */}
+      {isInternsModalOpen && (
+          <Modal onClose={() => setIsInternsModalOpen(false)} title={`Gerenciar Estagiários - ${grupoSelecionado?.titulo}`}>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                  <p className="text-sm text-gray-600">Selecione os estagiários que atuarão neste grupo.</p>
+                  <div className="divide-y divide-gray-200 border rounded-md">
+                      {estagiarios.map(est => {
+                          const isInGroup = est.grupo === grupoSelecionado.id_grupo;
+                          return (
+                              <div key={est.id} className="flex items-center justify-between p-3 hover:bg-gray-50">
+                                  <div>
+                                      <p className="font-medium text-gray-800">{est.nome}</p>
+                                      <p className="text-xs text-gray-500">{est.grupo ? (isInGroup ? 'Neste Grupo' : `Em outro grupo (ID: ${est.grupo})`) : 'Sem grupo'}</p>
+                                  </div>
+                                  <button 
+                                      onClick={() => handleAssignIntern(est.id, isInGroup ? null : grupoSelecionado.id_grupo)}
+                                      className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                                          isInGroup 
+                                          ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                      }`}
+                                  >
+                                      {isInGroup ? 'Remover' : 'Adicionar'}
+                                  </button>
+                              </div>
+                          );
+                      })}
+                  </div>
+              </div>
+              <div className="flex justify-end pt-4">
+                  <button type="button" className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onClick={() => setIsInternsModalOpen(false)}>Fechar</button>
               </div>
           </Modal>
       )}
