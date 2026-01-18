@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import API_URL from './config';
 import Header from './Header';
 import moment from 'moment';
+import Modal from './Modal';
 import SecTrocas from './Sec_Trocas';
 import {
   useReactTable,
@@ -16,11 +17,15 @@ import {
 function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const menuRef = useRef(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+                (!menuRef.current || !menuRef.current.contains(event.target))
+            ) {
                 setIsOpen(false);
             }
         }
@@ -56,6 +61,7 @@ function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
             </button>
             {isOpen && createPortal(
                 <div 
+                    ref={menuRef}
                     className="fixed mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-50"
                     style={{ top: position.top, left: position.left }}
                 >
@@ -77,6 +83,16 @@ function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
 export default function SecUsuarios({ embedded = false }) {
   const [usuarios, setUsuarios] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [grupos, setGrupos] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null); // 'supervisor' | 'estagiario'
+  const [newUser, setNewUser] = useState({
+    nome: '',
+    email: '',
+    senha: '',
+    matricula: '',
+    grupo: ''
+  });
 
   useEffect(() => {
     fetch(`${API_URL}/api/usuarios`, { credentials: 'include' })
@@ -84,6 +100,53 @@ export default function SecUsuarios({ embedded = false }) {
       .then(data => setUsuarios(data))
       .catch(err => console.error('Erro ao carregar usuários:', err));
   }, []);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/consulta_ids_grupos`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setGrupos(data))
+      .catch(err => console.error('Erro ao carregar grupos:', err));
+  }, []);
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    const cargo = modalType === 'supervisor' ? 1 : 2;
+    // Validade: Supervisor ~5 anos, Estagiário ~6 meses
+    const validadeDias = cargo === 1 ? 1825 : 182;
+    const valido_ate = new Date();
+    valido_ate.setDate(valido_ate.getDate() + validadeDias);
+
+    const payload = {
+        ...newUser,
+        cargo,
+        criado_em: new Date().toISOString().slice(0, 10),
+        valido_ate: valido_ate.toISOString().slice(0, 10)
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/api/registrar_usuario`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('Usuário cadastrado com sucesso!');
+            setIsModalOpen(false);
+            setNewUser({ nome: '', email: '', senha: '', matricula: '', grupo: '' });
+            // Recarrega a lista
+            const resUsers = await fetch(`${API_URL}/api/usuarios`, { credentials: 'include' });
+            const dataUsers = await resUsers.json();
+            setUsuarios(dataUsers);
+        } else {
+            alert(data.message || 'Erro ao cadastrar usuário.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão.');
+    }
+  };
 
   const handleExtendValidity = async (usuario) => {
     const id = usuario.id || usuario.id_usuario;
@@ -197,15 +260,22 @@ export default function SecUsuarios({ embedded = false }) {
           <div className="p-6 bg-white shadow-md rounded-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Usuários</h2>
-              <Link
-                to="/registrar_coordenador"
-                className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Adicionar Supervisor
-              </Link>
+              <div className="flex gap-3">
+                <button
+                    onClick={() => { setModalType('supervisor'); setIsModalOpen(true); }}
+                    className="flex items-center gap-2 bg-green text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
+                >
+                    <i className="bi bi-person-badge"></i>
+                    Adicionar Supervisor
+                </button>
+                <button
+                    onClick={() => { setModalType('estagiario'); setIsModalOpen(true); }}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-blue-700 cursor-pointer transition-transform transform hover:scale-105"
+                >
+                    <i className="bi bi-person-plus"></i>
+                    Adicionar Estagiário
+                </button>
+              </div>
             </div>
             <div>
               <section className="mb-6">
@@ -268,6 +338,50 @@ export default function SecUsuarios({ embedded = false }) {
               </button>
             </div>
           </div>
+
+          {/* Modal de Cadastro de Usuário */}
+          {isModalOpen && (
+            <Modal onClose={() => setIsModalOpen(false)} title={`Adicionar ${modalType === 'supervisor' ? 'Supervisor' : 'Estagiário'}`}>
+                <form onSubmit={handleCreateUser} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
+                        <input type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
+                            value={newUser.nome} onChange={e => setNewUser({...newUser, nome: e.target.value})} />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
+                                value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Senha</label>
+                            <input type="password" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
+                                value={newUser.senha} onChange={e => setNewUser({...newUser, senha: e.target.value})} />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Matrícula</label>
+                            <input type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" 
+                                value={newUser.matricula} onChange={e => setNewUser({...newUser, matricula: e.target.value})} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Grupo (Opcional)</label>
+                            <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                                value={newUser.grupo} onChange={e => setNewUser({...newUser, grupo: e.target.value})}>
+                                <option value="">Selecione um grupo...</option>
+                                {grupos.map(g => <option key={g.id_grupo} value={g.id_grupo}>{g.titulo}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="flex justify-end pt-4">
+                        <button type="button" className="mr-3 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                        <button type="submit" className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 shadow-md">Cadastrar</button>
+                    </div>
+                </form>
+            </Modal>
+          )}
     </div>
   );
 

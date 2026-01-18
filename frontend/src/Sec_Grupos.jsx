@@ -8,11 +8,15 @@ import Modal from './Modal';
 function ActionsDropdown({ grupo, onEditVagas, onEditGroup, onManageCoordinators }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const menuRef = useRef(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+                (!menuRef.current || !menuRef.current.contains(event.target))
+            ) {
                 setIsOpen(false);
             }
         }
@@ -49,6 +53,7 @@ function ActionsDropdown({ grupo, onEditVagas, onEditGroup, onManageCoordinators
             </button>
             {isOpen && createPortal(
                 <div 
+                    ref={menuRef}
                     className="fixed mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-50"
                     style={{ top: position.top, left: position.left }}
                 >

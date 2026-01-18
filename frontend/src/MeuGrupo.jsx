@@ -10,11 +10,15 @@ import Modal from './Modal';
 function ActionsDropdown({ paciente, onAtribuir }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const menuRef = useRef(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false);
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+        (!menuRef.current || !menuRef.current.contains(event.target))
+      ) setIsOpen(false);
     };
     const handleScroll = () => setIsOpen(false);
 
@@ -45,6 +49,7 @@ function ActionsDropdown({ paciente, onAtribuir }) {
       </button>
       {isOpen && createPortal(
         <div 
+          ref={menuRef}
           className="fixed mt-2 w-56 bg-white rounded-md shadow-lg z-50 ring-1 ring-slate-200"
           style={{ top: position.top, left: position.left }}
         >
