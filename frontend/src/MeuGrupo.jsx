@@ -106,6 +106,7 @@ export default function MeuGrupo() {
   const [novoReuniao, setNovoReuniao] = useState({ dia: '', horaini: '', horafim: '' });
   const [showAdicionar, setShowAdicionar] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState('visaoGeral');
+  const [abaMembroAtiva, setAbaMembroAtiva] = useState('supervisores');
   const [isSelectInternsModalOpen, setIsSelectInternsModalOpen] = useState(false);
   const [allEstagiarios, setAllEstagiarios] = useState([]);
 
@@ -366,102 +367,148 @@ export default function MeuGrupo() {
 
             {/* Aba: Membros */}
             {abaAtiva === 'membros' && (
-              <div className="space-y-8">
-                {/* Supervisores */}
-                <div className="bg-white p-6 rounded-xl shadow-md">
-                  <h2 className="text-xl font-semibold text-slate-800 mb-4">Supervisores</h2>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Nome</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {coordenadores.length > 0 ? (
-                          coordenadores.map(coord => (
-                            <tr key={coord.id} className="hover:bg-gray-50">
-                              <td className="px-4 py-3 text-sm text-slate-700 font-medium">{coord.nome}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="1" className="px-4 py-4 text-center text-sm text-gray-500">Nenhum supervisor.</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+              <div className="bg-white rounded-xl shadow-md">
+                {/* Tabs de Supervisores e Estagiários */}
+                <div className="border-b border-slate-200 px-6 pt-6 mb-0">
+                  <nav className="-mb-px flex space-x-2 sm:space-x-6">
+                    <button
+                      onClick={() => setAbaMembroAtiva('supervisores')}
+                      className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${
+                        abaMembroAtiva === 'supervisores'
+                          ? 'bg-white border-b-2 border-green text-green'
+                          : 'bg-transparent text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      Supervisores
+                    </button>
+                    <button
+                      onClick={() => setAbaMembroAtiva('estagiarios')}
+                      className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${
+                        abaMembroAtiva === 'estagiarios'
+                          ? 'bg-white border-b-2 border-green text-green'
+                          : 'bg-transparent text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      Estagiários
+                    </button>
+                  </nav>
                 </div>
 
-                {/* Estagiários */}
-                <div className="bg-white p-6 rounded-xl shadow-md">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-slate-800">Estagiários</h2>
-                    <div className="relative">
-                      <button
-                        className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
-                        onClick={() => setShowDropdown(prev => !prev)}
-                      >
-                        + Novo Estagiario
-                      </button>
-                      {showDropdown && (
-                        <ul className="absolute right-0 mt-2 w-64 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
-                          <li>
-                            <Link to="/meugrupo/adicionar-estagiario" className="block px-4 py-2 hover:bg-green hover:text-white ">
-                              Adicionar diretamente
-                            </Link>
-                          </li>
-                          <li>
-                            <button className="block w-full text-left px-4 py-2 hover:bg-green hover:text-white">
-                              Adicionar por link
-                            </button>
-                          </li>
-                          <li>
-                            <button className="block w-full text-left px-4 py-2 hover:bg-green hover:text-white" onClick={() => { handleOpenSelectInternsModal(); setShowDropdown(false); }}>
-                              Adicionar por lista de estagiários
-                            </button>
-                          </li>
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-600 mb-4"><span className="font-semibold">Vagas:</span> {vagas.ocupadas} / {vagas.total} <span className="text-slate-500">({vagas.total - vagas.ocupadas} disponível{vagas.total - vagas.ocupadas !== 1 ? 's' : ''})</span></p>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Foto</th>
-                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Nome</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {estagiarios.length > 0 ? (
-                          estagiarios.map(estag => (
-                            <tr key={estag.id} className="hover:bg-gray-50">
-                              <td className="px-4 py-3 text-sm">
-                                <img 
-                                  src={`${API_URL}/api/uploads/usuarios/${estag.id}`} 
-                                  alt={estag.nome}
-                                  className="w-10 h-10 rounded-full object-cover"
-                                  onError={(e) => {e.target.src = 'https://via.placeholder.com/40?text=Sem+foto'}}
-                                />
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                <Link to={`/sup_meu_estagiario/${estag.id}`} className="text-slate-700 font-medium hover:text-green transition">
-                                  {estag.nome}
-                                </Link>
-                              </td>
+                <div className="p-6">
+                  {/* Tab: Supervisores */}
+                  {abaMembroAtiva === 'supervisores' && (
+                    <div>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Supervisor</th>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="2" className="px-4 py-4 text-center text-sm text-gray-500">Nenhum estagiário.</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200">
+                            {coordenadores.length > 0 ? (
+                              coordenadores.map(coord => (
+                                <tr key={coord.id} className="hover:bg-gray-50 cursor-pointer transition-colors">
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex items-center">
+                                      <div className="flex-shrink-0 h-10 w-10">
+                                        <img
+                                          className="h-10 w-10 rounded-full object-cover bg-gray-200"
+                                          src={`${API_URL}/api/uploads/usuarios/${coord.id}`}
+                                          alt={coord.nome}
+                                          onError={(e) => {e.target.src = 'https://via.placeholder.com/40?text=Sem+foto'}}
+                                        />
+                                      </div>
+                                      <div className="ml-4">
+                                        <div className="text-sm font-medium text-gray-900">{coord.nome}</div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan="1" className="px-6 py-4 text-center text-sm text-gray-500">Nenhum supervisor.</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tab: Estagiários */}
+                  {abaMembroAtiva === 'estagiarios' && (
+                    <div>
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800"></h3>
+                        <div className="relative">
+                          <button
+                            className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
+                            onClick={() => setShowDropdown(prev => !prev)}
+                          >
+                            + Novo Estagiario
+                          </button>
+                          {showDropdown && (
+                            <ul className="absolute right-0 mt-2 w-64 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
+                              <li>
+                                <Link to="/meugrupo/adicionar-estagiario" className="block px-4 py-2 hover:bg-green hover:text-white ">
+                                  Adicionar diretamente
+                                </Link>
+                              </li>
+                              <li>
+                                <button className="block w-full text-left px-4 py-2 hover:bg-green hover:text-white">
+                                  Adicionar por link
+                                </button>
+                              </li>
+                              <li>
+                                <button className="block w-full text-left px-4 py-2 hover:bg-green hover:text-white" onClick={() => { handleOpenSelectInternsModal(); setShowDropdown(false); }}>
+                                  Adicionar por lista de estagiários
+                                </button>
+                              </li>
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-600 mb-4"><span className="font-semibold">Vagas:</span> {vagas.ocupadas} / {vagas.total} <span className="text-slate-500">({vagas.total - vagas.ocupadas} disponível{vagas.total - vagas.ocupadas !== 1 ? 's' : ''})</span></p>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Estagiário</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200">
+                            {estagiarios.length > 0 ? (
+                              estagiarios.map(estag => (
+                                <tr key={estag.id} className="hover:bg-gray-50 transition-colors">
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <Link to={`/sup_meu_estagiario/${estag.id}`} className="flex items-center hover:text-green transition">
+                                      <div className="flex-shrink-0 h-10 w-10">
+                                        <img
+                                          className="h-10 w-10 rounded-full object-cover bg-gray-200"
+                                          src={`${API_URL}/api/uploads/usuarios/${estag.id}`}
+                                          alt={estag.nome}
+                                          onError={(e) => {e.target.src = 'https://via.placeholder.com/40?text=Sem+foto'}}
+                                        />
+                                      </div>
+                                      <div className="ml-4">
+                                        <div className="text-sm font-medium text-gray-900">{estag.nome}</div>
+                                      </div>
+                                    </Link>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan="1" className="px-6 py-4 text-center text-sm text-gray-500">Nenhum estagiário.</td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
