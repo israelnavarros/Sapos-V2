@@ -199,8 +199,8 @@ def api_meu_grupo():
     lista_estag_count = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='2', status=True).count()
     botao_vagas = 'disabled' if lista_estag_count >= grupo_info.vagas_estagiarios else ''
 
-    # Buscar informações do supervisor
-    supervisor = Usuarios.query.filter_by(id_usuario=current_user.id_supervisor).first()
+    # Buscar o supervisor do grupo (cargo == 1 no mesmo grupo)
+    supervisor = Usuarios.query.filter_by(grupo=current_user.grupo, cargo='1').first()
     supervisor_nome = supervisor.nome if supervisor else 'Não informado'
 
     DIAS_DA_SEMANA = {
@@ -252,6 +252,14 @@ def api_reg_estag_diretamente():
     status = True
     criado_em = data.get('criado_em')
     valido_ate = data.get('valido_ate')
+    
+    # Converter strings para date objects se necessário
+    if criado_em and isinstance(criado_em, str):
+        from datetime import datetime
+        criado_em = datetime.strptime(criado_em, '%Y-%m-%d').date()
+    if valido_ate and isinstance(valido_ate, str):
+        from datetime import datetime
+        valido_ate = datetime.strptime(valido_ate, '%Y-%m-%d').date()
 
     aux_email = Usuarios.query.filter_by(email=email).first()
     if aux_email:

@@ -196,6 +196,14 @@ def api_registrar_usuario():
     status = True
     criado_em = data.get('criado_em')
     valido_ate = data.get('valido_ate')
+    
+    # Converter strings para date objects se necessário
+    if criado_em and isinstance(criado_em, str):
+        from datetime import datetime
+        criado_em = datetime.strptime(criado_em, '%Y-%m-%d').date()
+    if valido_ate and isinstance(valido_ate, str):
+        from datetime import datetime
+        valido_ate = datetime.strptime(valido_ate, '%Y-%m-%d').date()
 
     user = Usuarios(
         matricula=matricula, nome=nome, email=email, senha=senha,

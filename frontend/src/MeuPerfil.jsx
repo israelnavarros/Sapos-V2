@@ -206,15 +206,17 @@ export default function MeuPerfil() {
                   />
                 </div>
 
-                {/* Grupo */}
-                <div className="w-full">
-                  <label className="block text-sm font-medium text-gray-500">Grupo</label>
-                  <input
-                    className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
-                    value={grupoInfo?.nome || (user.grupo ? `Grupo ${user.grupo}` : 'Não informado')}
-                    readOnly
-                  />
-                </div>
+                {/* Grupo - apenas para Supervisor e Estagiário */}
+                {(user.cargo === 1 || user.cargo === 2) && (
+                  <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-500">Grupo</label>
+                    <input
+                      className="w-full p-2 mt-1 bg-gray-100 border border-gray-200 rounded text-gray-800"
+                      value={grupoInfo?.nome || (user.grupo ? `Grupo ${user.grupo}` : 'Não informado')}
+                      readOnly
+                    />
+                  </div>
+                )}
 
                 {/* Data de Criação */}
                 <div className="w-full">
@@ -241,14 +243,10 @@ export default function MeuPerfil() {
               {user.cargo === 2 && (
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <h4 className="text-md font-bold text-blue-800 mb-3">Informações do Estagiário</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <div className="p-3 bg-white rounded border border-blue-100">
                       <p className="text-sm text-gray-600">Nome do Supervisor</p>
                       <p className="text-lg font-bold text-blue-600">{grupoInfo?.supervisor_nome || 'Carregando...'}</p>
-                    </div>
-                    <div className="p-3 bg-white rounded border border-blue-100">
-                      <p className="text-sm text-gray-600">Grupo Atual</p>
-                      <p className="text-lg font-bold text-blue-600">{grupoInfo?.nome || 'Carregando...'}</p>
                     </div>
                   </div>
                 </div>
