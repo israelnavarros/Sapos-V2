@@ -66,6 +66,73 @@ function ActionsDropdown({ paciente, onAtribuir }) {
   );
 }
 
+function ReuniaoActionsDropdown({ reuniao, onEdit, onDelete }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const menuRef = useRef(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+        (!menuRef.current || !menuRef.current.contains(event.target))
+      ) setIsOpen(false);
+    };
+    const handleScroll = () => setIsOpen(false);
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener("scroll", handleScroll, true);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [dropdownRef]);
+
+  const toggleDropdown = () => {
+    if (!isOpen && dropdownRef.current) {
+        const rect = dropdownRef.current.getBoundingClientRect();
+        setPosition({ top: rect.bottom, left: rect.right - 224 });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const itemStyle = "group flex w-full items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-green hover:text-white transition-colors cursor-pointer";
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button onClick={toggleDropdown} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+        </svg>
+      </button>
+      {isOpen && createPortal(
+        <div 
+          ref={menuRef}
+          className="fixed mt-2 w-56 bg-white rounded-md shadow-lg z-50 ring-1 ring-slate-200"
+          style={{ top: position.top, left: position.left }}
+        >
+          <div className="p-1">
+            <button onClick={() => { onEdit(reuniao); setIsOpen(false); }} className={itemStyle}>
+              <i className="bi bi-pencil-square mr-3 h-5 w-5 text-slate-400 group-hover:text-white"></i>
+              Editar
+            </button>
+            <div className="my-1 h-px bg-slate-100" />
+            <button onClick={() => { onDelete(reuniao.id_reuniaogrupos); setIsOpen(false); }} className={itemStyle}>
+              <i className="bi bi-trash mr-3 h-5 w-5 text-slate-400 group-hover:text-white"></i>
+              Excluir
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
+
+
 const SkeletonRow = () => (
   <tr className="animate-pulse">
     {/* Coluna 1: Paciente (imitação da foto + nome) */}
@@ -109,6 +176,8 @@ export default function MeuGrupo() {
   const [abaMembroAtiva, setAbaMembroAtiva] = useState('supervisores');
   const [isSelectInternsModalOpen, setIsSelectInternsModalOpen] = useState(false);
   const [allEstagiarios, setAllEstagiarios] = useState([]);
+  const [isEditReuniaoModalOpen, setIsEditReuniaoModalOpen] = useState(false);
+  const [reuniaoEdicao, setReuniaoEdicao] = useState(null);
 
   const [pacientes, setPacientes] = useState([]);
   const [loadingPacientes, setLoadingPacientes] = useState(true);
@@ -280,6 +349,50 @@ export default function MeuGrupo() {
       setReunioes(reunioes.filter(r => r.id_reuniaogrupos !== id_reuniao));
     } else {
       alert('Erro ao remover reunião');
+    }
+  };
+
+  // Abrir modal de edição de reunião
+  const handleOpenEditReuniaoModal = (reuniao) => {
+    setReuniaoEdicao({
+      id_reuniaogrupos: reuniao.id_reuniaogrupos,
+      dia: String(reuniao.dia),
+      hora_inicio: reuniao.hora_inicio,
+      hora_fim: reuniao.hora_fim
+    });
+    setIsEditReuniaoModalOpen(true);
+  };
+
+  // Salvar edição de reunião
+  const handleSaveEditReuniao = async () => {
+    if (!reuniaoEdicao.dia || !reuniaoEdicao.hora_inicio || !reuniaoEdicao.hora_fim) {
+      alert('Preencha todos os campos!');
+      return;
+    }
+    const res = await fetch(`${API_URL}/api/editar_reuniao`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_reuniao_grupo: reuniaoEdicao.id_reuniaogrupos,
+        diaReuniao: reuniaoEdicao.dia,
+        horainiReuniao: reuniaoEdicao.hora_inicio,
+        horafimReuniao: reuniaoEdicao.hora_fim
+      }),
+      credentials: 'include'
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('Reunião alterada com sucesso!');
+      setReunioes(reunioes.map(r => r.id_reuniaogrupos === reuniaoEdicao.id_reuniaogrupos ? {
+        ...r,
+        dia: reuniaoEdicao.dia,
+        hora_inicio: reuniaoEdicao.hora_inicio,
+        hora_fim: reuniaoEdicao.hora_fim
+      } : r));
+      setIsEditReuniaoModalOpen(false);
+      setReuniaoEdicao(null);
+    } else {
+      alert('Erro ao editar reunião: ' + data.message);
     }
   };
 
@@ -612,28 +725,33 @@ export default function MeuGrupo() {
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-100">
                         <tr>
-                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Dia</th>
-                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Início</th>
-                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Fim</th>
-                          <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">Ações</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Dia</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Início</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Fim</th>
+                          <th className="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Ações</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
-                        {reunioes.map(reuniao => (
-                          <tr key={reuniao.id_reuniaogrupos} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 whitespace-nowrap">{DIAS_DA_SEMANA[reuniao.dia]}</td>
-                            <td className="px-4 py-2">{reuniao.hora_inicio}</td>
-                            <td className="px-4 py-2">{reuniao.hora_fim}</td>
-                            <td className="px-4 py-2 text-center">
-                              <button
-                                className="text-red-600 hover:text-red-800"
-                                onClick={() => handleRemoveReuniao(reuniao.id_reuniaogrupos)}
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
-                            </td>
+                        {reunioes.length > 0 ? (
+                          reunioes.map(reuniao => (
+                            <tr key={reuniao.id_reuniaogrupos} className="hover:bg-gray-50 transition-colors">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{DIAS_DA_SEMANA[Number(reuniao.dia)] || `Dia ${reuniao.dia}`}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{reuniao.hora_inicio}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{reuniao.hora_fim}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <ReuniaoActionsDropdown 
+                                  reuniao={reuniao} 
+                                  onEdit={handleOpenEditReuniaoModal}
+                                  onDelete={handleRemoveReuniao}
+                                />
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">Nenhuma reunião agendada.</td>
                           </tr>
-                        ))}
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -785,6 +903,56 @@ export default function MeuGrupo() {
             </button>
             <button type="button" className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90" onClick={handleSaveAssignment}>
               Salvar Atribuição
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* --- MODAL DE EDIÇÃO DE REUNIÃO --- */}
+      {isEditReuniaoModalOpen && reuniaoEdicao && (
+        <Modal
+          onClose={() => setIsEditReuniaoModalOpen(false)}
+          title="Editar Reunião"
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Dia da semana</label>
+              <select
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green"
+                value={reuniaoEdicao.dia}
+                onChange={e => setReuniaoEdicao({ ...reuniaoEdicao, dia: e.target.value })}
+              >
+                <option value="">Escolha</option>
+                {DIAS_DA_SEMANA.map((dia, idx) => (
+                  <option key={idx} value={idx}>{dia}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Horário de início</label>
+              <input
+                type="time"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green"
+                value={reuniaoEdicao.hora_inicio}
+                onChange={e => setReuniaoEdicao({ ...reuniaoEdicao, hora_inicio: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Horário de fim</label>
+              <input
+                type="time"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green"
+                value={reuniaoEdicao.hora_fim}
+                onChange={e => setReuniaoEdicao({ ...reuniaoEdicao, hora_fim: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="mt-6 pt-4 border-t flex justify-end gap-3">
+            <button type="button" className="px-4 py-2 bg-slate-100 rounded-lg hover:bg-slate-200" onClick={() => setIsEditReuniaoModalOpen(false)}>
+              Cancelar
+            </button>
+            <button type="button" className="px-6 py-2 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90" onClick={handleSaveEditReuniao}>
+              Salvar Alterações
             </button>
           </div>
         </Modal>

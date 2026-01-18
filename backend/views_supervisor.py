@@ -306,6 +306,48 @@ def api_remover_reuniao():
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': 'ID enviado está com problema!'}), 400
 
+@app.route('/api/editar_reuniao', methods=['POST'])
+@login_required
+def api_editar_reuniao():
+    data = request.get_json()
+    id_reuniao_grupo = data.get('id_reuniao_grupo')
+    diaReuniao = data.get('diaReuniao')
+    horainiReuniao = data.get('horainiReuniao')
+    horafimReuniao = data.get('horafimReuniao')
+
+    if not id_reuniao_grupo or not diaReuniao or not horainiReuniao or not horafimReuniao:
+        return jsonify({'success': False, 'message': 'Dados faltando.'}), 400
+
+    reuniao = ReuniaoGrupos.query.filter_by(id_reuniaogrupos=id_reuniao_grupo).first()
+    if not reuniao:
+        return jsonify({'success': False, 'message': 'Reunião não encontrada.'}), 404
+
+    # Verificar conflito de horário com outras reuniões (excluindo a atual)
+    reuniao_existe = ReuniaoGrupos.query.filter(
+        ReuniaoGrupos.id_reuniaogrupos != id_reuniao_grupo,
+        ReuniaoGrupos.id_grupo == reuniao.id_grupo,
+        ReuniaoGrupos.dia == diaReuniao,
+        ReuniaoGrupos.hora_inicio <= horafimReuniao,
+        ReuniaoGrupos.hora_fim >= horainiReuniao
+    ).first()
+
+    if reuniao_existe:
+        return jsonify({'success': False, 'message': 'Já existe uma reunião nesse horário.'}), 400
+
+    reuniao.dia = diaReuniao
+    reuniao.hora_inicio = horainiReuniao
+    reuniao.hora_fim = horafimReuniao
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Reunião alterada com sucesso!',
+        'id_reuniaogrupos': id_reuniao_grupo,
+        'dia': diaReuniao,
+        'hora_inicio': horainiReuniao,
+        'hora_fim': horafimReuniao
+    }), 200
+
 @app.route('/api/sup_meu_estagiario/<int:id_estagiario>', methods=['GET'])
 @login_required
 def api_sup_meu_estagiario(id_estagiario):
