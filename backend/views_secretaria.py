@@ -1,6 +1,6 @@
 from flask import  jsonify, request, session, flash, url_for, send_from_directory
 from main import app, db, mail
-from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao
+from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao, Tag, PacienteTag
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func
 from flask_login import login_required, current_user
@@ -536,6 +536,104 @@ def api_editar_paciente(id):
     }
     return jsonify(paciente_json)
 
+@app.route('/api/sec_ficha_paciente/<int:id>', methods=['GET'])
+@login_required
+def api_sec_ficha_paciente(id):
+    # Acesso permitido para secretaria (cargo 0)
+    if current_user.cargo != 0:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
+    dados_paciente = Pacientes.query.get_or_404(id)
+    estagiario = Usuarios.query.get(dados_paciente.id_estagiario) if dados_paciente.id_estagiario else None
+    supervisor = Usuarios.query.get(dados_paciente.id_supervisor) if dados_paciente.id_supervisor else None
+    
+    tags = [{
+        'id_tag': pt.tag.id_tag,
+        'nome': pt.tag.nome
+    } for pt in dados_paciente.tags_rel]
+
+    paciente_json = {
+        'id_paciente': dados_paciente.id_paciente,
+        'nome_completo': dados_paciente.nome_completo,
+        'nome_responsavel': dados_paciente.nome_responsavel,
+        'grau_parentesco': dados_paciente.grau_parentesco,
+        'data_nascimento': str(dados_paciente.data_nascimento),
+        'idade': dados_paciente.idade,
+        'sexo': dados_paciente.sexo,
+        'escolaridade': dados_paciente.escolaridade,
+        'profissao': dados_paciente.profissao,
+        'ocupacao': dados_paciente.ocupacao,
+        'salario': dados_paciente.salario,
+        'renda_familiar': dados_paciente.renda_familiar,
+        'cep': dados_paciente.cep,
+        'cidade': dados_paciente.cidade,
+        'bairro': dados_paciente.bairro,
+        'logradouro': dados_paciente.logradouro,
+        'complemento': dados_paciente.complemento,
+        'telefone': dados_paciente.telefone,
+        'celular1': dados_paciente.celular1,
+        'celular2': dados_paciente.celular2,
+        'origem_encaminhamento': dados_paciente.origem_encaminhamento,
+        'nome_instituicao': dados_paciente.nome_instituicao,
+        'nome_resp_encaminhamento': dados_paciente.nome_resp_encaminhamento,
+        'motivo': dados_paciente.motivo,
+        'medicamentos': dados_paciente.medicamentos,
+        'id_estagiario': estagiario.id_usuario if estagiario else None,
+        'nome_estagiario': estagiario.nome if estagiario else None,
+        'id_supervisor': supervisor.id_usuario if supervisor else None,
+        'nome_supervisor': supervisor.nome if supervisor else None,
+        'status': dados_paciente.status,
+        'data_criacao': str(dados_paciente.data_criacao),
+        'hipotese_diagnostica': dados_paciente.hipotese_diagnostica or None,
+        'ja_fez_terapia': dados_paciente.ja_fez_terapia,
+        'etnia': dados_paciente.etnia,
+        'genero': dados_paciente.genero,
+        'classe_social': dados_paciente.classe_social,
+        'intervalo_sessoes': dados_paciente.intervalo_sessoes,
+        'tags': tags,
+    }
+
+    Estagiario = aliased(Usuarios)
+    Supervisor = aliased(Usuarios)
+
+    folhas_db = FolhaEvolucao.query.filter_by(id_paciente=id)\
+        .options(
+            joinedload(FolhaEvolucao.estagiario.of_type(Estagiario)),
+            joinedload(FolhaEvolucao.supervisor.of_type(Supervisor))
+        )\
+        .order_by(FolhaEvolucao.data_postagem.desc())\
+        .all()
+    
+    folhas_pacientes = [f.to_dict() for f in folhas_db] # Assumindo que to_dict existe ou construindo manualmente
+    # Como to_dict pode não existir no modelo FolhaEvolucao baseado no contexto anterior, vamos construir manualmente:
+    folhas_pacientes = []
+    for folha in folhas_db:
+        folha_json = {
+            'id_folha': folha.id_folha,
+            'id_paciente': folha.id_paciente,
+            'id_estagiario': folha.id_estagiario,
+            'nome_estagiario': folha.estagiario.nome if folha.estagiario else 'Desconhecido',
+            'id_supervisor': folha.id_supervisor,
+            'nome_supervisor': folha.supervisor.nome if folha.supervisor else 'Desconhecido',
+            'data_postagem': str(folha.data_postagem),
+            'numero_sessao': folha.numero_sessao,
+            'status_validacao': folha.status_validacao,
+            'feedback': folha.feedback,
+            'data_status': str(folha.data_status) if folha.data_status else None,
+            'hipotese_diagnostica': folha.hipotese_diagnostica,
+            'sintomas_atuais': folha.sintomas_atuais,
+            'intervencoes_realizadas': folha.intervencoes_realizadas,
+            'evolucao_clinica': folha.evolucao_clinica,
+            'plano_proxima_sessao': folha.plano_proxima_sessao,
+            'observacoes': folha.observacoes,
+            'valor': str(folha.valor) if folha.valor else None,
+        }
+        folhas_pacientes.append(folha_json)
+
+    return jsonify({
+        'paciente': paciente_json,
+        'folhas_pacientes': folhas_pacientes
+    })
 
 @app.route('/api/atualizar_paciente/<int:id>', methods=['POST'])
 @login_required

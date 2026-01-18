@@ -21,6 +21,7 @@ import SupAssumirPaciente from './SupAssumirPaciente';
 import EstAssumirPaciente from './EstAssumirPaciente';
 import SecAdicionarEstagiario from './Sec_Adicionar_Estagiario';
 import SecAdicionarSupervisor from './Sec_Adicionar_Supervisor';
+import SecFichaPaciente from './SecFichaPaciente';
 import { AuthProvider } from './AuthContext';
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
           <Route path="/est_assumir_paciente" element={<EstAssumirPaciente />} />
           <Route path="/sec_adicionar_estagiario" element={<SecAdicionarEstagiario />} />
           <Route path="/sec_adicionar_supervisor" element={<SecAdicionarSupervisor />} />
+          <Route path="/sec_ficha_paciente/:id_paciente" element={<SecFichaPaciente />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
