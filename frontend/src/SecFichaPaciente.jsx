@@ -143,7 +143,7 @@ export default function SecFichaPaciente() {
                     className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
                   >
                     <i className="bi bi-pencil-square"></i>
-                    Editar Ficha
+                    Editar Ficha do Paciente
                   </Link>
                 </div>
 
