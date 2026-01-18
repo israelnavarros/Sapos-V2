@@ -99,8 +99,8 @@ def meuperfil(profile):
         "cargo": usuario.cargo,
         "grupo": usuario.grupo,
         "status": usuario.status,
-        "criado_em": usuario.criado_em.isoformat() if usuario.criado_em else None,
-        "valido_ate": usuario.valido_ate.isoformat() if usuario.valido_ate else None
+        "criado_em": str(usuario.criado_em) if usuario.criado_em else None,
+        "valido_ate": str(usuario.valido_ate) if usuario.valido_ate else None
     }), 200
 @app.route('/api/atualizar_avatar_usuario/<int:id_usuario>', methods=['POST'])
 @login_required
