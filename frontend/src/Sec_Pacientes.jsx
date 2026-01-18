@@ -5,7 +5,7 @@ import API_URL from './config';
 import Header from './Header';
 import Modal from './Modal';
 
-function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
+function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern, onToggleStatus }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const menuRef = useRef(null);
@@ -86,9 +86,9 @@ function ActionsDropdown({ paciente, onAssignSupervisor, onAssignIntern }) {
                         <div className="my-1 h-px bg-slate-100" />
                         
                         {/* Grupo de Ações de Status */}
-                         <button onClick={() => { /* Lógica para alterar status aqui */ setIsOpen(false); }} className={itemStyle}>
-                             <i className="bi bi-toggles mr-3 h-5 w-5 text-slate-400 group-hover:text-green-700"></i>
-                            Alterar Status
+                        <button onClick={() => { onToggleStatus(paciente); setIsOpen(false); }} className={itemStyle} title={paciente.status ? "Desativar paciente" : "Ativar paciente"}>
+                             <i className={`bi ${paciente.status ? 'bi-person-x' : 'bi-person-check'} mr-3 h-5 w-5 text-slate-400 group-hover:text-green-700`}></i>
+                            {paciente.status ? 'Desativar' : 'Ativar'}
                         </button>
                     </div>
                 </div>,
@@ -167,6 +167,30 @@ export default function SecPacientes({ embedded = false }) {
             fetchPacientes(); // Recarrega a lista de pacientes para mostrar a mudança
         } catch (error) {
             alert(`Erro: ${error.message}`);
+        }
+    };
+
+    // --- FUNÇÃO PARA ALTERAR STATUS DO PACIENTE ---
+    const handleToggleStatus = async (paciente) => {
+        if (!window.confirm(`Deseja ${paciente.status ? 'desativar' : 'ativar'} o paciente ${paciente.nome_completo}?`)) return;
+
+        try {
+            const res = await fetch(`${API_URL}/api/mudar_status_paciente/${paciente.id_paciente}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPacientes(prev => prev.map(p => 
+                    p.id_paciente === paciente.id_paciente ? { ...p, status: data.status } : p
+                ));
+            } else {
+                alert(data.message || 'Erro ao alterar status.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Erro de conexão.');
         }
     };
 
@@ -254,11 +278,11 @@ export default function SecPacientes({ embedded = false }) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                    String(paciente.status).toLowerCase() === 'true'
+                                                    paciente.status === true || String(paciente.status).toLowerCase() === 'true'
                                                         ? 'bg-green-100 text-green-800' 
                                                         : 'bg-red-100 text-red-800'
                                                     }`}>
-                                                    {String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}
+                                                    {paciente.status === true || String(paciente.status).toLowerCase() === 'true' ? 'Ativo' : 'Inativo'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatarData(paciente.data_criacao)}</td>
@@ -269,7 +293,8 @@ export default function SecPacientes({ embedded = false }) {
                                                 <ActionsDropdown
                                                     paciente={paciente}
                                                     onAssignSupervisor={handleAssignSupervisor}
-                                                    onAssignIntern={handleAssignIntern} />
+                                                    onAssignIntern={handleAssignIntern}
+                                                    onToggleStatus={handleToggleStatus} />
                                             </td>
                                         </tr>
                                     ))
