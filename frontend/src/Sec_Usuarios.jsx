@@ -12,7 +12,7 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 
-function ActionsDropdown({ usuario, onExtendValidity }) {
+function ActionsDropdown({ usuario, onExtendValidity, onToggleStatus }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -40,6 +40,9 @@ function ActionsDropdown({ usuario, onExtendValidity }) {
                     <div className="p-1">
                         <button onClick={() => { onExtendValidity(usuario); setIsOpen(false); }} className={itemStyle} title="Estender validade">
                             <i className="bi bi-calendar-plus mr-3"></i> Alterar Validade
+                        </button>
+                        <button onClick={() => { onToggleStatus(usuario); setIsOpen(false); }} className={itemStyle} title={usuario.status ? "Desativar usuário" : "Ativar usuário"}>
+                            <i className={`bi ${usuario.status ? 'bi-person-x' : 'bi-person-check'} mr-3`}></i> {usuario.status ? 'Desativar' : 'Ativar'}
                         </button>
                     </div>
                 </div>
@@ -85,6 +88,31 @@ export default function SecUsuarios({ embedded = false }) {
     }
   };
 
+  const handleToggleStatus = async (usuario) => {
+    const id = usuario.id || usuario.id_usuario;
+    if (!window.confirm(`Deseja ${usuario.status ? 'desativar' : 'ativar'} o usuário ${usuario.nome}?`)) return;
+
+    try {
+        const res = await fetch(`${API_URL}/api/alterar_status_usuario/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+            setUsuarios(prev => prev.map(u => {
+                const uid = u.id || u.id_usuario;
+                return uid === id ? { ...u, status: data.status } : u;
+            }));
+        } else {
+            alert(data.message || 'Erro ao alterar status.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão.');
+    }
+  };
+
   const cargoLabel = (cargo) => {
     switch (cargo) {
       case 1: return 'Supervisor';
@@ -116,10 +144,14 @@ export default function SecUsuarios({ embedded = false }) {
     },
     {
       id: 'acoes',
-      header: '',
+      header: 'Ações',
       cell: ({ row }) => (
         <div className="flex justify-end">
-            <ActionsDropdown usuario={row.original} onExtendValidity={handleExtendValidity} />
+            <ActionsDropdown 
+                usuario={row.original} 
+                onExtendValidity={handleExtendValidity} 
+                onToggleStatus={handleToggleStatus}
+            />
         </div>
       ),
     },

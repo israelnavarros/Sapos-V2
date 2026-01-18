@@ -168,6 +168,17 @@ def api_alterar_validade_usuario(id):
     db.session.commit()
     return jsonify({'success': True, 'valido_ate': str(usuario.valido_ate)})
 
+@app.route('/api/alterar_status_usuario/<int:id>', methods=['POST'])
+@login_required
+def api_alterar_status_usuario(id):
+    usuario = Usuarios.query.filter_by(id_usuario=id).first()
+    if not usuario:
+        return jsonify({'success': False, 'message': 'Usuário não encontrado'}), 404
+
+    usuario.status = not usuario.status
+    db.session.commit()
+    return jsonify({'success': True, 'status': usuario.status})
+
 @app.route('/api/registrar_usuario', methods=['POST'])
 @login_required
 def api_registrar_usuario():
