@@ -15,9 +15,6 @@ import {
 function ActionsDropdown({ usuario, onExtendValidity }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
-    const habilitar_validade = moment().format('YYYY-MM-DD');
-    // Verifica se a validade é maior que hoje (ainda válido)
-    const isValid = usuario.valido_ate > habilitar_validade;
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -41,7 +38,7 @@ function ActionsDropdown({ usuario, onExtendValidity }) {
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 focus:outline-none z-20">
                     <div className="p-1">
-                        <button onClick={() => { onExtendValidity(usuario); setIsOpen(false); }} className={itemStyle} disabled={isValid} title={isValid ? "Usuário ainda possui validade vigente" : "Estender validade"}>
+                        <button onClick={() => { onExtendValidity(usuario); setIsOpen(false); }} className={itemStyle} title="Estender validade">
                             <i className="bi bi-calendar-plus mr-3"></i> Alterar Validade
                         </button>
                     </div>

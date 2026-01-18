@@ -148,15 +148,21 @@ def api_alterar_validade_usuario(id):
     if not usuario:
         return jsonify({'success': False, 'message': 'Usuário não encontrado'}), 404
 
+    # Ajuste UTC-3 para garantir a data correta (Brasília)
+    hoje = (datetime.utcnow() - timedelta(hours=3)).date()
+    base_date = usuario.valido_ate if usuario.valido_ate and usuario.valido_ate >= hoje else hoje
+
     match usuario.cargo:
         case 0:
-            nova_validade = usuario.valido_ate + timedelta(days=910)
+            nova_validade = base_date + timedelta(days=910)
         case 1:
-            nova_validade = usuario.valido_ate + timedelta(days=1820)
+            nova_validade = base_date + timedelta(days=1820)
         case 2:
-            nova_validade = usuario.valido_ate + timedelta(days=182)
+            nova_validade = base_date + timedelta(days=182)
+        case 3:
+            nova_validade = base_date + timedelta(days=1820)
         case _:
-            nova_validade = usuario.valido_ate
+            nova_validade = base_date + timedelta(days=182)
 
     usuario.valido_ate = nova_validade
     db.session.commit()
