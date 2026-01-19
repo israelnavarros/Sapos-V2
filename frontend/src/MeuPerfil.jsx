@@ -198,24 +198,23 @@ export default function MeuPerfil() {
               Status:
             </p>
             <h2 className="text-xl font-semibold text-gray-800">{user.status ? 'Ativo' : 'Inativo'}</h2>
-
-            <div className="flex flex-col mt-6">
-              <button
-                onClick={handleOpenEdit}
-                className="w-full py-2 px-4 bg-green text-white rounded-md hover:bg-green-600 transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i className="bi bi-pencil-square mr-2"></i>
-                Editar Perfil
-              </button>
-            </div>
           </div>
 
           {/* Painel Direito */}
           <div className="painel-direito">
             <div className="pt-3">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Dados do Perfil</h3>
-                <p className="text-sm text-gray-500">Visualize as informações cadastrais do seu perfil.</p>
+              <div className="mb-4 flex justify-between items-center">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Dados do Perfil</h3>
+                  <p className="text-sm text-gray-500">Visualize as informações cadastrais do seu perfil.</p>
+                </div>
+                <button
+                  onClick={handleOpenEdit}
+                  className="py-2 px-4 bg-green text-white rounded-md hover:bg-green-600 transition-colors shadow-md flex items-center gap-2 cursor-pointer whitespace-nowrap"
+                >
+                  <i className="bi bi-pencil-square"></i>
+                  Editar
+                </button>
               </div>
 
               {/* Grid de Informações */}
