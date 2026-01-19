@@ -4,6 +4,7 @@ import API_URL from './config'; // Importa a URL centralizada
 import Header from './Header';
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.min.css";
+import Modal from './Modal';
 
 const cargoLabel = (cargo) => {
   switch (cargo) {
@@ -24,6 +25,8 @@ export default function MeuPerfil() {
   const [grupoInfo, setGrupoInfo] = useState(null);
   const fileInputRef = useRef();
   const cropperRef = useRef();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ nome: '', email: '', senha: '' });
 
   // Buscar dados completos do perfil (status, datas, etc)
   useEffect(() => {
@@ -133,6 +136,34 @@ export default function MeuPerfil() {
     }
   };
 
+  const handleOpenEdit = () => {
+    setEditForm({ nome: user.nome || '', email: user.email || '', senha: '' });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/api/atualizar_perfil`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(editForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Perfil atualizado com sucesso!');
+        setUser(prev => ({ ...prev, nome: editForm.nome, email: editForm.email }));
+        setIsEditModalOpen(false);
+      } else {
+        alert(data.message || 'Erro ao atualizar perfil');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro de conexão');
+    }
+  };
+
   if (!user) return <div>Carregando...</div>;
 
   return (
@@ -170,8 +201,8 @@ export default function MeuPerfil() {
 
             <div className="flex flex-col mt-6">
               <button
-                onClick={() => window.location.href = '/editar_perfil'}
-                className={`py-2 px-4 font-medium border-0 border-t-2 border-[#A8D5BA] bg-green text-white hover:bg-green-600 transition-colors`}
+                onClick={handleOpenEdit}
+                className="w-full py-2 px-4 bg-green text-white rounded-md hover:bg-green-600 transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
                 <i className="bi bi-pencil-square mr-2"></i>
                 Editar Perfil
@@ -268,6 +299,59 @@ export default function MeuPerfil() {
           </div>
         </div>
       </main>
+
+      {/* Modal de Edição de Perfil */}
+      {isEditModalOpen && (
+        <Modal onClose={() => setIsEditModalOpen(false)} title="Editar Perfil">
+          <form onSubmit={handleSaveProfile} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
+              <input
+                type="text"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-green focus:border-green"
+                value={editForm.nome}
+                onChange={e => setEditForm({ ...editForm, nome: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-green focus:border-green"
+                value={editForm.email}
+                onChange={e => setEditForm({ ...editForm, email: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nova Senha (deixe em branco para não alterar)</label>
+              <input
+                type="password"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-green focus:border-green"
+                value={editForm.senha}
+                onChange={e => setEditForm({ ...editForm, senha: e.target.value })}
+                placeholder="********"
+              />
+            </div>
+            <div className="flex justify-end pt-4 gap-3">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 shadow-md transition-colors"
+              >
+                Salvar Alterações
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </>
   );
 }

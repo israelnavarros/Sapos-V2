@@ -214,6 +214,31 @@ def api_registrar_usuario():
     db.session.commit()
     return jsonify({'success': True, 'message': 'Usuário registrado com sucesso.'}), 201
 
+@app.route('/api/atualizar_perfil', methods=['POST'])
+@login_required
+def api_atualizar_perfil():
+    data = request.get_json()
+    usuario = Usuarios.query.get(current_user.id_usuario)
+    
+    if not usuario:
+        return jsonify({'success': False, 'message': 'Usuário não encontrado'}), 404
+
+    if 'nome' in data and data['nome']:
+        usuario.nome = data['nome']
+    
+    if 'email' in data and data['email']:
+        if data['email'] != usuario.email:
+            existing = Usuarios.query.filter(Usuarios.email == data['email']).first()
+            if existing:
+                return jsonify({'success': False, 'message': 'Email já em uso'}), 400
+            usuario.email = data['email']
+    
+    if 'senha' in data and data['senha']:
+        usuario.senha = generate_password_hash(data['senha']).decode('utf-8')
+
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Perfil atualizado com sucesso'})
+
 # Administração de grupos
 @app.route('/api/grupos', methods=['GET'])
 @login_required
