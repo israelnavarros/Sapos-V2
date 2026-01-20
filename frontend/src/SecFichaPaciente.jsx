@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Header from './Header';
+import Modal from './Modal';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import API_URL from './config';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
@@ -82,6 +83,7 @@ export default function SecFichaPaciente() {
   const [tab, setTab] = useState('ficha');
   const [fichaTab, setFichaTab] = useState('atendimento');
   const [expandedFolhaId, setExpandedFolhaId] = useState(null);
+  const [feedbackModalState, setFeedbackModalState] = useState({ isOpen: false, folha: null });
 
   useEffect(() => {
     fetch(`${API_URL}/api/sec_ficha_paciente/${id_paciente}`, { credentials: 'include' })
@@ -261,13 +263,19 @@ export default function SecFichaPaciente() {
                                 </div>
                               </div>
                               <div className="ms-auto flex items-center">
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  folha.status_validacao === 'Aprovado' ? 'bg-green-100 text-green-800' :
-                                  folha.status_validacao === 'Reprovado' ? 'bg-red-100 text-red-800' :
-                                  'bg-yellow-100 text-yellow-800'
-                                }`}>
+                                <button
+                                  onClick={() => {
+                                    if (folha.status_validacao !== 'Validação Pendente') {
+                                      setFeedbackModalState({ isOpen: true, folha: folha });
+                                    }
+                                  }}
+                                  className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer transition-colors ${
+                                    folha.status_validacao === 'Aprovado' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
+                                    folha.status_validacao === 'Reprovado' ? 'bg-red-100 text-red-800 hover:bg-red-200' :
+                                    'bg-yellow-100 text-yellow-800'
+                                  }`}>
                                   {folha.status_validacao}
-                                </span>
+                                </button>
                                 <button 
                                   onClick={() => setExpandedFolhaId(isExpanded ? null : folha.id_folha)}
                                   className="p-2 rounded-full hover:bg-slate-100 transition-colors ml-4 cursor-pointer"
@@ -326,6 +334,50 @@ export default function SecFichaPaciente() {
           </div>
         </div>
       </main>
+      {feedbackModalState.isOpen && (
+        <Modal
+          onClose={() => setFeedbackModalState({ isOpen: false, folha: null })}
+          title={`Feedback - Sessão #${feedbackModalState.folha?.numero_sessao}`}
+        >
+          <div className="space-y-4">
+            {feedbackModalState.folha?.feedback ? (
+              <div className={`p-4 rounded-lg border ${
+                feedbackModalState.folha.status_validacao === 'Aprovado' 
+                  ? 'border-green bg-green-50' 
+                  : 'border-[#BD4343] bg-red-50'
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  {feedbackModalState.folha.status_validacao === 'Aprovado' ? (
+                    <i className="bi bi-check-circle-fill text-green text-2xl"></i>
+                  ) : (
+                    <i className="bi bi-x-circle-fill text-[#BD4343] text-2xl"></i>
+                  )}
+                  <h4 className={`text-lg font-bold ${
+                    feedbackModalState.folha.status_validacao === 'Aprovado' 
+                      ? 'text-green' 
+                      : 'text-[#BD4343]'
+                  }`}>
+                    {feedbackModalState.folha.status_validacao === 'Aprovado' ? 'Aprovado' : 'Reprovado'}
+                  </h4>
+                </div>
+                <p className="text-sm text-slate-700 whitespace-pre-wrap mb-3 leading-relaxed">
+                  {feedbackModalState.folha.feedback}
+                </p>
+                {feedbackModalState.folha.data_status && (
+                  <p className="text-xs text-slate-500">
+                    Respondido em: {new Date(feedbackModalState.folha.data_status).toLocaleString('pt-BR')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 text-center">
+                <i className="bi bi-info-circle text-gray-400 text-2xl mb-2 block"></i>
+                <p className="text-sm text-gray-600 font-medium">Feedback não preenchido</p>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
     </>
   );
 }
