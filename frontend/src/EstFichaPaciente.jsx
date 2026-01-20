@@ -508,7 +508,7 @@ export default function EstFichaPaciente() {
                               <div className="ms-auto">
                                 <button
                                   disabled={folha.status_validacao === 'Validação Pendente'}
-                                  className={`flex items-center justify-between  w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
+                                  className={`flex items-center justify-between  w-full sm:w-[140px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
                                 ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
                                       folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
                                         'border-green-600 text-green hover:bg-green-50 cursor-pointer'}`}
