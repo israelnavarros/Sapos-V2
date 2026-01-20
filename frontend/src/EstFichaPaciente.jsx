@@ -101,6 +101,7 @@ export default function EstFichaPaciente() {
     observacoes: '',
     valor: ''
   });
+  const [feedbackModalState, setFeedbackModalState] = useState({ isOpen: false, folha: null });
 
   const fetchDadosPaciente = async () => {
     try {
@@ -513,7 +514,7 @@ export default function EstFichaPaciente() {
                                         'border-green-600 text-green hover:bg-green-50 cursor-pointer'}`}
                                   onClick={() => {
                                     if (folha.status_validacao !== 'Validação Pendente') {
-                                      console.log(`Status clicado: ${folha.status_validacao}`);
+                                      setFeedbackModalState({ isOpen: true, folha: folha });
                                     }
                                   }}
                                 >
@@ -659,6 +660,50 @@ export default function EstFichaPaciente() {
 
         </div>
       </main>
+      {feedbackModalState.isOpen && (
+        <Modal
+          onClose={() => setFeedbackModalState({ isOpen: false, folha: null })}
+          title={`Feedback - Sessão #${feedbackModalState.folha?.numero_sessao}`}
+        >
+          <div className="space-y-4">
+            {feedbackModalState.folha?.feedback ? (
+              <div className={`p-4 rounded-lg border ${
+                feedbackModalState.folha.status_validacao === 'Aprovado' 
+                  ? 'border-green bg-green-50' 
+                  : 'border-[#BD4343] bg-red-50'
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  {feedbackModalState.folha.status_validacao === 'Aprovado' ? (
+                    <i className="bi bi-check-circle-fill text-green text-2xl"></i>
+                  ) : (
+                    <i className="bi bi-x-circle-fill text-[#BD4343] text-2xl"></i>
+                  )}
+                  <h4 className={`text-lg font-bold ${
+                    feedbackModalState.folha.status_validacao === 'Aprovado' 
+                      ? 'text-green' 
+                      : 'text-[#BD4343]'
+                  }`}>
+                    {feedbackModalState.folha.status_validacao === 'Aprovado' ? 'Aprovado' : 'Reprovado'}
+                  </h4>
+                </div>
+                <p className="text-sm text-slate-700 whitespace-pre-wrap mb-3 leading-relaxed">
+                  {feedbackModalState.folha.feedback}
+                </p>
+                {feedbackModalState.folha.data_status && (
+                  <p className="text-xs text-slate-500">
+                    Respondido em: {new Date(feedbackModalState.folha.data_status).toLocaleString('pt-BR')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 text-center">
+                <i className="bi bi-info-circle text-gray-400 text-2xl mb-2 block"></i>
+                <p className="text-sm text-gray-600 font-medium">Feedback não preenchido</p>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
       {isCreateModalOpen && (
         <Modal
           onClose={() => setIsCreateModalOpen(false)}

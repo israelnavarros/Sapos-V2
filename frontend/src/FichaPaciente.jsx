@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Header from './Header';
+import Modal from './Modal';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import API_URL from './config'; // Importa a URL centralizada
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
@@ -98,6 +99,9 @@ export default function FichaPaciente() {
   const [allTags, setAllTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState(new Set());
   const [newTagName, setNewTagName] = useState('');
+
+  // Estado para modal de feedback
+  const [feedbackModalState, setFeedbackModalState] = useState({ isOpen: false, folha: null });
 
   // Estados para o Modal de Intervalo
   const [isIntervaloModalOpen, setIsIntervaloModalOpen] = useState(false);
@@ -550,6 +554,8 @@ export default function FichaPaciente() {
                                 onClick={() => {
                                   if (folha.status_validacao === 'Validação Pendente') {
                                     handleOpenModal(folha); // Abre o modal com os dados da folha
+                                  } else {
+                                    setFeedbackModalState({ isOpen: true, folha: folha });
                                   }
                                 }}
                               >
@@ -862,6 +868,50 @@ export default function FichaPaciente() {
             </div>
           </div>
         </div>
+      )}
+      {feedbackModalState.isOpen && (
+        <Modal
+          onClose={() => setFeedbackModalState({ isOpen: false, folha: null })}
+          title={`Feedback - Sessão #${feedbackModalState.folha?.numero_sessao}`}
+        >
+          <div className="space-y-4">
+            {feedbackModalState.folha?.feedback ? (
+              <div className={`p-4 rounded-lg border ${
+                feedbackModalState.folha.status_validacao === 'Aprovado' 
+                  ? 'border-green bg-green-50' 
+                  : 'border-[#BD4343] bg-red-50'
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  {feedbackModalState.folha.status_validacao === 'Aprovado' ? (
+                    <i className="bi bi-check-circle-fill text-green text-2xl"></i>
+                  ) : (
+                    <i className="bi bi-x-circle-fill text-[#BD4343] text-2xl"></i>
+                  )}
+                  <h4 className={`text-lg font-bold ${
+                    feedbackModalState.folha.status_validacao === 'Aprovado' 
+                      ? 'text-green' 
+                      : 'text-[#BD4343]'
+                  }`}>
+                    {feedbackModalState.folha.status_validacao === 'Aprovado' ? 'Aprovado' : 'Reprovado'}
+                  </h4>
+                </div>
+                <p className="text-sm text-slate-700 whitespace-pre-wrap mb-3 leading-relaxed">
+                  {feedbackModalState.folha.feedback}
+                </p>
+                {feedbackModalState.folha.data_status && (
+                  <p className="text-xs text-slate-500">
+                    Respondido em: {new Date(feedbackModalState.folha.data_status).toLocaleString('pt-BR')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 text-center">
+                <i className="bi bi-info-circle text-gray-400 text-2xl mb-2 block"></i>
+                <p className="text-sm text-gray-600 font-medium">Feedback não preenchido</p>
+              </div>
+            )}
+          </div>
+        </Modal>
       )}
     </>
   );
