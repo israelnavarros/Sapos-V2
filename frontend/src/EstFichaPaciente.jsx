@@ -493,7 +493,7 @@ export default function EstFichaPaciente() {
                             <p className="text-sm font-semibold text-slate-700">Sessão #{folha.numero_sessao}</p>
                             <p className="text-xs text-slate-500">{new Date(folha.data_postagem).toLocaleString('pt-BR')}</p>
                           </div>                        <div className="card-body">
-                            <div className="flex items-center justify-between p-4 md:p-4">
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 md:p-4 gap-3 md:gap-0">
                               <div className="flex items-center gap-4">
                                 <img
                                   src={`${API_URL}/api/uploads/usuarios/${folha.id_estagiario}`}
@@ -505,7 +505,7 @@ export default function EstFichaPaciente() {
                                   <h6 className="font-bold text-slate-800">{folha.nome_estagiario}</h6>
                                 </div>
                               </div>
-                              <div className="ms-auto">
+                              <div className="flex items-center gap-2 md:ms-auto">
                                 <button
                                   disabled={folha.status_validacao === 'Validação Pendente'}
                                   className={`flex items-center justify-between w-[140px]  sm:w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
@@ -554,7 +554,7 @@ export default function EstFichaPaciente() {
                               {/* Botão de expandir/recolher */}
                               <button
                                 onClick={() => setExpandedFolhaId(isExpanded ? null : folha.id_folha)}
-                                className="p-2 rounded-full hover:bg-slate-100 transition-colors ml-2 cursor-pointer"
+                                className="p-2 rounded-full hover:bg-slate-100 transition-colors md:ml-2 cursor-pointer"
                                 aria-label={isExpanded ? "Recolher" : "Expandir"}
                               >
                                 <svg className={`w-6 h-6 text-slate-500 transition-transform transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
