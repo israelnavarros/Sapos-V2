@@ -215,7 +215,7 @@ export default function AgendaMeusEstagiarios() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-4">
+        <div className="bg-white rounded-xl shadow-md p-4 sm:w-full md:w-full lg:max-w-full">
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}

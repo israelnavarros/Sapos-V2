@@ -167,7 +167,7 @@ export default function ConsultasDashboard() {
             <span className="text-xs text-slate-500">Reunião</span>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-4">
+        <div className="bg-white rounded-xl shadow-md p-4 sm:w-full md:w-full lg:max-w-full">
           <FullCalendar
             plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
