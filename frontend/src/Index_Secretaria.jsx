@@ -31,6 +31,15 @@ export default function AgendaEstagiarios() {
 
   return (
     <main className='pt-20'>
+      <style>{`
+        .fc .fc-toolbar-title { font-size: 1.2rem !important; }
+        .fc .fc-button { font-size: 0.8rem !important; padding: 4px 8px !important; }
+        .fc .fc-col-header-cell-cushion { font-size: 0.8rem !important; }
+        .fc .fc-timegrid-slot-label-cushion { font-size: 0.75rem !important; }
+        .fc .fc-event { font-size: 0.7rem !important; }
+        .fc .fc-toolbar-chunk { display: flex; gap: 0.5rem; align-items: center; }
+        .fc .fc-button-group > .fc-button { margin-right: 2px; }
+      `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
         <BannerNotificacoes />
         <div className="mb-6">
