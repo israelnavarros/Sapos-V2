@@ -149,7 +149,7 @@ export default function ConsultasDashboard() {
         }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
-       <div className="max-w-7xl mx-auto">
+       <div className="container-geral">
         <BannerAlertas />
         <BannerNotificacoes />
         <h1 className="text-3xl font-bold text-slate-800 mb-6">Minhas Consultas</h1>
@@ -179,10 +179,11 @@ export default function ConsultasDashboard() {
 
         </div>
 
-        {/* Calendário */}
-        <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 px-4 items-center">
-          <h3 className="text-sm font-semibold text-slate-600 mr-2">Legenda:</h3>
-          <div className="flex items-center gap-2">
+        <div className="bg-white rounded-xl shadow-md p-6">
+            {/* Calendário */}
+            <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 items-center">
+            <h3 className="text-sm font-semibold text-slate-600 mr-2">Legenda:</h3>
+            <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-[#26268D]"></span>
             <span className="text-xs text-slate-500">Agendada</span>
           </div>
@@ -198,8 +199,8 @@ export default function ConsultasDashboard() {
             <span className="h-3 w-3 rounded-full bg-black"></span>
             <span className="text-xs text-slate-500">Reunião</span>
           </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-md p-4 sm:w-full md:w-full lg:max-w-full">
+            </div>
+            <div className="sm:w-full md:w-full lg:max-w-full">
           <FullCalendar
             plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
@@ -219,6 +220,7 @@ export default function ConsultasDashboard() {
             slotMaxTime="20:00:00"
             nowIndicator={true}
           />
+        </div>
         </div>
        </div>
       </div>

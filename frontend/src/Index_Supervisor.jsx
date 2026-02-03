@@ -209,30 +209,31 @@ export default function AgendaMeusEstagiarios() {
         }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
-       <div className="max-w-7xl mx-auto">
+       <div className="container-geral">
         <BannerAlertas />
         <BannerNotificacoes />
         
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos meus estagiários</h1>
-          <div className="flex gap-4 items-center">
-            <label className="font-semibold text-slate-700">Filtrar por Estagiário:</label>
-            <select
-              value={estagiarioSelecionado}
-              onChange={handleEstagiarioChange}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-            >
-              {estagiarios.map(estagiario => (
-                <option key={estagiario.id_estagiario} value={estagiario.id_estagiario}>{estagiario.nome}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="mb-6">
+            <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos meus estagiários</h1>
+            <div className="flex gap-4 items-center">
+                <label className="font-semibold text-slate-700">Filtrar por Estagiário:</label>
+                <select
+                value={estagiarioSelecionado}
+                onChange={handleEstagiarioChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+                >
+                {estagiarios.map(estagiario => (
+                    <option key={estagiario.id_estagiario} value={estagiario.id_estagiario}>{estagiario.nome}</option>
+                ))}
+                </select>
+            </div>
+            </div>
 
-        {/* Legenda */}
-        <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 px-4 items-center">
-          <h3 className="text-sm font-semibold text-slate-600 mr-2">Legenda:</h3>
-          <div className="flex items-center gap-2">
+            {/* Legenda */}
+            <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 items-center">
+            <h3 className="text-sm font-semibold text-slate-600 mr-2">Legenda:</h3>
+            <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-[#26268D]"></span>
             <span className="text-xs text-slate-500">Agendada</span>
           </div>
@@ -248,9 +249,9 @@ export default function AgendaMeusEstagiarios() {
             <span className="h-3 w-3 rounded-full bg-black"></span>
             <span className="text-xs text-slate-500">Reunião</span>
           </div>
-        </div>
+            </div>
 
-        <div className="bg-white rounded-xl shadow-md p-4 sm:w-full md:w-full lg:max-w-full">
+            <div className="sm:w-full md:w-full lg:max-w-full">
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -271,6 +272,7 @@ export default function AgendaMeusEstagiarios() {
             slotMaxTime="20:00:00"
             nowIndicator={true}
           />
+        </div>
         </div>
        </div>
       </div>
