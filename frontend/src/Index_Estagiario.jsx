@@ -211,7 +211,7 @@ export default function ConsultasDashboard() {
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
-              right: 'dayGridMonth,timeGridWeek,dayGridDay'
+              right: 'dayGridMonth,timeGridWeek,timeGridDay'
             }}
             height="auto"
             slotMinTime="06:00:00"

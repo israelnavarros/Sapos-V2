@@ -258,7 +258,7 @@ export default function AgendaMeusEstagiarios() {
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
-              right: 'dayGridMonth,timeGridWeek,dayGridDay'
+              right: 'dayGridMonth,timeGridWeek,timeGridDay'
             }}
             events={eventos}
             height="auto"
