@@ -209,6 +209,7 @@ export default function AgendaMeusEstagiarios() {
         }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+       <div className="max-w-7xl mx-auto">
         <BannerAlertas />
         <BannerNotificacoes />
         
@@ -271,6 +272,7 @@ export default function AgendaMeusEstagiarios() {
             nowIndicator={true}
           />
         </div>
+       </div>
       </div>
 
       {/* Modal de Cadastro */}

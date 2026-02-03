@@ -55,6 +55,8 @@ export default function IndexCoordenador() {
 
   return (
     <main className='pt-20'>
+     <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+      <div className="max-w-7xl mx-auto">
     <BannerAlertas />
     <BannerNotificacoes />
     <div className="shadow-lg border rounded-lg p-6 bg-white">
@@ -105,6 +107,8 @@ export default function IndexCoordenador() {
         <Bar data={chartData(consultasPorHoraLabels)} options={{ plugins: { title: { display: true, text: 'Consultas por Hora' } }, scales: { y: { beginAtZero: true } } }} />
       </div>
     </div>
+      </div>
+     </div>
   </main>
   );
 }

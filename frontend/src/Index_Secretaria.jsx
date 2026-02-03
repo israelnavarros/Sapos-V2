@@ -52,6 +52,7 @@ export default function AgendaEstagiarios() {
         }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+       <div className="max-w-7xl mx-auto">
         <BannerNotificacoes />
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos estagiários</h1>
@@ -110,6 +111,7 @@ export default function AgendaEstagiarios() {
             nowIndicator={true}
           />
         </div>
+       </div>
       </div>
     </main>
   );

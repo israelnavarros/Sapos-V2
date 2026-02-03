@@ -149,6 +149,7 @@ export default function ConsultasDashboard() {
         }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+       <div className="max-w-7xl mx-auto">
         <BannerAlertas />
         <BannerNotificacoes />
         <h1 className="text-3xl font-bold text-slate-800 mb-6">Minhas Consultas</h1>
@@ -219,6 +220,7 @@ export default function ConsultasDashboard() {
             nowIndicator={true}
           />
         </div>
+       </div>
       </div>
       {/* --- MODAL DINÂMICO --- */}
       {modalState.isOpen && (
