@@ -157,8 +157,8 @@ export default function ConsultasDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
               {/* Card 1: Consultas Hoje */}
-              <div className="bg-slate-50 border border-slate-200 p-6 rounded-xl flex items-center gap-4">
-                <div className="bg-green-100 p-3 rounded-full">
+              <div className="bg-white border border-slate-200 p-6 rounded-xl flex items-center gap-4">
+                <div className="bg-green-300 p-3 rounded-full">
                   <i className="bi bi-calendar4-event text-3xl text-green-600"></i>
                 </div>
                 <div>
@@ -168,8 +168,8 @@ export default function ConsultasDashboard() {
               </div>
 
               {/* Card 2: Consultas na Semana */}
-              <div className="bg-slate-50 border border-slate-200 p-6 rounded-xl flex items-center gap-4">
-                <div className="bg-teal-100 p-3 rounded-full">
+              <div className="bg-white border border-slate-200 p-6 rounded-xl flex items-center gap-4">
+                <div className="bg-teal-300 p-3 rounded-full">
                   <i className="bi bi-calendar4-week text-3xl text-teal-600"></i>
                 </div>
                 <div>
