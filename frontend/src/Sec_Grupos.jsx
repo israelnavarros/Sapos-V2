@@ -275,7 +275,7 @@ export default function SecGrupos({ embedded = false }) {
         </button>
       </div>
 
-      <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+      <div className={`bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200 ${embedded ? "shadow-none border-0" : ""}`}>
         <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">

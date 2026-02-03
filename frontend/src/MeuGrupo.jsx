@@ -444,8 +444,10 @@ export default function MeuGrupo() {
   return (
     <>
       <Header />
-      <main className="bg-slate-50 min-h-screen pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="pt-20">
+       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+        <div className="container-geral">
+         <div className="bg-white rounded-xl shadow-md p-6">
           {/* Cabeçalho da Página */}
           <div className="mb-8 text-center md:text-left">
             <h3 className="text-xl font-bold text-gray-800 mb-2">Seu grupo</h3>
@@ -480,7 +482,7 @@ export default function MeuGrupo() {
 
             {/* Aba: Membros */}
             {abaAtiva === 'membros' && (
-              <div className="bg-white rounded-xl shadow-md">
+              <div>
                 {/* Tabs de Supervisores e Estagiários */}
                 <div className="border-b border-slate-200 px-6 pt-6 mb-0">
                   <nav className="-mb-px flex space-x-2 sm:space-x-6">
@@ -673,9 +675,9 @@ export default function MeuGrupo() {
 
             {/* Aba: Reuniões */}
             {abaAtiva === 'reunioes' && (
-              <div className="bg-white p-6 rounded-xl shadow-md">
+              <div>
                 <h2 className="text-xl font-semibold text-slate-800 mb-4">Gerenciar Reuniões Semanais</h2>
-                <section className="bg-white shadow-md rounded-lg p-6 mb-6">
+                <section className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-6">
                   {/* Formulário de nova reunião */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div>
@@ -762,7 +764,7 @@ export default function MeuGrupo() {
 
             {/* Aba: Dashboard de Pacientes */}
             {abaAtiva === 'dashboard' && (
-              <div className="bg-white p-6 rounded-xl shadow-md">
+              <div>
                 <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                     <div className="text-center md:text-left">
                         <h2 className="text-xl font-semibold text-slate-800">Dashboard de Pacientes</h2>
@@ -777,7 +779,7 @@ export default function MeuGrupo() {
                     </Link>
                 </div> 
                 
-                <div className="overflow-x-auto bg-white shadow-lg rounded-xl">
+                <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl">
                   <table className="min-w-full divide-y divide-slate-200">
                     <thead className="bg-slate-100">
                       <tr>
@@ -837,7 +839,7 @@ export default function MeuGrupo() {
 
             {/* Aba: Solicitações de Acesso */}
             {abaAtiva === 'solicitacoes' && (
-              <div className="bg-white p-6 rounded-xl shadow-md">
+              <div>
                 <h2 className="text-xl font-semibold text-slate-800 mb-4">Solicitações de Acesso à Pasta</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -873,6 +875,8 @@ export default function MeuGrupo() {
               </div>
             )}
           </div>
+         </div>
+        </div>
         </div>
       </main>
       {/* --- MODAL DE ATRIBUIÇÃO --- */}
@@ -966,7 +970,7 @@ export default function MeuGrupo() {
 // Card para a aba "Visão Geral"
 function InfoCard({ title, content, className = "" }) {
   return (
-    <div className={`bg-white shadow-md rounded-lg p-6 ${className}`}>
+    <div className={`bg-slate-50 border border-slate-200 rounded-lg p-6 ${className}`}>
       <h3 className="text-lg font-bold text-slate-800 mb-2">{title}</h3>
       <p className="text-slate-600 text-sm leading-relaxed">{content}</p>
     </div>

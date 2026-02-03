@@ -116,9 +116,11 @@ export default function EstMeuPacientes() {
   return (
     <>
       <Header />
-      <main className="bg-gray-50 min-h-screen pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <main className="pt-20">
+       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+        <div className="container-geral">
+         <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h1 className="text-3xl font-bold text-gray-900">Meu Grupo de Pacientes</h1>
             <Link
                             to="/est_assumir_paciente"
@@ -137,7 +139,7 @@ export default function EstMeuPacientes() {
               </button>
           </div>
 
-          <div className="overflow-x-auto bg-white shadow-lg rounded-xl">
+          <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
@@ -200,6 +202,8 @@ export default function EstMeuPacientes() {
               </tbody>
             </table>
           </div>
+         </div>
+        </div>
         </div>
       </main>
       {/* Modal Solicitar Troca */}

@@ -244,7 +244,7 @@ export default function SecPacientes({ embedded = false }) {
                         </Link>
                     </div>
 
-                    <div className="overflow-x-auto bg-white shadow-lg rounded-xl">
+                    <div className={`overflow-x-auto ${embedded ? "" : "bg-white shadow-lg rounded-xl"}`}>
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>

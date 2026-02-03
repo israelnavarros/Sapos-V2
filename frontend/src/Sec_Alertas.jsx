@@ -181,7 +181,7 @@ export default function SecAlertas({ embedded = false }) {
 
   const Content = (
     <>
-      <div className="p-6 bg-white shadow-md rounded-lg">
+      <div className={embedded ? "" : "p-6 bg-white shadow-md rounded-lg"}>
         {/* Abas */}
         <div className="flex gap-4 mb-6 border-b border-gray-200">
           <button

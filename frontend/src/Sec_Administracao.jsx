@@ -23,9 +23,10 @@ export default function SecAdministracao() {
     return (
         <>
             <Header />
-            <main className="bg-gray-50 min-h-screen pt-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    
+            <main className="pt-20">
+                <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+                 <div className="container-geral">
+                  <div className="bg-white rounded-xl shadow-md p-6">
                     {/* Cabeçalho Estilo MeuGrupo */}
                     <div className="mb-8 text-center md:text-left">
                         <h3 className="text-xl font-bold text-gray-800 mb-2">Secretaria</h3>
@@ -50,7 +51,8 @@ export default function SecAdministracao() {
                         {abaAtiva === 'usuarios' && <SecUsuarios embedded={true} />}
                         {abaAtiva === 'alertas' && <SecAlertas embedded={true} />}
                     </div>
-
+                  </div>
+                 </div>
                 </div>
             </main>
         </>

@@ -201,7 +201,7 @@ export default function SecUsuarios({ embedded = false }) {
 
   const Content = (
         <div className={embedded ? "" : "max-w-7xl mx-auto"}>
-          <div className="p-6 bg-white shadow-md rounded-lg">
+          <div className={embedded ? "" : "p-6 bg-white shadow-md rounded-lg"}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Usuários</h2>
               <div className="flex gap-3">
