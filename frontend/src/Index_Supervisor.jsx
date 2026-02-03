@@ -59,6 +59,20 @@ export default function AgendaMeusEstagiarios() {
     setModalState({ isOpen: true, mode: 'create', data: defaultData });
   };
 
+  const handleDateClick = (arg) => {
+    const defaultData = {
+      dia: arg.dateStr.split('T')[0],
+      inicio: arg.date.toTimeString().substring(0, 5),
+      final: new Date(arg.date.getTime() + 60 * 60 * 1000).toTimeString().substring(0, 5), // +1 hora
+      paciente: '',
+      titulo: '',
+      participantes: []
+    };
+    setFormData(defaultData);
+    setTipoAgendamento('consulta');
+    setModalState({ isOpen: true, mode: 'create', data: defaultData });
+  };
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -182,6 +196,17 @@ export default function AgendaMeusEstagiarios() {
         .fc .fc-event { font-size: 0.7rem !important; }
         .fc .fc-toolbar-chunk { display: flex; gap: 0.5rem; align-items: center; }
         .fc .fc-button-group > .fc-button { margin-right: 2px; }
+
+        @media (max-width: 768px) {
+          .fc .fc-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+          .fc .fc-toolbar-chunk:nth-child(1) { order: 1; }
+          .fc .fc-toolbar-chunk:nth-child(3) { order: 2; }
+          .fc .fc-toolbar-chunk:nth-child(2) { 
+            order: 3; width: 100%; text-align: center; margin-top: 0.25rem; 
+            display: flex; justify-content: center;
+          }
+          .fc .fc-toolbar-title { font-size: 1rem !important; }
+        }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
         <BannerAlertas />
@@ -239,6 +264,7 @@ export default function AgendaMeusEstagiarios() {
             height="auto"
             selectable={true}
             eventClick={handleEventClick}
+            dateClick={handleDateClick}
             select={handleDateSelect}
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"

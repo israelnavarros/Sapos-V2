@@ -39,6 +39,17 @@ export default function AgendaEstagiarios() {
         .fc .fc-event { font-size: 0.7rem !important; }
         .fc .fc-toolbar-chunk { display: flex; gap: 0.5rem; align-items: center; }
         .fc .fc-button-group > .fc-button { margin-right: 2px; }
+
+        @media (max-width: 768px) {
+          .fc .fc-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+          .fc .fc-toolbar-chunk:nth-child(1) { order: 1; }
+          .fc .fc-toolbar-chunk:nth-child(3) { order: 2; }
+          .fc .fc-toolbar-chunk:nth-child(2) { 
+            order: 3; width: 100%; text-align: center; margin-top: 0.25rem; 
+            display: flex; justify-content: center;
+          }
+          .fc .fc-toolbar-title { font-size: 1rem !important; }
+        }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
         <BannerNotificacoes />

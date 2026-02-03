@@ -60,6 +60,17 @@ export default function ConsultasDashboard() {
     setModalState({ isOpen: true, mode: 'create', data: defaultData });
   };
 
+  const handleDateClick = (arg) => {
+    const defaultData = {
+      dia: arg.dateStr.split('T')[0],
+      inicio: arg.date.toTimeString().substring(0, 5),
+      final: new Date(arg.date.getTime() + 60 * 60 * 1000).toTimeString().substring(0, 5), // +1 hora
+      paciente: ''
+    };
+    setFormData(defaultData);
+    setModalState({ isOpen: true, mode: 'create', data: defaultData });
+  };
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -125,6 +136,17 @@ export default function ConsultasDashboard() {
         .fc .fc-event { font-size: 0.7rem !important; }
         .fc .fc-toolbar-chunk { display: flex; gap: 0.5rem; align-items: center; }
         .fc .fc-button-group > .fc-button { margin-right: 2px; }
+
+        @media (max-width: 768px) {
+          .fc .fc-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+          .fc .fc-toolbar-chunk:nth-child(1) { order: 1; } /* Botões Esq */
+          .fc .fc-toolbar-chunk:nth-child(3) { order: 2; } /* Botões Dir */
+          .fc .fc-toolbar-chunk:nth-child(2) { 
+            order: 3; width: 100%; text-align: center; margin-top: 0.25rem; 
+            display: flex; justify-content: center;
+          }
+          .fc .fc-toolbar-title { font-size: 1rem !important; }
+        }
       `}</style>
       <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
         <BannerAlertas />
@@ -184,6 +206,7 @@ export default function ConsultasDashboard() {
             events={eventos}
             eventClick={handleEventClick}
             selectable={true}
+            dateClick={handleDateClick}
             select={handleDateSelect}
             headerToolbar={{
               left: 'prev,next today',
