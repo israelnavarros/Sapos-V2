@@ -6,11 +6,13 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import BannerNotificacoes from './BannerNotificacoes';
+import Modal from './Modal';
 
 export default function AgendaEstagiarios() {
   const [grupos, setGrupos] = useState([{ id_grupo: '', titulo: 'Todos os grupos' }]);
   const [grupoSelecionado, setGrupoSelecionado] = useState('');
   const [eventos, setEventos] = useState([]);
+  const [modalState, setModalState] = useState({ isOpen: false, data: null });
   const calendarRef = useRef();
 
   useEffect(() => {
@@ -27,6 +29,10 @@ export default function AgendaEstagiarios() {
 
   const handleGrupoChange = (e) => {
     setGrupoSelecionado(e.target.value);
+  };
+
+  const handleEventClick = (clickInfo) => {
+    setModalState({ isOpen: true, data: clickInfo.event });
   };
 
   return (
@@ -106,6 +112,7 @@ export default function AgendaEstagiarios() {
               right: 'dayGridMonth,timeGridWeek,timeGridDay'
             }}
             events={eventos}
+            eventClick={handleEventClick}
             height="auto"
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"
@@ -115,6 +122,35 @@ export default function AgendaEstagiarios() {
         </div>
        </div>
       </div>
+
+      {/* Modal de Detalhes do Evento */}
+      {modalState.isOpen && (
+        <Modal onClose={() => setModalState({ isOpen: false, data: null })} title="Detalhes do Agendamento">
+            <div className="space-y-4">
+                <div>
+                    <h4 className="text-lg font-bold text-slate-800">{modalState.data.title}</h4>
+                    <p className="text-sm text-slate-600">
+                        {new Date(modalState.data.start).toLocaleDateString('pt-BR')} - {new Date(modalState.data.start).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}
+                        {modalState.data.end && ` até ${new Date(modalState.data.end).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`}
+                    </p>
+                    {modalState.data.extendedProps?.status && (
+                        <p className="text-sm mt-2">
+                            <span className="font-semibold">Status: </span>
+                            {modalState.data.extendedProps.status}
+                        </p>
+                    )}
+                </div>
+                <div className="flex justify-end pt-4 border-t">
+                    <button 
+                        onClick={() => setModalState({ isOpen: false, data: null })}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 cursor-pointer"
+                    >
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </Modal>
+      )}
     </main>
   );
 }

@@ -660,7 +660,6 @@ def api_sec_ficha_paciente(id):
         .order_by(FolhaEvolucao.data_postagem.desc())\
         .all()
     
-    folhas_pacientes = [f.to_dict() for f in folhas_db] # Assumindo que to_dict existe ou construindo manualmente
     # Como to_dict pode não existir no modelo FolhaEvolucao baseado no contexto anterior, vamos construir manualmente:
     folhas_pacientes = []
     for folha in folhas_db:
