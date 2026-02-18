@@ -85,7 +85,7 @@ function Header() {
           )}
 
           {/* Perfil do Usuário com Dropdown */}
-          <li className="relative mt-auto md:mt-0 md:pt-4 md:border-t border-slate-200 w-full md:w-auto"
+          <li className="relative mt-auto md:mt-0 md:border-t border-slate-200 w-full md:w-auto"
               onMouseEnter={() => setDropdownOpen(true)}
               onMouseLeave={() => setDropdownOpen(false)}>
             {/* Desktop - Dropdown com Hover */}
@@ -115,7 +115,7 @@ function Header() {
               <div 
                 className="hidden md:block absolute top-full right-4 w-56 z-50 pt-2"
               >
-                <div className=" rounded-lg shadow-xl overflow-hidden">
+                <div className="bg-white rounded-lg shadow-xl overflow-hidden">
                 <Link
                   to="/meuperfil"
                   onClick={() => setDropdownOpen(false)}
