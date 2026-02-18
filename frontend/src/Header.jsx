@@ -115,7 +115,7 @@ function Header() {
               <div 
                 className="hidden md:block absolute top-full right-4 w-56 z-50 pt-2"
               >
-                <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+                <div className=" rounded-lg shadow-xl overflow-hidden">
                 <Link
                   to="/meuperfil"
                   onClick={() => setDropdownOpen(false)}
