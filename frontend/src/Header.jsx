@@ -85,7 +85,7 @@ function Header() {
           )}
 
           {/* Perfil do Usuário com Dropdown */}
-          <li className="relative mt-auto md:mt-0 pt-4 md:pt-0 border-t md:border-none border-slate-200 w-full md:w-auto"
+          <li className="relative mt-auto md:mt-0 md:pt-4 md:border-t border-slate-200 w-full md:w-auto"
               onMouseEnter={() => setDropdownOpen(true)}
               onMouseLeave={() => setDropdownOpen(false)}>
             {/* Desktop - Dropdown com Hover */}
@@ -113,8 +113,9 @@ function Header() {
             {/* Dropdown Menu Desktop - Fora do trigger */}
             {dropdownOpen && (
               <div 
-                className="hidden md:block absolute top-full right-4 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 overflow-hidden"
+                className="hidden md:block absolute top-full right-4 w-56 z-50 pt-2"
               >
+                <div className="bg-white rounded-lg shadow-xl overflow-hidden">
                 <Link
                   to="/meuperfil"
                   onClick={() => setDropdownOpen(false)}
@@ -163,6 +164,7 @@ function Header() {
                   </svg>
                   <span className="font-medium">Sair</span>
                 </button>
+                </div>
               </div>
             )}
 
