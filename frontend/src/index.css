@@ -14,7 +14,7 @@
   line-height: 1.5;
   /* font-weight: 400; */
 
-  color-scheme: red;
+  color-scheme: light;
   color: rgba(0, 0, 0, 0.87);
   background-color: var(--color-background);
 
@@ -42,19 +42,6 @@ h1 {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 /* Container geral para centralização e largura máxima */
