@@ -85,7 +85,7 @@ function Header() {
           )}
 
           {/* Perfil do Usuário com Dropdown */}
-          <li className="relative mt-auto md:mt-0  w-full md:w-auto"
+          <li className="relative w-full md:w-auto"
               onMouseEnter={() => setDropdownOpen(true)}
               onMouseLeave={() => setDropdownOpen(false)}>
             {/* Desktop - Dropdown com Hover */}
