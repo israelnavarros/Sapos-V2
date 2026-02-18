@@ -85,12 +85,12 @@ function Header() {
           )}
 
           {/* Perfil do Usuário com Dropdown */}
-          <li className="relative mt-auto md:mt-0 pt-4 md:pt-0 border-t md:border-none border-slate-200 w-full md:w-auto">
+          <li className="relative mt-auto md:mt-0 pt-4 md:pt-0 border-t md:border-none border-slate-200 w-full md:w-auto"
+              onMouseEnter={() => setDropdownOpen(true)}
+              onMouseLeave={() => setDropdownOpen(false)}>
             {/* Desktop - Dropdown com Hover */}
             <div
               className="hidden md:flex items-center gap-3 cursor-pointer group"
-              onMouseEnter={() => setDropdownOpen(true)}
-              onMouseLeave={() => setDropdownOpen(false)}
             >
               <img
                 src={`${API_URL}/api/uploads/usuarios/${user.id}`}
@@ -98,20 +98,21 @@ function Header() {
                 className="w-10 h-10 rounded-full object-cover"
               />
               <div className="flex flex-col items-start">
-                <span className="text-white text-sm font-semibold">
-                  Olá, {user?.nome.split(' ')[0]}
+                <span className="text-white text-sm font-normal">
+                  Olá, <span className="font-semibold">{user?.nome.split(' ')[0]}</span>
+                </span>
+                <span className="text-white text-xs font-normal">
+                  {['Secretária', 'Supervisor', 'Estagiário', 'Coordenador'][cargo] || 'Usuário'}
                 </span>
               </div>
-              <svg className="w-4 h-4 text-white ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              <svg className="w-4 h-4 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5z" />
               </svg>
 
               {/* Dropdown Menu Desktop */}
               {dropdownOpen && (
                 <div 
                   className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 overflow-hidden"
-                  onMouseEnter={() => setDropdownOpen(true)}
-                  onMouseLeave={() => setDropdownOpen(false)}
                 >
                   <Link
                     to="/meuperfil"
@@ -165,12 +166,8 @@ function Header() {
               )}
             </div>
 
-            {/* Mobile - Menu integrado */}
-            <Link
-              to="/meuperfil"
-              onClick={() => setMenuOpen(false)}
-              className="md:hidden flex items-center gap-3 py-3 px-4 text-slate-800 rounded hover:bg-green-50 transition-colors"
-            >
+            {/* Mobile - Menu integrado - Visual apenas */}
+            <div className="md:hidden flex items-center gap-3 py-3 px-4">
               <img
                 src={`${API_URL}/api/uploads/usuarios/${user.id}`}
                 alt="Profile"
@@ -184,9 +181,79 @@ function Header() {
                   {['Secretária', 'Supervisor', 'Estagiário', 'Coordenador'][cargo] || 'Usuário'}
                 </span>
               </div>
-            </Link>
-            
-            <div className="md:hidden flex flex-col gap-1 pt-2">
+            </div>
+
+            {/* Mobile - Seção Sistema */}
+            <div className="md:hidden pt-3">
+              <div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Sistema</div>
+              
+              <Link
+                to="/"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 py-2 px-4 text-slate-800 rounded hover:bg-green-50 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="#3C7E61" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 4l4-2m0 0l4 2m-4-2v4" />
+                </svg>
+                <span className="font-medium text-sm">Página Inicial</span>
+              </Link>
+
+              {cargo === 0 && (
+                <Link
+                  to="/administracao"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 py-2 px-4 text-slate-800 rounded hover:bg-green-50 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="#3C7E61" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                  <span className="font-medium text-sm">Administração</span>
+                </Link>
+              )}
+              {cargo === 1 && (
+                <Link
+                  to="/meugrupo"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 py-2 px-4 text-slate-800 rounded hover:bg-green-50 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="#3C7E61" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 12H9m6 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-medium text-sm">Meu Grupo</span>
+                </Link>
+              )}
+              {cargo === 2 && (
+                <Link
+                  to="/meuspacientes"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 py-2 px-4 text-slate-800 rounded hover:bg-green-50 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="#3C7E61" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span className="font-medium text-sm">Meus Pacientes</span>
+                </Link>
+              )}
+            </div>
+
+            {/* Mobile - Divisor */}
+            <div className="md:hidden mx-4 my-3 border-t border-slate-200"></div>
+
+            {/* Mobile - Seção Sua Conta */}
+            <div className="md:hidden pb-3">
+              <div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Sua Conta</div>
+              
+              <Link
+                to="/meuperfil"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 py-2 px-4 text-slate-800 rounded hover:bg-green-50 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="#3C7E61" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="font-medium text-sm">Minha Conta</span>
+              </Link>
+              
               <Link
                 to="/configuracoes"
                 onClick={() => setMenuOpen(false)}
@@ -209,6 +276,8 @@ function Header() {
                 </svg>
                 <span className="font-medium text-sm">Alertas</span>
               </Link>
+
+              <div className="mx-4 my-3 border-t border-slate-200"></div>
 
               <button
                 onClick={() => {
