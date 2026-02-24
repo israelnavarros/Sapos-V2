@@ -3,7 +3,7 @@ import React from 'react';
 export default function EmBreve({ title = 'Em Breve', message = 'Desculpa, nossos engenheiros estão trabalhando.' }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] py-12 md:py-20">
-      <div className="w-24 h-24 md:w-40 md:h-40 rounded-lg flex items-center justify-center shadow-md">
+      <div className="w-24 h-24 md:w-40 md:h-40 rounded-lg flex items-center justify-center">
         <img src="/LogoWorking.png" alt="Sapo Engrenagem" className="w-20 h-20 md:w-36 md:h-36 object-contain" />
       </div>
 
