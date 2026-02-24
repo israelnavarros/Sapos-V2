@@ -12,6 +12,8 @@ import SecEditarPaciente from './Sec_Paciente_Editar';
 import SecGrupos from './Sec_Grupos';
 import SecUsuarios from './Sec_Usuarios';
 import SecAlertas from './Sec_Alertas';
+import Configuracoes from './Configuracoes';
+import AlertasSimple from './AlertasSimple';
 import EstMeuGrupo from './EstMeuGrupo';
 import EstFichaPaciente from './EstFichaPaciente';
 import SecAdicionarPaciente from './Sec_Paciente_Adicionar';
@@ -42,6 +44,8 @@ function App() {
           <Route path="/sec_grupos" element={<SecGrupos />} />
           <Route path="/sec_usuarios" element={<SecUsuarios />} />
           <Route path="/sec_alertas" element={<SecAlertas />} />
+          <Route path="/alertas" element={<AlertasSimple />} />
+          <Route path="/configuracoes" element={<Configuracoes />} />
           <Route path="/meuspacientes" element={<EstMeuGrupo />} />
           <Route path="/est_ficha_paciente/:id_paciente" element={<EstFichaPaciente />} />
           <Route path="/sec_adicionar_paciente" element={<SecAdicionarPaciente />} />
