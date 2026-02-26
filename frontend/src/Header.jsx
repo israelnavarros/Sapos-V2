@@ -95,7 +95,7 @@ function Header() {
           )}
 
           {/* botão de notificações separado (desktop only) */}
-          <li className="hidden md:flex items-center mr-1">
+          <li className="hidden md:flex items-center">
             <button
               className="relative p-2 text-white cursor-pointer rounded"
               onClick={() => navigate('/alertas')}
