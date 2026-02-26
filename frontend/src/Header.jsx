@@ -96,7 +96,7 @@ function Header() {
 
           {/* notificações e perfil */}
           <li
-            className="relative flex items-center space-x-4 w-full md:w-auto"
+            className="relative w-full md:w-auto flex flex-col md:flex-row md:items-center md:space-x-4"
             onMouseEnter={() => setDropdownOpen(true)}
             onMouseLeave={() => setDropdownOpen(false)}
           >
