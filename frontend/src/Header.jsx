@@ -94,15 +94,10 @@ function Header() {
             </li>
           )}
 
-          {/* notificações e perfil */}
-          <li
-            className="relative w-full md:w-auto flex flex-col md:flex-row md:items-center md:space-x-4"
-            onMouseEnter={() => setDropdownOpen(true)}
-            onMouseLeave={() => setDropdownOpen(false)}
-          >
-            {/* Desktop - botão de notificações */}
+          {/* botão de notificações separado (desktop only) */}
+          <li className="hidden md:flex items-center mr-4">
             <button
-              className="hidden md:inline-flex relative p-2 text-white hover:bg-green-600 rounded"
+              className="relative p-2 text-white cursor-pointer rounded"
               onClick={() => navigate('/alertas')}
               aria-label="Notificações"
             >
@@ -115,7 +110,14 @@ function Header() {
                 </span>
               )}
             </button>
+          </li>
 
+          {/* notificações e perfil */}
+          <li
+            className="relative w-full md:w-auto flex flex-col md:flex-row md:items-center md:space-x-4"
+            onMouseEnter={() => setDropdownOpen(true)}
+            onMouseLeave={() => setDropdownOpen(false)}
+          >
             {/* Desktop - Dropdown com Hover */}
             <div
               className="hidden md:flex items-center gap-3 cursor-pointer group"
