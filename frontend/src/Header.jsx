@@ -6,6 +6,7 @@ import API_URL from './config'; // Importa a URL centralizada
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifCount, setNotifCount] = useState(0);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const cargo = user?.cargo || 0;
@@ -21,6 +22,15 @@ function Header() {
     setMenuOpen(false);
     setDropdownOpen(false);
   }, [location]);
+
+  // carrega contagem de notificações toda vez que o usuário mudar
+  useEffect(() => {
+    if (!user) return;
+    fetch(`${API_URL}/api/notificacoes`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
+      .catch(err => console.error('Erro ao buscar notificações:', err));
+  }, [user]);
 
   const NavLink = ({ to, children }) => {
     return <Link to={to} className="block py-2 px-4 text-slate-800 md:text-white rounded hover:bg-green-50 md:hover:bg-transparent md:hover:text-green-200 transition-colors">{children}</Link>
@@ -84,10 +94,28 @@ function Header() {
             </li>
           )}
 
-          {/* Perfil do Usuário com Dropdown */}
-          <li className="relative w-full md:w-auto"
-              onMouseEnter={() => setDropdownOpen(true)}
-              onMouseLeave={() => setDropdownOpen(false)}>
+          {/* notificações e perfil */}
+          <li
+            className="relative flex items-center space-x-4 w-full md:w-auto"
+            onMouseEnter={() => setDropdownOpen(true)}
+            onMouseLeave={() => setDropdownOpen(false)}
+          >
+            {/* Desktop - botão de notificações */}
+            <button
+              className="hidden md:inline-flex relative p-2 text-white hover:bg-green-600 rounded"
+              onClick={() => navigate('/alertas')}
+              aria-label="Notificações"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
+              </svg>
+              {notifCount > 0 && (
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                  {notifCount}
+                </span>
+              )}
+            </button>
+
             {/* Desktop - Dropdown com Hover */}
             <div
               className="hidden md:flex items-center gap-3 cursor-pointer group"
@@ -273,9 +301,16 @@ function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 py-2 px-4 text-slate-800 rounded hover:bg-green-50 transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="#3C7E61" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
+                <div className="relative">
+                  <svg className="w-5 h-5" fill="none" stroke="#3C7E61" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  {notifCount > 0 && (
+                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                      {notifCount}
+                    </span>
+                  )}
+                </div>
                 <span className="font-medium text-sm">Alertas</span>
               </Link>
 
