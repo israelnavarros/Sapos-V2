@@ -35,28 +35,65 @@ export default function AlertasSimple() {
     }
   };
 
+  const handleMarkAllRead = async () => {
+    if (notifs.length === 0) return;
+    try {
+      await fetch(`${API_URL}/api/marcar_todas_notificacoes_vistas`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      setNotifs([]);
+    } catch (err) {
+      console.error('Erro ao marcar todas como lidas', err);
+    }
+  };
+
   return (
-    <div>
+    <>
       <Header />
-      <main className='mt-20 p-4'>
-        <h1 className="text-2xl font-bold mb-4">Notificações</h1>
-        {notifs.length === 0 ? (
-          <p className="text-gray-600">Nenhuma notificação no momento.</p>
-        ) : (
-          <div className="space-y-4">
-            {notifs.map(n => (
-              <div
-                key={n.id_notificacao}
-                className="p-4 bg-white shadow rounded cursor-pointer hover:bg-green-50"
-                onClick={() => handleClick(n)}
-              >
-                <p className="font-medium">{n.mensagem}</p>
-                <p className="text-xs text-gray-500 mt-1">{n.tipo}</p>
+      <main className="pt-20">
+        <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
+          <div className="container-geral">
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-slate-800">Notificações</h1>
+                {notifs.length > 0 && (
+                  <button
+                    onClick={handleMarkAllRead}
+                    className="text-sm font-semibold text-green-600 hover:text-green-800 transition-colors cursor-pointer"
+                  >
+                    Marcar todas como lidas
+                  </button>
+                )}
               </div>
-            ))}
+
+              {notifs.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-lg">Nenhuma notificação no momento.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {notifs.map(n => (
+                    <div
+                      key={n.id_notificacao}
+                      className="relative p-5 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:bg-green-50 hover:border-green-200 transition-all group"
+                      onClick={() => handleClick(n)}
+                    >
+                      <div className="mb-4 pr-4">
+                        <p className="font-medium text-slate-800 text-lg">{n.mensagem}</p>
+                        <p className="text-xs font-bold text-gray-500 mt-2 uppercase tracking-wider">{n.tipo}</p>
+                      </div>
+                      <div className="absolute bottom-3 right-4 text-xs text-gray-400 font-medium">
+                        {n.data_criacao ? new Date(n.data_criacao).toLocaleDateString('pt-BR') : ''}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </main>
-    </div>
+    </>
   );
 }

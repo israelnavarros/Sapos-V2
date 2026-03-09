@@ -954,6 +954,25 @@ def api_deletar_notificacao(id):
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/marcar_todas_notificacoes_vistas', methods=['POST'])
+@login_required
+def api_marcar_todas_notificacoes_vistas():
+    cargo_usuario = current_user.cargo
+    
+    notificacoes = Notificacoes.query.filter(
+        Notificacoes.visto == False,
+        db.or_(
+            Notificacoes.id_usuario_destinatario == current_user.id_usuario,
+            Notificacoes.id_cargo_destinatario == cargo_usuario
+        )
+    ).all()
+
+    for n in notificacoes:
+        n.visto = True
+    
+    db.session.commit()
+    return jsonify({'success': True})
+
 # marca como vista em vez de apagar
 @app.route('/api/marcar_notificacao_vista/<int:id>', methods=['POST'])
 @login_required
