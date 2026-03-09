@@ -38,7 +38,7 @@ export default function AlertasSimple() {
   return (
     <div>
       <Header />
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className='mt-20 p-4'>
         <h1 className="text-2xl font-bold mb-4">Notificações</h1>
         {notifs.length === 0 ? (
           <p className="text-gray-600">Nenhuma notificação no momento.</p>
