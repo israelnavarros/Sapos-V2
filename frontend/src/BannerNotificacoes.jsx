@@ -9,7 +9,7 @@ export default function BannerNotificacoes() {
   useEffect(() => {
     if (!user) return;
 
-    fetch(`${API_URL}/api/notificacoes`, { credentials: 'include' })
+    fetch(`${API_URL}/api/notificacoes?filtro=geral`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setNotificacoes(data))
       .catch(err => console.error('Erro ao carregar notificações:', err));
