@@ -945,3 +945,15 @@ def api_deletar_notificacao(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
+
+# marca como vista em vez de apagar
+@app.route('/api/marcar_notificacao_vista/<int:id>', methods=['POST'])
+@login_required
+def api_marcar_notificacao_vista(id):
+    n = Notificacoes.query.get_or_404(id)
+    # autorização: cargo ou usuário específico
+    if not (n.id_usuario_destinatario == current_user.id_usuario or n.id_cargo_destinatario == current_user.cargo):
+        return jsonify({'success': False, 'message': 'Acesso não autorizado'}), 403
+    n.visto = True
+    db.session.commit()
+    return jsonify({'success': True})

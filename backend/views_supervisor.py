@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes
+from models import Notificacoes, Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
 from sqlalchemy import text, func, or_
 from flask_login import login_required, current_user
@@ -792,19 +792,21 @@ def sup_validar_folha(id_folha):
     db.session.commit()
     # notificar estagiário sobre a revisão
     if folha.id_estagiario:
-        from datetime import date
-        estag = Usuarios.query.get(folha.id_estagiario)
-        notif = Notificacoes(
-            mensagem=f"O supervisor {current_user.nome} revisou a nova folha de evolução do paciente {Paciente.query.get(folha.id_paciente).nome_completo}.",
-            tipo='info',
-            id_cargo_destinatario=2,  # estagiários cargo
-            id_usuario_destinatario=estag.id_usuario,
-            id_paciente=folha.id_paciente,
-            data_criacao=date.today(),
-            visto=False
-        )
-        db.session.add(notif)
-        db.session.commit()
+        paciente = Pacientes.query.get(folha.id_paciente)
+        if paciente:
+            estag = Usuarios.query.get(folha.id_estagiario)
+            if estag:
+                notif = Notificacoes(
+                    mensagem=f"O supervisor {current_user.nome} revisou a nova folha de evolução do paciente {paciente.nome_completo}.",
+                    tipo='info',
+                    id_cargo_destinatario=2,  # estagiários cargo
+                    id_usuario_destinatario=estag.id_usuario,
+                    id_paciente=folha.id_paciente,
+                    data_criacao=date.today(),
+                    visto=False
+                )
+                db.session.add(notif)
+                db.session.commit()
     return jsonify({'message': 'Folha validada com sucesso!'})
 
 @app.route('/api/tags', methods=['GET'])
