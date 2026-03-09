@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory, jsonify
 from main import app, db, mail, crypt, cache
-from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes
+from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes, Notificacoes
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido
 from sqlalchemy import text, desc, or_
 from flask_login import login_required, current_user
@@ -581,6 +581,21 @@ def est_ficha_adicionada():
     )
     db.session.add(nova_folha)
     db.session.commit()
+    # notificação personalizada para o supervisor responsável
+    if id_supervisor:
+        from datetime import date
+        supervisor = Usuarios.query.get(id_supervisor)
+        notific = Notificacoes(
+            mensagem=f"O estagiário {current_user.nome} atualizou a ficha do paciente {paciente.nome_completo} com uma nova folha de evolução, favor validar",
+            tipo='aviso',
+            id_cargo_destinatario=1,  # supervisor cargo
+            id_usuario_destinatario=supervisor.id_usuario,
+            id_paciente=id_paciente,
+            data_criacao=date.today(),
+            visto=False
+        )
+        db.session.add(notific)
+        db.session.commit()
     print(f"--- ADICIONAR: Tentando limpar o cache para a chave: 'ficha_paciente_{id_paciente}' ---")
     cache.delete(f'ficha_paciente_{id_paciente}')
     return jsonify({'message': 'Folha adicionada com sucesso!'})

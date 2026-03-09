@@ -88,6 +88,10 @@ class Notificacoes(db.Model):
     mensagem = db.Column(db.String(2000), nullable=False)
     tipo = db.Column(db.String(50), nullable=False)
     id_cargo_destinatario = db.Column(db.Integer, nullable=False)
+    # novo: opção para notificação endereçada a usuário específico
+    id_usuario_destinatario = db.Column(db.Integer, nullable=True)
+    id_paciente = db.Column(db.Integer, nullable=True)  # link para Ficha
+    visto = db.Column(db.Boolean, nullable=False, default=False)
     data_criacao = db.Column(db.Date, nullable=False)
     validade = db.Column(db.Date, nullable=True)
     
@@ -99,6 +103,9 @@ class Notificacoes(db.Model):
             'tipo': self.tipo,
             'id_cargo_destinatario': self.id_cargo_destinatario,
             'cargo_nome': cargo_labels.get(self.id_cargo_destinatario, 'Desconhecido'),
+            'id_usuario_destinatario': self.id_usuario_destinatario,
+            'id_paciente': self.id_paciente,
+            'visto': self.visto,
             'data_criacao': str(self.data_criacao),
             'validade': str(self.validade) if self.validade else None
         }

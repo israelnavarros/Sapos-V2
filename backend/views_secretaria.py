@@ -853,21 +853,25 @@ def api_deletar_alerta(id):
 @login_required
 def api_notificacoes():
     """
-    Retorna as notificações destinadas ao cargo do usuário logado e que ainda estão válidas
+    Retorna notificações visíveis ao usuário logado (por cargo *ou* por id_usuario_destinatario),
+    que ainda estão válidas e não foram vistas.
     """
     from datetime import date
     cargo_usuario = current_user.cargo
     hoje = date.today()
-    
-    # Filtra notificações do cargo do usuário que estão dentro da validade
+
     notificacoes = Notificacoes.query.filter(
-        Notificacoes.id_cargo_destinatario == cargo_usuario,
+        Notificacoes.visto == False,
         db.or_(
-            Notificacoes.validade.is_(None),  # Sem validade = válida indefinidamente
-            Notificacoes.validade >= hoje  # Ou dentro da validade
+            Notificacoes.id_usuario_destinatario == current_user.id_usuario,
+            Notificacoes.id_cargo_destinatario == cargo_usuario
+        ),
+        db.or_(
+            Notificacoes.validade.is_(None),
+            Notificacoes.validade >= hoje
         )
     ).order_by(Notificacoes.data_criacao.desc()).all()
-    
+
     return jsonify([n.to_dict() for n in notificacoes])
 
 @app.route('/api/notificacoes_secretaria', methods=['GET'])
