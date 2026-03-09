@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import API_URL from './config';
 import { AuthContext } from './AuthContext';
+import LogoSad from './assets/LogoSad.png';
 
 export default function AlertasSimple() {
   const [notifs, setNotifs] = useState([]);
@@ -68,7 +69,8 @@ export default function AlertasSimple() {
               </div>
 
               {notifs.length === 0 ? (
-                <div className="text-center py-12">
+                <div className="text-center py-12 flex flex-col items-center justify-center">
+                  <img src={LogoSad} alt="Sem notificações" className="w-32 h-auto mb-4 opacity-75" />
                   <p className="text-gray-500 text-lg">Nenhuma notificação no momento.</p>
                 </div>
               ) : (
