@@ -859,8 +859,9 @@ def api_notificacoes():
     from datetime import date
     cargo_usuario = current_user.cargo
     hoje = date.today()
+    filtro = request.args.get('filtro')
 
-    notificacoes = Notificacoes.query.filter(
+    query = Notificacoes.query.filter(
         Notificacoes.visto == False,
         db.or_(
             Notificacoes.id_usuario_destinatario == current_user.id_usuario,
@@ -870,7 +871,14 @@ def api_notificacoes():
             Notificacoes.validade.is_(None),
             Notificacoes.validade >= hoje
         )
-    ).order_by(Notificacoes.data_criacao.desc()).all()
+    )
+
+    if filtro == 'geral':
+        query = query.filter(Notificacoes.id_paciente.is_(None))
+    elif filtro == 'paciente':
+        query = query.filter(Notificacoes.id_paciente.isnot(None))
+
+    notificacoes = query.order_by(Notificacoes.data_criacao.desc()).all()
 
     return jsonify([n.to_dict() for n in notificacoes])
 

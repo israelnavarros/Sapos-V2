@@ -538,7 +538,14 @@ def consulta_ids_supervisores():
 def est_ficha_adicionada():
     id_paciente = request.form['id_paciente']
     id_estagiario = current_user.id_usuario
-    id_supervisor = request.form['id_supervisor']
+    
+    # Tratamento robusto para id_supervisor (evita erro 500 se vier vazio ou string inválida)
+    id_supervisor_raw = request.form.get('id_supervisor')
+    if id_supervisor_raw and str(id_supervisor_raw).strip().lower() not in ['null', 'undefined', '']:
+        id_supervisor = int(id_supervisor_raw)
+    else:
+        id_supervisor = None
+
     # Ajuste de fuso horário (UTC-3) para servidor UTC
     data_atual = datetime.utcnow() - timedelta(hours=3)
     data_postagem = data_atual.replace(microsecond=0)
@@ -584,18 +591,20 @@ def est_ficha_adicionada():
     # notificação personalizada para o supervisor responsável
     if id_supervisor:
         from datetime import date
+        paciente = Pacientes.query.get(id_paciente)
         supervisor = Usuarios.query.get(id_supervisor)
-        notific = Notificacoes(
-            mensagem=f"O estagiário {current_user.nome} atualizou a ficha do paciente {paciente.nome_completo} com uma nova folha de evolução, favor validar",
-            tipo='aviso',
-            id_cargo_destinatario=1,  # supervisor cargo
-            id_usuario_destinatario=supervisor.id_usuario,
-            id_paciente=id_paciente,
-            data_criacao=date.today(),
-            visto=False
-        )
-        db.session.add(notific)
-        db.session.commit()
+        if paciente and supervisor:
+            notific = Notificacoes(
+                mensagem=f"O estagiário {current_user.nome} atualizou a ficha do paciente {paciente.nome_completo} com uma nova folha de evolução, favor validar",
+                tipo='aviso',
+                id_cargo_destinatario=1,  # supervisor cargo
+                id_usuario_destinatario=supervisor.id_usuario,
+                id_paciente=id_paciente,
+                data_criacao=date.today(),
+                visto=False
+            )
+            db.session.add(notific)
+            db.session.commit()
     print(f"--- ADICIONAR: Tentando limpar o cache para a chave: 'ficha_paciente_{id_paciente}' ---")
     cache.delete(f'ficha_paciente_{id_paciente}')
     return jsonify({'message': 'Folha adicionada com sucesso!'})
