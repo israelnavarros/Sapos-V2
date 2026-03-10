@@ -169,7 +169,7 @@ export default function MeuPerfil() {
   return (
     <>
       <Header />
-      <main className='mt-20 p-4 bg-gray-50'>
+      <main className='mt-20 p-4 bg-[#F4F1EE] min-h-screen'>
         {/* Botão Voltar no Topo */}
         <div className="max-w-7xl mx-auto mb-4">
           <button 
