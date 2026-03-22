@@ -184,25 +184,6 @@ export default function FichaPaciente() {
     setValidationModalOpen(true);
   };
 
-  const handleRemover = async (idFolha) => {
-    if (!window.confirm("Tem certeza que deseja excluir esta folha?")) return;
-
-    try {
-      const res = await fetch(`${API_URL}/api/est_ficha_deletada/${idFolha}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (res.ok) {
-        alert("Folha excluída com sucesso!");
-        setFolhas(folhas.filter(folha => folha.id_folha !== idFolha));
-      } else {
-        alert("Erro ao excluir a folha.");
-      }
-    } catch (err) {
-      console.error('Erro ao excluir evolução:', err);
-    }
-  };
-
   const handleSubmitValidation = async () => {
     if (!status) {
       alert('Por favor, selecione um status (Aprovado ou Reprovado).');

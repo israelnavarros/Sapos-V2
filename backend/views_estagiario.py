@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory, jsonify
 from main import app, db, mail, crypt, cache
 from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes, Notificacoes
-from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido
+from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido, registrar_log_auditoria
 from sqlalchemy import text, desc, or_
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -151,6 +151,7 @@ def cancelar_consulta_estag():
     consulta.cor = '#BD4343'
     db.session.add(consulta)
     db.session.commit()
+    registrar_log_auditoria('CANCELOU_CONSULTA', f'Consulta ID: {consulta.id_consulta} | Paciente ID: {consulta.id_paciente}')
     return jsonify({'message': 'Consulta cancelada com sucesso!'})
 
 @app.route('/api/realizar_consulta_estag', methods=['POST'])
@@ -161,6 +162,7 @@ def realizar_consulta_estag():
     consulta.cor = '#3C7E61'
     db.session.add(consulta)
     db.session.commit()
+    registrar_log_auditoria('REALIZOU_CONSULTA', f'Consulta ID: {consulta.id_consulta} | Paciente ID: {consulta.id_paciente}')
     return jsonify({'message': 'Consulta realizada com sucesso!'})
 
 @app.route('/api/est_consulta_card', methods=['GET'])
@@ -484,6 +486,8 @@ def api_adicionar_paciente():
     db.session.add(novo_paciente)
     db.session.commit()
     
+    registrar_log_auditoria('CRIOU_PACIENTE', f'Paciente ID: {novo_paciente.id_paciente} | Nome: {novo_paciente.nome_completo}')
+    
     return jsonify({'status': 'success', 'id_paciente': novo_paciente.id_paciente})
 
 @app.route('/api/solicitar_acesso_pasta', methods=['POST'])
@@ -606,20 +610,10 @@ def est_ficha_adicionada():
             db.session.add(notific)
             db.session.commit()
     print(f"--- ADICIONAR: Tentando limpar o cache para a chave: 'ficha_paciente_{id_paciente}' ---")
+    registrar_log_auditoria('CRIOU_FOLHA_EVOLUCAO', f'Paciente ID: {id_paciente} | Folha ID: {nova_folha.id_folha}')
     cache.delete(f'ficha_paciente_{id_paciente}')
     return jsonify({'message': 'Folha adicionada com sucesso!'})
 
-
-@app.route('/api/est_ficha_deletada/<int:id>', methods=['DELETE'])
-@login_required
-def est_ficha_deletada(id):
-    folha = FolhaEvolucao.query.get_or_404(id)
-    id_paciente = folha.id_paciente
-    db.session.delete(folha)
-    db.session.commit()
-    cache.delete(f'ficha_paciente_{id_paciente}')
-
-    return jsonify({'message': 'Folha excluída com sucesso'})
 # ------------------- ESTATÍSTICAS -------------------
 
 @app.route('/api/est_primeira_estatistica_paciente/<int:id_paciente>', methods=['GET'])

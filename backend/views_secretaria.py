@@ -1,7 +1,7 @@
 from flask import  jsonify, request, session, flash, url_for, send_from_directory
 from main import app, db, mail
 from models import Usuarios, Grupos, Pacientes, Alertas, Notificacoes, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao, Tag, PacienteTag
-from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
+from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, registrar_log_auditoria
 from sqlalchemy import text, func
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -421,6 +421,8 @@ def adicionar_paciente_secretaria():
                 imagem.save(os.path.join(upload_path, filename))
 
         db.session.commit()
+
+        registrar_log_auditoria('CRIOU_PACIENTE_SECRETARIA', f'Paciente ID: {novo_paciente.id_paciente} | Nome: {novo_paciente.nome_completo}')
 
         return jsonify({'status': 'success', 'id_paciente': novo_paciente.id_paciente})
 

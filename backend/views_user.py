@@ -2,7 +2,7 @@ from flask import request, redirect, url_for, send_from_directory, jsonify
 from main import app
 from flask_login import login_user, logout_user, login_required, current_user
 from models import Usuarios
-from helpers import FormularioLogin, FormularioInscricao, recupera_imagem_usuario, deleta_imagem_usuario
+from helpers import FormularioLogin, FormularioInscricao, recupera_imagem_usuario, deleta_imagem_usuario, registrar_log_auditoria
 from sqlalchemy import text
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_mail import Message
@@ -45,6 +45,7 @@ def login():
     usuario = Usuarios.query.filter_by(email=email).first()
     if usuario and check_password_hash(usuario.senha, senha):
         login_user(usuario)
+        registrar_log_auditoria('LOGIN', f'Usuário {usuario.email} fez login no sistema.')
         return jsonify({
             "success": True,
             "message": f"{usuario.nome} logado com sucesso!",

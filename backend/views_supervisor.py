@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from main import app, db, mail, crypt, cache
 from models import Notificacoes, Usuarios, Grupos, Pacientes, Alertas, ReuniaoGrupos, Consultas, FolhaEvolucao, Tag, PacienteTag, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes
-from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes
+from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, registrar_log_auditoria
 from sqlalchemy import text, func, or_
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -807,6 +807,8 @@ def sup_validar_folha(id_folha):
                 )
                 db.session.add(notif)
                 db.session.commit()
+                
+    registrar_log_auditoria('VALIDOU_FOLHA_EVOLUCAO', f'Folha ID: {id_folha} | Status: {status} | Paciente ID: {folha.id_paciente}')
     return jsonify({'message': 'Folha validada com sucesso!'})
 
 @app.route('/api/tags', methods=['GET'])
