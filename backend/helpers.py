@@ -226,3 +226,25 @@ def formatar_tempo_decorrido(tempo_delta):
             return '1 hora atrás'
         else:
             return f'{horas} horas atrás'
+
+def registrar_log_auditoria(acao, detalhes=None):
+    from main import db
+    from models import LogAuditoria
+    from flask_login import current_user
+    from datetime import datetime, timedelta
+
+    try:
+        id_usuario = current_user.id_usuario if current_user.is_authenticated else None
+        data_hora = datetime.utcnow() - timedelta(hours=3)
+
+        novo_log = LogAuditoria(
+            id_usuario=id_usuario,
+            acao=acao,
+            detalhes=detalhes,
+            data_hora=data_hora
+        )
+        db.session.add(novo_log)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Aviso: Falha ao registrar log de auditoria: {e}")

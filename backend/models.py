@@ -405,3 +405,13 @@ class ReuniaoParticipantes(db.Model):
     id_reuniao = db.Column(db.Integer, db.ForeignKey('reunioes.id_reuniao'), primary_key=True)
     id_participante = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), primary_key=True)
     participante = db.relationship('Usuarios', foreign_keys=[id_participante])
+
+class LogAuditoria(db.Model):
+    __tablename__ = 'logs_auditoria'
+    id_log = db.Column(db.Integer, primary_key=True)
+    id_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'))
+    acao = db.Column(db.String(50), nullable=False)
+    detalhes = db.Column(db.Text)
+    data_hora = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    usuario = db.relationship('Usuarios', backref='logs')
