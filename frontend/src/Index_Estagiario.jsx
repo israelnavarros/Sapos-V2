@@ -18,7 +18,13 @@ export default function ConsultasDashboard() {
   const [pacientes, setPacientes] = useState([]);
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchEventos = () => {
     fetch(`${API_URL}/api/consulta_estag`, { credentials: 'include' })
@@ -218,6 +224,11 @@ export default function ConsultasDashboard() {
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"
             nowIndicator={true}
+            dayHeaderFormat={
+              isMobile
+                ? { weekday: 'short', day: 'numeric', omitCommas: true }
+                : { weekday: 'short', day: 'numeric', month: 'numeric', omitCommas: true }
+            }
           />
         </div>
         </div>

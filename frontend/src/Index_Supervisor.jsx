@@ -21,6 +21,13 @@ export default function AgendaMeusEstagiarios() {
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tipoAgendamento, setTipoAgendamento] = useState('consulta'); // 'consulta' | 'reuniao'
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetch(`${API_URL}/api/consulta_ids_estagiarios`, { credentials: 'include' })
@@ -271,6 +278,11 @@ export default function AgendaMeusEstagiarios() {
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"
             nowIndicator={true}
+            dayHeaderFormat={
+              isMobile
+                ? { weekday: 'short', day: 'numeric', omitCommas: true }
+                : { weekday: 'short', day: 'numeric', month: 'numeric', omitCommas: true }
+            }
           />
         </div>
         </div>

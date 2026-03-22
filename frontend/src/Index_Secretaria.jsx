@@ -14,6 +14,13 @@ export default function AgendaEstagiarios() {
   const [eventos, setEventos] = useState([]);
   const [modalState, setModalState] = useState({ isOpen: false, data: null });
   const calendarRef = useRef();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetch(`${API_URL}/api/consulta_ids_grupos`, { credentials: 'include' })
@@ -117,6 +124,11 @@ export default function AgendaEstagiarios() {
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"
             nowIndicator={true}
+            dayHeaderFormat={
+              isMobile
+                ? { weekday: 'short', day: 'numeric', omitCommas: true }
+                : { weekday: 'short', day: 'numeric', month: 'numeric', omitCommas: true }
+            }
           />
         </div>
         </div>
