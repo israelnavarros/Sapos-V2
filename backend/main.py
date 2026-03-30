@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -11,14 +13,27 @@ from flask_caching import Cache
 
 
 app = Flask(__name__)
-CORS(app, 
-     supports_credentials=True, 
-     origins=[
-         'http://localhost:5173', # Frontend local
-         'http://localhost:5000', # Backend local
-         'https://sapos-4wdor6dn3-israelnavarros-projects.vercel.app', # URL antiga da Vercel
-         'https://sapos-eight.vercel.app' # <-- URL NOVA DA VERCEL ADICIONADA AQUI
-        ])
+
+allowed_origins = [
+    'http://localhost:5173',
+    'http://localhost:5000',
+    'https://sapos-eight.vercel.app',
+    'https://sapos-eight-hom.vercel.app'
+]
+
+extra_origins = os.environ.get('FRONTEND_ORIGINS')
+if extra_origins:
+    allowed_origins.extend([
+        origin.strip() for origin in extra_origins.split(',') if origin.strip()
+    ])
+
+CORS(
+    app,
+    supports_credentials=True,
+    origins=allowed_origins,
+    allow_headers=['Content-Type', 'Authorization'],
+    methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+)
 app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
