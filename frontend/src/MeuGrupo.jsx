@@ -470,13 +470,21 @@ export default function MeuGrupo() {
           <div>
             {/* Aba: Visão Geral */}
             {abaAtiva === 'visaoGeral' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InfoCard title="Local do Estágio" content={grupoInfo.local} />
-                <InfoCard title="Convênio" content={grupoInfo.convenio || 'Não informado'} />
-                <InfoCard title="Resumo" content={grupoInfo.resumo} className="md:col-span-2" />
-                <InfoCard title="Objetivos" content={grupoInfo.objetivos} />
-                <InfoCard title="Atividades" content={grupoInfo.atividades} />
-                <InfoCard title="Bibliografia" content={grupoInfo.bibliografia} className="md:col-span-2" />
+              <div>
+                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                  <div className="text-center md:text-left">
+                    <h2 className="text-xl font-semibold text-slate-800">Visão Geral</h2>
+                    <p className="mt-1 text-slate-500">Informações gerais sobre o grupo de estágio.</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InfoCard title="Local do Estágio" content={grupoInfo.local} />
+                  <InfoCard title="Convênio" content={grupoInfo.convenio || 'Não informado'} />
+                  <InfoCard title="Resumo" content={grupoInfo.resumo} className="md:col-span-2" />
+                  <InfoCard title="Objetivos" content={grupoInfo.objetivos} />
+                  <InfoCard title="Atividades" content={grupoInfo.atividades} />
+                  <InfoCard title="Bibliografia" content={grupoInfo.bibliografia} className="md:col-span-2" />
+                </div>
               </div>
             )}
 
@@ -513,6 +521,12 @@ export default function MeuGrupo() {
                   {/* Tab: Supervisores */}
                   {abaMembroAtiva === 'supervisores' && (
                     <div>
+                      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <div className="text-center md:text-left">
+                          <h2 className="text-xl font-semibold text-slate-800">Supervisores do Grupo</h2>
+                          <p className="mt-1 text-slate-500">Visualize os supervisores responsáveis por este grupo.</p>
+                        </div>
+                      </div>
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-gray-100">
@@ -555,10 +569,10 @@ export default function MeuGrupo() {
                   {/* Tab: Estagiários */}
                   {abaMembroAtiva === 'estagiarios' && (
                     <div>
-                      <div className="flex justify-between items-center mb-4">
+                      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <div className="text-center md:text-left">
-                          <h3 className="text-lg font-semibold text-slate-800">Lista de Estagiários do Grupo</h3>
-                          <p className="mt-1 text-slate-500 text-sm">Gerenciar os estagiários que fazem parte deste grupo.</p>
+                          <h2 className="text-xl font-semibold text-slate-800">Lista de Estagiários do Grupo</h2>
+                          <p className="mt-1 text-slate-500">Gerencie os estagiários que fazem parte deste grupo.</p>
                         </div>
                         <div className="relative">
                           <button
@@ -676,7 +690,12 @@ export default function MeuGrupo() {
             {/* Aba: Reuniões */}
             {abaAtiva === 'reunioes' && (
               <div>
-                <h2 className="text-xl font-semibold text-slate-800 mb-4">Gerenciar Reuniões Semanais</h2>
+                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                  <div className="text-center md:text-left">
+                    <h2 className="text-xl font-semibold text-slate-800">Gerenciar Reuniões Semanais</h2>
+                    <p className="mt-1 text-slate-500">Agende e organize as reuniões do grupo.</p>
+                  </div>
+                </div>
                 <section className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-6">
                   {/* Formulário de nova reunião */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -840,7 +859,12 @@ export default function MeuGrupo() {
             {/* Aba: Solicitações de Acesso */}
             {abaAtiva === 'solicitacoes' && (
               <div>
-                <h2 className="text-xl font-semibold text-slate-800 mb-4">Solicitações de Acesso à Pasta</h2>
+                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                  <div className="text-center md:text-left">
+                    <h2 className="text-xl font-semibold text-slate-800">Solicitações de Acesso à Pasta</h2>
+                    <p className="mt-1 text-slate-500">Gerencie os pedidos dos estagiários para acessar o histórico de evolução dos pacientes.</p>
+                  </div>
+                </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-100">

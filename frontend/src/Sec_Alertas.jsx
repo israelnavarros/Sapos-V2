@@ -209,8 +209,11 @@ export default function SecAlertas({ embedded = false }) {
         {/* Conteúdo das Abas */}
         {abaAtiva === 'alertas' ? (
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Alertas Gerais</h2>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+              <div className="text-center md:text-left">
+                <h2 className="text-xl font-semibold text-slate-800">Alertas Gerais</h2>
+                <p className="mt-1 text-slate-500">Gerencie avisos que serão exibidos para todos os usuários.</p>
+              </div>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
@@ -279,8 +282,11 @@ export default function SecAlertas({ embedded = false }) {
           </div>
         ) : (
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Alertas por Cargo</h2>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+              <div className="text-center md:text-left">
+                <h2 className="text-xl font-semibold text-slate-800">Alertas por Cargo</h2>
+                <p className="mt-1 text-slate-500">Envie notificações direcionadas a cargos específicos.</p>
+              </div>
               <button
                 onClick={() => setIsCreateNotifModalOpen(true)}
                 className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
