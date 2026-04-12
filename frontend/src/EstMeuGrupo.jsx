@@ -133,7 +133,7 @@ export default function EstMeuPacientes() {
                         </Link>
             <button
                 onClick={openModal}
-                className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2.5 rounded-lg font-semibold shadow-md hover:bg-yellow-600 cursor-pointer transition-transform transform hover:scale-105"
+                className="flex items-center gap-2 bg-green text-white px-4 py-2.5 rounded-lg font-semibold shadow-md hover:bg-yellow-600 cursor-pointer transition-transform transform hover:scale-105"
               >
                 Solicitar troca de supervisor
               </button>

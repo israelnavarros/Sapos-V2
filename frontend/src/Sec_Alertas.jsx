@@ -210,7 +210,7 @@ export default function SecAlertas({ embedded = false }) {
         {abaAtiva === 'alertas' ? (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Alertas</h2>
+              <h2 className="text-xl font-bold">Alertas Gerais</h2>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
@@ -218,7 +218,7 @@ export default function SecAlertas({ embedded = false }) {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
-                Adicionar Alerta
+                Adicionar Alerta Geral
               </button>
             </div>
 
@@ -280,7 +280,7 @@ export default function SecAlertas({ embedded = false }) {
         ) : (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Notificações</h2>
+              <h2 className="text-xl font-bold">Alertas por Cargo</h2>
               <button
                 onClick={() => setIsCreateNotifModalOpen(true)}
                 className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
@@ -288,7 +288,7 @@ export default function SecAlertas({ embedded = false }) {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
-                Adicionar Notificação
+                Adicionar Alerta para Cargo
               </button>
             </div>
 

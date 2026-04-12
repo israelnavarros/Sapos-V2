@@ -214,7 +214,7 @@ export default function SecUsuarios({ embedded = false }) {
                 </button>
                 <button
                     onClick={() => navigate('/sec_adicionar_estagiario')}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-blue-700 cursor-pointer transition-transform transform hover:scale-105"
+                    className="flex items-center gap-2 bg-green text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-blue-700 cursor-pointer transition-transform transform hover:scale-105"
                 >
                     <i className="bi bi-person-plus"></i>
                     Adicionar Estagiário
