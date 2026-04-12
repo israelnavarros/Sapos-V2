@@ -222,7 +222,7 @@ export default function AgendaMeusEstagiarios() {
         
         <div className="bg-white rounded-xl shadow-md p-6">
             <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-4 text-center md:text-left">Agenda dos meus estagiários</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 text-center md:text-left">Agenda dos meus estagiários</h1>
             <div className="flex flex-col md:flex-row gap-4 items-center justify-center md:justify-start">
                 <label className="font-semibold text-slate-700">Filtrar por Estagiário:</label>
                 <select

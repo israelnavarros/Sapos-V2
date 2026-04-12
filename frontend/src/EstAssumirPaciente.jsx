@@ -71,7 +71,7 @@ export default function EstAssumirPaciente() {
             <main className="bg-gray-50 min-h-screen pt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                        <h1 className="text-3xl font-bold text-gray-900">Pacientes Disponíveis</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center md:text-left">Pacientes Disponíveis</h1>
                         <button onClick={() => navigate(-1)} className="text-sm text-gray-500 cursor-pointer">
                             Voltar para Meus Pacientes
                         </button>
