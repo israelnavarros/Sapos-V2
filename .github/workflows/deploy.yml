@@ -12,6 +12,20 @@ on:
 
 jobs:
 
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - '.github/workflows/deploy.yml'
+
   build:
     runs-on: ubuntu-latest
     env:
@@ -51,8 +65,8 @@ jobs:
           vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
 
   deploy-backend:
-    if: github.event_name == 'push' && (contains(join(github.event.commits.*.modified, ' '), 'backend/') || contains(join(github.event.commits.*.added, ' '), 'backend/') || contains(join(github.event.commits.*.removed, ' '), 'backend/') || contains(join(github.event.commits.*.modified, ' '), '.github/workflows/deploy.yml') || contains(join(github.event.commits.*.added, ' '), '.github/workflows/deploy.yml'))
-    needs: [build]
+    if: github.event_name == 'push' && needs.changes.outputs.backend == 'true'
+    needs: [build, changes]
     runs-on: ubuntu-latest
     env:
       GCP_PROJECT_ID: tcc-israel-navarro
