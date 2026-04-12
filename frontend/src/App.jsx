@@ -44,7 +44,7 @@ function App() {
           <Route path="/sec_grupos" element={<SecGrupos />} />
           <Route path="/sec_usuarios" element={<SecUsuarios />} />
           <Route path="/sec_alertas" element={<SecAlertas />} />
-          <Route path="/alertas" element={<AlertasSimple />} />
+          <Route path="/notificacoes" element={<AlertasSimple />} />
           <Route path="/configuracoes" element={<Configuracoes />} />
           <Route path="/meuspacientes" element={<EstMeuGrupo />} />
           <Route path="/est_ficha_paciente/:id_paciente" element={<EstFichaPaciente />} />

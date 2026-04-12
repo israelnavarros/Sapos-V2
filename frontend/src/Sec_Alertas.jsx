@@ -192,7 +192,7 @@ export default function SecAlertas({ embedded = false }) {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Alertas
+            Gerais
           </button>
           <button
             onClick={() => setAbaAtiva('notificacoes')}
@@ -202,7 +202,7 @@ export default function SecAlertas({ embedded = false }) {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Notificações
+            Por Cargo
           </button>
         </div>
 

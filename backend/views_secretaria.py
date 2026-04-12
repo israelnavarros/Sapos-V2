@@ -888,12 +888,16 @@ def api_notificacoes():
 @login_required
 def api_notificacoes_secretaria():
     """
-    Retorna todas as notificações (apenas para secretaria ver as que ela criou)
+    Retorna todas as notificações relevantes para a visualização da secretaria.
+    Somente exibe notificações gerais por cargo, não logs direcionados a um usuário ou paciente.
     """
     if current_user.cargo != 0:
         return jsonify({'success': False, 'message': 'Acesso não autorizado'}), 403
     
-    notificacoes = Notificacoes.query.order_by(Notificacoes.data_criacao.desc()).all()
+    notificacoes = Notificacoes.query.filter(
+        Notificacoes.id_usuario_destinatario.is_(None),
+        Notificacoes.id_paciente.is_(None)
+    ).order_by(Notificacoes.data_criacao.desc()).all()
     return jsonify([{
         'id_notificacao': n.id_notificacao,
         'mensagem': n.mensagem,
