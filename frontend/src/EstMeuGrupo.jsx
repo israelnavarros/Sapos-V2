@@ -121,7 +121,7 @@ export default function EstMeuPacientes() {
         <div className="container-geral">
          <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h1 className="text-3xl font-bold text-gray-900">Meu Grupo de Pacientes</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center md:text-left">Meu Grupo de Pacientes</h1>
             <Link
                             to="/est_assumir_paciente"
                             className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
