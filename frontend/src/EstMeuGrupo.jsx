@@ -122,7 +122,7 @@ export default function EstMeuPacientes() {
          <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div className="text-center md:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Meu Grupo de Pacientes</h1>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Meu Grupo de Pacientes</h3>
               <p className="mt-1 text-base sm:text-lg text-slate-600">Gerencie e visualize seus pacientes.</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3">
