@@ -21,7 +21,10 @@ export default function AdicionarEstagiarioWrapper() {
       <Header />
       <main className="mt-20 p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 text-center md:text-left">Cadastrar Novo Estagiário</h1>
+          <div className="mb-8 text-center md:text-left">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Cadastrar Novo Estagiário</h3>
+            <p className="mt-1 text-base sm:text-lg text-slate-600">Preencha os dados para registrar o estagiário no seu grupo.</p>
+          </div>
           <AdicionarEstagiario grupoInfo={grupoInfo} />
         </div>
       </main>
