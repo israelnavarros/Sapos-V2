@@ -110,4 +110,4 @@ jobs:
             --memory 512Mi \
             --cpu 1 \
             --service-account sapos-sa@tcc-israel-navarro.iam.gserviceaccount.com \
-            --update-env-vars FRONTEND_ORIGINS=$FRONTEND_ORIGINS
+            --update-env-vars FRONTEND_ORIGINS=$FRONTEND_ORIGINS,DATABASE_URL=${{ secrets.DATABASE_URL }}

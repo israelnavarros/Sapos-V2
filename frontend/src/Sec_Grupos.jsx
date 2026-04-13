@@ -262,8 +262,11 @@ export default function SecGrupos({ embedded = false }) {
     <>
     {!embedded && <Header />}
     <div className={embedded ? "" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"}>
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h2 className="text-3xl font-bold text-gray-900">Gerenciar Grupos</h2>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div className="text-center md:text-left">
+          <h2 className="text-xl font-semibold text-slate-800">Gerenciar Grupos</h2>
+          <p className="mt-1 text-slate-500">Administre os grupos de estágio, vagas e membros.</p>
+        </div>
         <button 
             className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105" 
             onClick={() => setIsCreateModalOpen(true)}

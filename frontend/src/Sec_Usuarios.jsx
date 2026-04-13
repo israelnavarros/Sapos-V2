@@ -202,8 +202,11 @@ export default function SecUsuarios({ embedded = false }) {
   const Content = (
         <div className={embedded ? "" : "max-w-7xl mx-auto"}>
           <div className={embedded ? "" : "p-6 bg-white shadow-md rounded-lg"}>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Usuários</h2>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+              <div className="text-center md:text-left">
+                <h2 className="text-xl font-semibold text-slate-800">Usuários</h2>
+                <p className="mt-1 text-slate-500">Gerencie supervisores, estagiários e demais usuários.</p>
+              </div>
               <div className="flex gap-3">
                 <button
                     onClick={() => navigate('/sec_adicionar_supervisor')}
@@ -214,7 +217,7 @@ export default function SecUsuarios({ embedded = false }) {
                 </button>
                 <button
                     onClick={() => navigate('/sec_adicionar_estagiario')}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-blue-700 cursor-pointer transition-transform transform hover:scale-105"
+                    className="flex items-center gap-2 bg-green text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
                 >
                     <i className="bi bi-person-plus"></i>
                     Adicionar Estagiário

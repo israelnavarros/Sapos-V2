@@ -30,7 +30,7 @@ export default function SecAdministracao() {
                     {/* Cabeçalho Estilo MeuGrupo */}
                     <div className="mb-8 text-center md:text-left">
                         <h3 className="text-xl font-bold text-gray-800 mb-2">Secretaria</h3>
-                        <h3 className="sm:text-5xl text-3xl font-bold text-gray-800 mb-2">Painel de Administração</h3>
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Painel de Administração</h3>
                         <p className="mt-1 text-base sm:text-lg text-slate-600">Gerencie pacientes, grupos, usuários e alertas do sistema.</p>
                     </div>
 

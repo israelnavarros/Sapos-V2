@@ -120,9 +120,13 @@ export default function EstMeuPacientes() {
        <div className="p-4 sm:p-6 lg:p-8 bg-[#F4F1EE] min-h-screen">
         <div className="container-geral">
          <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h1 className="text-3xl font-bold text-gray-900">Meu Grupo de Pacientes</h1>
-            <Link
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Meu Grupo de Pacientes</h3>
+              <p className="mt-1 text-base sm:text-lg text-slate-600">Gerencie e visualize seus pacientes.</p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <Link
                             to="/est_assumir_paciente"
                             className="flex items-center gap-2 bg-green text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
                         >
@@ -130,13 +134,14 @@ export default function EstMeuPacientes() {
                                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                             </svg>
                             Assumir Novo Paciente
-                        </Link>
+              </Link>
             <button
                 onClick={openModal}
-                className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2.5 rounded-lg font-semibold shadow-md hover:bg-yellow-600 cursor-pointer transition-transform transform hover:scale-105"
+                className="flex items-center gap-2 bg-green text-white px-4 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-600 cursor-pointer transition-transform transform hover:scale-105"
               >
                 Solicitar troca de supervisor
               </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">

@@ -221,9 +221,12 @@ export default function AgendaMeusEstagiarios() {
         <BannerNotificacoes />
         
         <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="mb-8 text-center md:text-left">
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Agenda dos meus estagiários</h3>
+                <p className="mt-1 text-base sm:text-lg text-slate-600">Acompanhe as consultas e reuniões da sua equipe.</p>
+            </div>
             <div className="mb-6">
-            <h1 className="text-3xl font-bold text-slate-800 mb-4">Agenda dos meus estagiários</h1>
-            <div className="flex gap-4 items-center">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-center md:justify-start">
                 <label className="font-semibold text-slate-700">Filtrar por Estagiário:</label>
                 <select
                 value={estagiarioSelecionado}
