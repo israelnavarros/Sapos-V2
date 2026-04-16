@@ -25,6 +25,7 @@ import SecAdicionarEstagiario from './Sec_Adicionar_Estagiario';
 import SecAdicionarSupervisor from './Sec_Adicionar_Supervisor';
 import SecFichaPaciente from './SecFichaPaciente';
 import { AuthProvider } from './AuthContext';
+import ProtectedRoute from './ProtectedRoute';
 
 function App() {
   return (
@@ -32,31 +33,31 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/meuperfil" element={<MeuPerfil />} />
-          <Route path="/meugrupo" element={<MeuGrupo />} />
-          <Route path="/" element={<Index />} />
-          <Route path="/meugrupo/adicionar-estagiario" element={<AdicionarEstagiarioWrapper />} />
-          <Route path="/sup_meu_estagiario/:id_estagiario" element={<SupMeuEstagiario />} />
-          <Route path="/sup_ficha_paciente/:id_paciente" element={<FichaPaciente />} />
-          <Route path="/administracao" element={<SecAdministracao />} />
-          <Route path="/sec_pacientes" element={<SecPacientes />} />
-          <Route path="/sec_editar_paciente/:id_paciente" element={<SecEditarPaciente />} />
-          <Route path="/sec_grupos" element={<SecGrupos />} />
-          <Route path="/sec_usuarios" element={<SecUsuarios />} />
-          <Route path="/sec_alertas" element={<SecAlertas />} />
-          <Route path="/notificacoes" element={<AlertasSimple />} />
-          <Route path="/configuracoes" element={<Configuracoes />} />
-          <Route path="/meuspacientes" element={<EstMeuGrupo />} />
-          <Route path="/est_ficha_paciente/:id_paciente" element={<EstFichaPaciente />} />
-          <Route path="/sec_adicionar_paciente" element={<SecAdicionarPaciente />} />
-          <Route path="/est_editar_paciente/:id_paciente" element={<EstEditarPaciente />} />
+          <Route path="/meuperfil" element={<ProtectedRoute><MeuPerfil /></ProtectedRoute>} />
+          <Route path="/meugrupo" element={<ProtectedRoute><MeuGrupo /></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/meugrupo/adicionar-estagiario" element={<ProtectedRoute><AdicionarEstagiarioWrapper /></ProtectedRoute>} />
+          <Route path="/sup_meu_estagiario/:id_estagiario" element={<ProtectedRoute><SupMeuEstagiario /></ProtectedRoute>} />
+          <Route path="/sup_ficha_paciente/:id_paciente" element={<ProtectedRoute><FichaPaciente /></ProtectedRoute>} />
+          <Route path="/administracao" element={<ProtectedRoute><SecAdministracao /></ProtectedRoute>} />
+          <Route path="/sec_pacientes" element={<ProtectedRoute><SecPacientes /></ProtectedRoute>} />
+          <Route path="/sec_editar_paciente/:id_paciente" element={<ProtectedRoute><SecEditarPaciente /></ProtectedRoute>} />
+          <Route path="/sec_grupos" element={<ProtectedRoute><SecGrupos /></ProtectedRoute>} />
+          <Route path="/sec_usuarios" element={<ProtectedRoute><SecUsuarios /></ProtectedRoute>} />
+          <Route path="/sec_alertas" element={<ProtectedRoute><SecAlertas /></ProtectedRoute>} />
+          <Route path="/notificacoes" element={<ProtectedRoute><AlertasSimple /></ProtectedRoute>} />
+          <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+          <Route path="/meuspacientes" element={<ProtectedRoute><EstMeuGrupo /></ProtectedRoute>} />
+          <Route path="/est_ficha_paciente/:id_paciente" element={<ProtectedRoute><EstFichaPaciente /></ProtectedRoute>} />
+          <Route path="/sec_adicionar_paciente" element={<ProtectedRoute><SecAdicionarPaciente /></ProtectedRoute>} />
+          <Route path="/est_editar_paciente/:id_paciente" element={<ProtectedRoute><EstEditarPaciente /></ProtectedRoute>} />
            
-          <Route path="/sec_trocas" element={<SecTrocas />} />
-          <Route path="/sup_assumir_paciente" element={<SupAssumirPaciente />} />
-          <Route path="/est_assumir_paciente" element={<EstAssumirPaciente />} />
-          <Route path="/sec_adicionar_estagiario" element={<SecAdicionarEstagiario />} />
-          <Route path="/sec_adicionar_supervisor" element={<SecAdicionarSupervisor />} />
-          <Route path="/sec_ficha_paciente/:id_paciente" element={<SecFichaPaciente />} />
+          <Route path="/sec_trocas" element={<ProtectedRoute><SecTrocas /></ProtectedRoute>} />
+          <Route path="/sup_assumir_paciente" element={<ProtectedRoute><SupAssumirPaciente /></ProtectedRoute>} />
+          <Route path="/est_assumir_paciente" element={<ProtectedRoute><EstAssumirPaciente /></ProtectedRoute>} />
+          <Route path="/sec_adicionar_estagiario" element={<ProtectedRoute><SecAdicionarEstagiario /></ProtectedRoute>} />
+          <Route path="/sec_adicionar_supervisor" element={<ProtectedRoute><SecAdicionarSupervisor /></ProtectedRoute>} />
+          <Route path="/sec_ficha_paciente/:id_paciente" element={<ProtectedRoute><SecFichaPaciente /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
