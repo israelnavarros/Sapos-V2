@@ -2,7 +2,7 @@ from flask import  jsonify, request, session, flash, url_for, send_from_director
 from main import app, db, mail
 from models import Usuarios, Grupos, Pacientes, Alertas, Notificacoes, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao, Tag, PacienteTag
 from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, registrar_log_auditoria
-from sqlalchemy import text, func
+from sqlalchemy import text, func, and_
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_mail import Message
@@ -851,6 +851,15 @@ def api_deletar_alerta(id):
 
 # ===== NOTIFICAÇÕES =====
 
+def _notificacao_visivel_ao_usuario(cargo_usuario):
+    return db.or_(
+        Notificacoes.id_usuario_destinatario == current_user.id_usuario,
+        and_(
+            Notificacoes.id_usuario_destinatario.is_(None),
+            Notificacoes.id_cargo_destinatario == cargo_usuario
+        )
+    )
+
 @app.route('/api/notificacoes', methods=['GET'])
 @login_required
 def api_notificacoes():
@@ -865,10 +874,7 @@ def api_notificacoes():
 
     query = Notificacoes.query.filter(
         Notificacoes.visto == False,
-        db.or_(
-            Notificacoes.id_usuario_destinatario == current_user.id_usuario,
-            Notificacoes.id_cargo_destinatario == cargo_usuario
-        ),
+        _notificacao_visivel_ao_usuario(cargo_usuario),
         db.or_(
             Notificacoes.validade.is_(None),
             Notificacoes.validade >= hoje
@@ -967,10 +973,7 @@ def api_marcar_todas_notificacoes_vistas():
     
     notificacoes = Notificacoes.query.filter(
         Notificacoes.visto == False,
-        db.or_(
-            Notificacoes.id_usuario_destinatario == current_user.id_usuario,
-            Notificacoes.id_cargo_destinatario == cargo_usuario
-        )
+        _notificacao_visivel_ao_usuario(cargo_usuario)
     ).all()
 
     for n in notificacoes:
@@ -984,8 +987,7 @@ def api_marcar_todas_notificacoes_vistas():
 @login_required
 def api_marcar_notificacao_vista(id):
     n = Notificacoes.query.get_or_404(id)
-    # autorização: cargo ou usuário específico
-    if not (n.id_usuario_destinatario == current_user.id_usuario or n.id_cargo_destinatario == current_user.cargo):
+    if not (n.id_usuario_destinatario == current_user.id_usuario or (n.id_usuario_destinatario is None and n.id_cargo_destinatario == current_user.cargo)):
         return jsonify({'success': False, 'message': 'Acesso não autorizado'}), 403
     n.visto = True
     db.session.commit()
