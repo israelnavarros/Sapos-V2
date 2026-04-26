@@ -11,10 +11,24 @@ export default function AlertasSimple() {
 
   useEffect(() => {
     if (!user) return;
-    fetch(`${API_URL}/api/notificacoes`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(data => setNotifs(data))
-      .catch(console.error);
+
+    let isMounted = true;
+    const fetchNotifs = () => {
+      fetch(`${API_URL}/api/notificacoes`, { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          if (!isMounted) return;
+          setNotifs(data);
+        })
+        .catch(console.error);
+    };
+
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [user]);
 
   const handleClick = async (notif) => {
