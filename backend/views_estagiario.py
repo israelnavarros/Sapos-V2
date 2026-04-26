@@ -275,6 +275,12 @@ def api_meus_pacientes():
 def api_ficha_paciente(id):
     print(f"!!!!!!!! CACHE MISS! EXECUTANDO FUNÇÃO REAL PARA PACIENTE {id} !!!!!")
     dados_paciente = Pacientes.query.get_or_404(id)
+
+    if current_user.cargo == 2 and dados_paciente.id_estagiario != current_user.id_usuario:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+    if current_user.cargo == 1 and dados_paciente.id_supervisor != current_user.id_usuario:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
+
     estagiario = Usuarios.query.get(dados_paciente.id_estagiario)
     supervisor = Usuarios.query.get(dados_paciente.id_supervisor)
     

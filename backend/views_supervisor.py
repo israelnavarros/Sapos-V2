@@ -457,7 +457,9 @@ def api_sup_quarta_estatistica_estagiario(id_estagiario):
 @app.route('/api/sup_ficha_paciente/<int:id>', methods=['GET'])
 @login_required
 def api_sup_ficha_paciente(id):
-    dados_paciente = Pacientes.query.filter_by(id_paciente=id).first()
+    dados_paciente = Pacientes.query.get_or_404(id)
+    if current_user.cargo != 1 or dados_paciente.id_supervisor != current_user.id_usuario:
+        return jsonify({'message': 'Acesso não autorizado'}), 403
     estagiario = Usuarios.query.filter_by(id_usuario=dados_paciente.id_estagiario).first()
     supervisor = Usuarios.query.filter_by(id_usuario=dados_paciente.id_supervisor).first()
     tags = [{
