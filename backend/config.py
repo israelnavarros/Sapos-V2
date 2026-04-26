@@ -45,3 +45,4 @@ MAIL_USE_SSL = False
 MAIL_USERNAME = "tcc.sapos@gmail.com"
 MAIL_DEFAULT_SENDER = "tcc.sapos@gmail.com"
 MAIL_PASSWORD = "jdkpozkzpawpnxjj"
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')

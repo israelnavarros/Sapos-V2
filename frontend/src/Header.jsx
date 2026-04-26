@@ -26,10 +26,24 @@ function Header() {
   // carrega contagem de notificações toda vez que o usuário mudar
   useEffect(() => {
     if (!user) return;
-    fetch(`${API_URL}/api/notificacoes`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
-      .catch(err => console.error('Erro ao buscar notificações:', err));
+
+    let isMounted = true;
+    const fetchNotifications = () => {
+      fetch(`${API_URL}/api/notificacoes`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          setNotifCount(Array.isArray(data) ? data.length : 0);
+        })
+        .catch(err => console.error('Erro ao buscar notificações:', err));
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [user]);
 
   const NavLink = ({ to, children }) => {

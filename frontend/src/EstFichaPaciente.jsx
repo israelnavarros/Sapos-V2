@@ -250,11 +250,17 @@ export default function EstFichaPaciente() {
       if (res.ok) {
         alert('Solicitação enviada ao supervisor com sucesso!');
       } else {
-        alert('Erro ao enviar solicitação.');
+        const errorData = await res.json();
+        alert(`Erro ao enviar solicitação: ${errorData.message || 'Tente novamente.'}`);
       }
     } catch (err) {
       console.error(err);
+      alert('Erro de conexão ao enviar solicitação.');
     }
+  };
+
+  const handleExportPdf = () => {
+    window.print();
   };
 
   if (!info || !info.paciente) return <div>Carregando...</div>;
@@ -436,18 +442,26 @@ export default function EstFichaPaciente() {
             )}
             {tab === 'evolucao' && (
               <div className="pt-3">
-                <div className='flex justify-between items-center mb-4'>
+                <div className='flex flex-wrap justify-between items-center gap-3 mb-4'>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Evolução do Paciente</h3>
                     <p className="text-sm text-gray-500">Adicione e visualize as atualizações de cada sessão.</p>
                   </div>
 
-                  <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="flex-shrink-0 px-5 py-2.5 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors cursor-pointer hover:bg-green-600"
-                  >
-                    Adicionar Evolução
-                  </button>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => setIsCreateModalOpen(true)}
+                      className="flex-shrink-0 px-5 py-2.5 bg-green text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-colors cursor-pointer hover:bg-green-600"
+                    >
+                      Adicionar Evolução
+                    </button>
+                    <button
+                      onClick={handleExportPdf}
+                      className="flex-shrink-0 px-5 py-2.5 bg-slate-800 text-white font-semibold rounded-lg shadow-md hover:bg-slate-900 transition-colors cursor-pointer"
+                    >
+                      Exportar PDF
+                    </button>
+                  </div>
                 </div>
 
                 {!paciente.acesso_liberado ? (

@@ -760,6 +760,8 @@ def sup_responder_solicitacao_acesso(id_solicitacao):
     data = request.get_json()
     acao = data.get('acao') # 'aprovar' ou 'rejeitar'
 
+    frontend_url = app.config.get('FRONTEND_URL', 'http://localhost:5173')
+
     if acao == 'aprovar':
         solicitacao.status = 'aprovado'
         solicitacao.data_resposta = datetime.utcnow() - timedelta(hours=3)
@@ -768,10 +770,41 @@ def sup_responder_solicitacao_acesso(id_solicitacao):
         if paciente:
             paciente.acesso_liberado = True
             cache.delete(f'ficha_paciente_{paciente.id_paciente}')
-            
+
+            try:
+                estag = Usuarios.query.get(solicitacao.id_estagiario)
+                if estag:
+                    msg = Message(
+                        subject=f"Acesso liberado ao paciente {paciente.nome_completo}",
+                        recipients=[estag.email]
+                    )
+                    msg.body = (
+                        f"Sua solicitação de acesso às folhas de evolução do paciente {paciente.nome_completo} foi aprovada.\n"
+                        f"Acesse o histórico: {frontend_url}/est_ficha_paciente/{paciente.id_paciente}"
+                    )
+                    mail.send(msg)
+            except Exception as e:
+                print(f"ERRO ao enviar email de aprovação: {e}")
+        
     elif acao == 'rejeitar':
         solicitacao.status = 'rejeitado'
         solicitacao.data_resposta = datetime.utcnow() - timedelta(hours=3)
+
+        try:
+            estag = Usuarios.query.get(solicitacao.id_estagiario)
+            paciente = Pacientes.query.get(solicitacao.id_paciente)
+            if estag and paciente:
+                msg = Message(
+                    subject=f"Solicitação de acesso negada: {paciente.nome_completo}",
+                    recipients=[estag.email]
+                )
+                msg.body = (
+                    f"Sua solicitação de acesso às folhas de evolução do paciente {paciente.nome_completo} foi rejeitada.\n"
+                    f"Se precisar, fale com seu supervisor para mais informações."
+                )
+                mail.send(msg)
+        except Exception as e:
+            print(f"ERRO ao enviar email de rejeição: {e}")
     else:
         return jsonify({'message': 'Ação inválida.'}), 400
 
@@ -809,7 +842,20 @@ def sup_validar_folha(id_folha):
                 )
                 db.session.add(notif)
                 db.session.commit()
-                
+
+                try:
+                    frontend_url = app.config.get('FRONTEND_URL', 'http://localhost:5173')
+                    msg = Message(
+                        subject=f"Folha de evolução validada para {paciente.nome_completo}",
+                        recipients=[estag.email]
+                    )
+                    msg.body = (
+                        f"O supervisor {current_user.nome} revisou sua folha de evolução para o paciente {paciente.nome_completo}.\n"
+                        f"Confira os detalhes: {frontend_url}/est_ficha_paciente/{paciente.id_paciente}"
+                    )
+                    mail.send(msg)
+                except Exception as e:
+                    print(f"ERRO ao enviar email de notificação ao estagiário: {e}")
     registrar_log_auditoria('VALIDOU_FOLHA_EVOLUCAO', f'Folha ID: {id_folha} | Status: {status} | Paciente ID: {folha.id_paciente}')
     return jsonify({'message': 'Folha validada com sucesso!'})
 

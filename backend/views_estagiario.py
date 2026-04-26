@@ -615,6 +615,20 @@ def est_ficha_adicionada():
             )
             db.session.add(notific)
             db.session.commit()
+
+            try:
+                frontend_url = app.config.get('FRONTEND_URL', 'http://localhost:5173')
+                msg = Message(
+                    subject=f"Solicitação de validação: {paciente.nome_completo}",
+                    recipients=[supervisor.email]
+                )
+                msg.body = (
+                    f"O estagiário {current_user.nome} incluiu uma nova folha de evolução para o paciente {paciente.nome_completo}.\n"
+                    f"Acesse o sistema para revisar: {frontend_url}/sup_ficha_paciente/{paciente.id_paciente}"
+                )
+                mail.send(msg)
+            except Exception as e:
+                print(f"ERRO ao enviar email para supervisor: {e}")
     print(f"--- ADICIONAR: Tentando limpar o cache para a chave: 'ficha_paciente_{id_paciente}' ---")
     registrar_log_auditoria('CRIOU_FOLHA_EVOLUCAO', f'Paciente ID: {id_paciente} | Folha ID: {nova_folha.id_folha}')
     cache.delete(f'ficha_paciente_{id_paciente}')
