@@ -22,6 +22,7 @@ export default function MeuPerfil() {
   const [showCrop, setShowCrop] = useState(false);
   const [imgPreview, setImgPreview] = useState('');
   const [croppedImg, setCroppedImg] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [grupoInfo, setGrupoInfo] = useState(null);
   const fileInputRef = useRef();
   const cropperRef = useRef();
@@ -41,6 +42,12 @@ export default function MeuPerfil() {
         .catch(err => console.error('Erro ao carregar perfil:', err));
     }
   }, [user?.id, setUser]);
+
+  useEffect(() => {
+    if (user?.id) {
+      setAvatarUrl(`${API_URL}/api/uploads/usuarios/${user.id}?t=${Date.now()}`);
+    }
+  }, [user?.id]);
 
   // Buscar informações do grupo (para estagiários e supervisores)
   useEffect(() => {
@@ -65,6 +72,19 @@ export default function MeuPerfil() {
     };
     reader.readAsDataURL(file);
   };
+
+  const handleSelectImage = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleCancelCrop = () => {
+    setShowCrop(false);
+    setImgPreview('');
+    if (cropperRef.current) {
+      cropperRef.current.destroy();
+      cropperRef.current = null;
+    }
+  };
   useEffect(() => {
     if (showCrop && imgPreview) {
       const image = document.getElementById('crop-image');
@@ -88,24 +108,31 @@ export default function MeuPerfil() {
     cropperRef.current.destroy();
     cropperRef.current = null;
 
-    // Converte base64 para Blob
-    const blob = await (await fetch(cropped)).blob();
-    const formData = new FormData();
-    formData.append('avatar', blob, 'avatar.jpg');
+    setUploading(true);
+    try {
+      const blob = await (await fetch(cropped)).blob();
+      const formData = new FormData();
+      formData.append('avatar', blob, 'avatar.jpg');
 
-    // Envia para o backend
-    const res = await fetch(`${API_URL}/api/upload_imagem_usuario_perfil`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
-    });
+      const res = await fetch(`${API_URL}/api/upload_imagem_usuario_perfil`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      setAvatarUrl(data.avatarUrl);
-      setUser(prev => ({ ...prev, avatarUrl: avatarUrl }));
-    } else {
-      alert(data.error || 'Erro ao enviar imagem');
+      const data = await res.json();
+      if (res.ok) {
+        const newUrl = `${data.avatarUrl}?t=${Date.now()}`;
+        setAvatarUrl(newUrl);
+        setUser(prev => ({ ...prev, avatarUrl: newUrl }));
+      } else {
+        alert(data.error || 'Erro ao enviar imagem');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao enviar imagem.');
+    } finally {
+      setUploading(false);
     }
   }
 };
@@ -192,6 +219,22 @@ export default function MeuPerfil() {
                 e.target.src = 'https://via.placeholder.com/128?text=Perfil';
               }}
             />
+            <div className="flex flex-col items-center gap-2 mb-4">
+              <button
+                type="button"
+                onClick={handleSelectImage}
+                className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 transition-colors"
+              >
+                Alterar Foto
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+            </div>
             <h2 className="text-xl font-semibold text-gray-800">{user.nome}</h2>
             <p className="text-sm text-gray-600">Cargo: {cargoLabel(user.cargo)}</p>
             <p className="text-sm text-gray-600 mb-4">
@@ -300,6 +343,33 @@ export default function MeuPerfil() {
       </main>
 
       {/* Modal de Edição de Perfil */}
+      {showCrop && (
+        <Modal onClose={handleCancelCrop} title="Ajustar foto de perfil">
+          <div className="space-y-4">
+            <div className="max-w-full overflow-hidden rounded-lg">
+              <img id="crop-image" src={imgPreview} alt="Pré-visualização" className="w-full" />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                onClick={handleCancelCrop}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 bg-green text-white rounded-md hover:bg-green-600 transition-colors"
+                onClick={confirmCrop}
+                disabled={uploading}
+              >
+                {uploading ? 'Enviando...' : 'Salvar Foto'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {isEditModalOpen && (
         <Modal onClose={() => setIsEditModalOpen(false)} title="Editar Perfil">
           <form onSubmit={handleSaveProfile} className="space-y-4">
