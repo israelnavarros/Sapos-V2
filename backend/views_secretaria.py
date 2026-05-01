@@ -368,9 +368,17 @@ def adicionar_paciente_secretaria():
         return str(value_str).lower() == 'true'
     
     try:
+        idade = to_int_or_none(data.get('idade'))
+        if idade is None:
+            return jsonify({'message': 'Idade inválida ou ausente.'}), 400
+
+        if idade < 18:
+            if not data.get('nome_responsavel') or not data.get('grau_parentesco'):
+                return jsonify({'message': 'Para menores de 18 anos, nome do responsável e grau de parentesco são obrigatórios.'}), 400
+
         novo_paciente = Pacientes(
             nome_completo=data.get('nome_completo'),
-            idade=to_int_or_none(data.get('idade')),
+            idade=idade,
             celular1=data.get('celular1'),
             
             id_supervisor=to_int_or_none(data.get('id_supervisor')),
@@ -504,7 +512,12 @@ def atribuir_paciente(id_paciente):
         paciente.id_supervisor = data['id_supervisor']
     
     if 'id_estagiario' in data:
-        paciente.id_estagiario = data['id_estagiario']
+        novo_estagiario = data['id_estagiario'] or None
+        if paciente.id_estagiario != novo_estagiario:
+            paciente.id_estagiario = novo_estagiario
+            paciente.acesso_liberado = False
+        else:
+            paciente.id_estagiario = novo_estagiario
     
     db.session.commit()
     return jsonify({'status': 'success', 'message': 'Atribuição realizada com sucesso!'})

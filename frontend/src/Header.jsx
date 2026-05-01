@@ -137,7 +137,7 @@ function Header() {
               className="hidden md:flex items-center gap-3 cursor-pointer group"
             >
               <img
-                src={`${API_URL}/api/uploads/usuarios/${user.id}`}
+                src={user.avatarUrl || `${API_URL}/api/uploads/usuarios/${user.id}`}
                 alt="Profile"
                 className="w-10 h-10 rounded-full object-cover"
               />
@@ -216,7 +216,7 @@ function Header() {
             {/* Mobile - Menu integrado - Visual apenas */}
             <div className="md:hidden flex items-center gap-3 py-3 px-4">
               <img
-                src={`${API_URL}/api/uploads/usuarios/${user.id}`}
+                src={user.avatarUrl || `${API_URL}/api/uploads/usuarios/${user.id}`}
                 alt="Profile"
                 className="w-10 h-10 rounded-full object-cover"
               />

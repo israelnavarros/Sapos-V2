@@ -181,8 +181,9 @@ def deleta_imagem(id):
         os.remove(os.path.join(app.config['UPLOAD_PATH'], arquivo))
 
 def recupera_imagem_pacientes(id):
+    prefixo = f'paciente_{id}.'
     for nome_arquivo in os.listdir(app.config['UPLOAD_PACIENTES_PATH']):
-        if f'{id}' in nome_arquivo:
+        if nome_arquivo.startswith(prefixo):
             return nome_arquivo
     return 'capa_padrao.jpg'
 
@@ -192,8 +193,9 @@ def deleta_imagem_pacientes(id):
         os.remove(os.path.join(app.config['UPLOAD_PACIENTES_PATH'], arquivo))
 
 def recupera_imagem_usuario(id):
+    prefixo = f'avatar{id}.'
     for nome_arquivo in os.listdir(app.config['UPLOAD_USUARIOS_PATH']):
-        if f'avatar{id}' in nome_arquivo:
+        if nome_arquivo.startswith(prefixo):
             return nome_arquivo
     return 'avatar_padrao.jpg'
 

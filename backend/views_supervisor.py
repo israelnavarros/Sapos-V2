@@ -590,8 +590,12 @@ def sup_atribuir_estagiario(id_paciente):
 
         # 4. Se tudo estiver ok, faz a atualização
         # A lógica 'or None' converte uma string vazia "" para None (NULL no banco)
-        paciente.id_estagiario = id_estagiario_novo or None
-        
+        if paciente.id_estagiario != (id_estagiario_novo or None):
+            paciente.id_estagiario = id_estagiario_novo or None
+            paciente.acesso_liberado = False
+        else:
+            paciente.id_estagiario = id_estagiario_novo or None
+
         db.session.commit()
 
         # 5. IMPORTANTE: Limpa o cache da ficha deste paciente para que a mudança apareça
