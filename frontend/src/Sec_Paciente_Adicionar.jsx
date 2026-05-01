@@ -108,6 +108,18 @@ export default function SecAdicionarPaciente() {
     
     async function handleSubmit(e) {
     e.preventDefault();
+
+    const idadeNum = Number(formData.idade);
+    if (!Number.isInteger(idadeNum) || idadeNum < 0) {
+        alert('Informe uma idade válida.');
+        return;
+    }
+
+    if (idadeNum < 18 && (!formData.nome_responsavel.trim() || !formData.grau_parentesco.trim())) {
+        alert('Para menores de 18 anos, nome do responsável e grau de parentesco são obrigatórios.');
+        return;
+    }
+
     setIsSubmitting(true);
 
     const finalFormData = new FormData();
