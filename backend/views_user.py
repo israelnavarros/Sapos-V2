@@ -122,7 +122,10 @@ def atualizar_avatar_usuario(id_usuario):
 @app.route('/api/uploads/usuarios/<id>')
 def api_imagem_usuario(id):
     imagem = recupera_imagem_usuario(id)
-    return send_from_directory(app.config['UPLOAD_USUARIOS_PATH'], imagem)
+    send_path = app.config['UPLOAD_USUARIOS_PATH']
+    if imagem == 'avatar_padrao.jpg':
+        send_path = app.config['DEFAULT_IMAGES_PATH']
+    return send_from_directory(send_path, imagem)
 
 @app.route('/api/upload_imagem_usuario_perfil', methods=['POST'])
 @login_required

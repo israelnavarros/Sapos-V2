@@ -170,7 +170,11 @@ class FormularioAlerta(FlaskForm):
 
 
 def recupera_imagem(id):
-    for nome_arquivo in os.listdir(app.config['UPLOAD_PATH']):
+    upload_dir = app.config['UPLOAD_PATH']
+    if not os.path.isdir(upload_dir):
+        return 'capa_padrao.jpg'
+
+    for nome_arquivo in os.listdir(upload_dir):
         if f'capa{id}' in nome_arquivo:
             return nome_arquivo
     return 'capa_padrao.jpg'
@@ -178,11 +182,17 @@ def recupera_imagem(id):
 def deleta_imagem(id):
     arquivo = recupera_imagem(id)
     if arquivo != 'capa_padrao.jpg':
-        os.remove(os.path.join(app.config['UPLOAD_PATH'], arquivo))
+        caminho = os.path.join(app.config['UPLOAD_PATH'], arquivo)
+        if os.path.exists(caminho):
+            os.remove(caminho)
 
 def recupera_imagem_pacientes(id):
+    upload_dir = app.config['UPLOAD_PACIENTES_PATH']
+    if not os.path.isdir(upload_dir):
+        return 'capa_padrao.jpg'
+
     prefixo = f'paciente_{id}.'
-    for nome_arquivo in os.listdir(app.config['UPLOAD_PACIENTES_PATH']):
+    for nome_arquivo in os.listdir(upload_dir):
         if nome_arquivo.startswith(prefixo):
             return nome_arquivo
     return 'capa_padrao.jpg'
@@ -190,11 +200,17 @@ def recupera_imagem_pacientes(id):
 def deleta_imagem_pacientes(id):
     arquivo = recupera_imagem_pacientes(id)
     if arquivo != 'capa_padrao.jpg':
-        os.remove(os.path.join(app.config['UPLOAD_PACIENTES_PATH'], arquivo))
+        caminho = os.path.join(app.config['UPLOAD_PACIENTES_PATH'], arquivo)
+        if os.path.exists(caminho):
+            os.remove(caminho)
 
 def recupera_imagem_usuario(id):
+    upload_dir = app.config['UPLOAD_USUARIOS_PATH']
+    if not os.path.isdir(upload_dir):
+        return 'avatar_padrao.jpg'
+
     prefixo = f'avatar{id}.'
-    for nome_arquivo in os.listdir(app.config['UPLOAD_USUARIOS_PATH']):
+    for nome_arquivo in os.listdir(upload_dir):
         if nome_arquivo.startswith(prefixo):
             return nome_arquivo
     return 'avatar_padrao.jpg'
@@ -202,7 +218,9 @@ def recupera_imagem_usuario(id):
 def deleta_imagem_usuario(id):
     arquivo = recupera_imagem_usuario(id)
     if arquivo != 'avatar_padrao.jpg':
-        os.remove(os.path.join(app.config['UPLOAD_USUARIOS_PATH'], arquivo))
+        caminho = os.path.join(app.config['UPLOAD_USUARIOS_PATH'], arquivo)
+        if os.path.exists(caminho):
+            os.remove(caminho)
 
 
 def formatar_tempo_decorrido(tempo_delta):

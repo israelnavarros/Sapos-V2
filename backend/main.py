@@ -36,6 +36,14 @@ CORS(
 )
 app.config.from_pyfile('config.py')
 
+for path in [
+    app.config['UPLOAD_PATH'],
+    app.config['UPLOAD_PACIENTES_PATH'],
+    app.config['UPLOAD_USUARIOS_PATH'],
+    app.config['DEFAULT_IMAGES_PATH'],
+]:
+    os.makedirs(path, exist_ok=True)
+
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 # csrf = CSRFProtect(app)
