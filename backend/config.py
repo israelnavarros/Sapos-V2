@@ -34,9 +34,10 @@ else:
 SESSION_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = True
 
-UPLOAD_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads'
-UPLOAD_PACIENTES_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads/pacientes'
-UPLOAD_USUARIOS_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads/usuarios'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_PATH = os.environ.get('UPLOAD_PATH', os.path.join(BASE_DIR, 'uploads'))
+UPLOAD_PACIENTES_PATH = os.environ.get('UPLOAD_PACIENTES_PATH', os.path.join(UPLOAD_PATH, 'pacientes'))
+UPLOAD_USUARIOS_PATH = os.environ.get('UPLOAD_USUARIOS_PATH', os.path.join(UPLOAD_PATH, 'usuarios'))
 
 MAIL_SERVER = "smtp.googlemail.com"
 MAIL_PORT = 587
