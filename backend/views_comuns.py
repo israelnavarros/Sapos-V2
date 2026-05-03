@@ -8,4 +8,7 @@ import os
 @login_required
 def imagem_paciente_tabela(id):
     imagem = recupera_imagem_pacientes(id)
-    return send_from_directory(app.config['UPLOAD_PACIENTES_PATH'], imagem)
+    send_path = app.config['UPLOAD_PACIENTES_PATH']
+    if imagem == 'capa_padrao.jpg':
+        send_path = app.config['DEFAULT_IMAGES_PATH']
+    return send_from_directory(send_path, imagem)
