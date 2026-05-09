@@ -1,7 +1,7 @@
 from flask import  jsonify, request, session, flash, url_for, send_from_directory
 from main import app, db, mail
 from models import Usuarios, Grupos, Pacientes, Alertas, Notificacoes, ReuniaoGrupos, Consultas, FolhaEvolucao, TrocaSupervisao, Tag, PacienteTag
-from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, registrar_log_auditoria
+from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, registrar_log_auditoria, gcs_upload_blob
 from sqlalchemy import text, func, and_
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -421,12 +421,15 @@ def adicionar_paciente_secretaria():
         if 'imagem_paciente' in request.files:
             imagem = request.files['imagem_paciente']
             if imagem.filename != '':
-                upload_path = app.config['UPLOAD_PACIENTES_PATH']
                 filename = f'paciente_{novo_paciente.id_paciente}.jpg'
-                
+                blob_name = f'pacientes/{filename}'
+
                 deleta_imagem_pacientes(novo_paciente.id_paciente)
-                
-                imagem.save(os.path.join(upload_path, filename))
+
+                if not gcs_upload_blob(blob_name, imagem, content_type=imagem.content_type or 'image/jpeg'):
+                    upload_path = app.config['UPLOAD_PACIENTES_PATH']
+                    os.makedirs(upload_path, exist_ok=True)
+                    imagem.save(os.path.join(upload_path, filename))
 
         db.session.commit()
 
@@ -770,10 +773,14 @@ def api_atualizar_paciente(id):
             arquivo = request.files['imagem_paciente']
             if arquivo and arquivo.filename != '':
                 deleta_imagem_pacientes(id)
-                img_array = base64.b64encode(arquivo.read()).decode('utf-8')
-                img_path = os.path.join(app.config['UPLOAD_PACIENTES_PATH'], f"{id}.png")
-                with open(img_path, "wb") as f:
-                    f.write(base64.b64decode(img_array))
+                filename = f'{id}.png'
+                blob_name = f'pacientes/{filename}'
+
+                if not gcs_upload_blob(blob_name, arquivo, content_type=arquivo.content_type or 'image/png'):
+                    upload_path = app.config['UPLOAD_PACIENTES_PATH']
+                    os.makedirs(upload_path, exist_ok=True)
+                    img_path = os.path.join(upload_path, filename)
+                    arquivo.save(img_path)
 
         db.session.commit()
         return jsonify({'message': 'Paciente atualizado com sucesso.', 'success': True}), 200

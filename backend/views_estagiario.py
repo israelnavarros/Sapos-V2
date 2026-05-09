@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory, jsonify
 from main import app, db, mail, crypt, cache
 from models import Usuarios, Grupos, Consultas, Pacientes, Alertas, FolhaEvolucao, ReuniaoGrupos, TrocaSupervisao, SolicitacaoAcesso, Reunioes, ReuniaoParticipantes, Notificacoes
-from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido, registrar_log_auditoria
+from helpers import FormularioInscricao, FormularioGrupo, FormularioPaciente, FormularioAlerta, recupera_imagem_pacientes, deleta_imagem_pacientes, formatar_tempo_decorrido, registrar_log_auditoria, gcs_upload_blob
 from sqlalchemy import text, desc, or_
 from flask_login import login_required, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -451,12 +451,15 @@ def est_editar_paciente(id):
         if 'imagem_paciente' in request.files:
             imagem = request.files['imagem_paciente']
             if imagem.filename != '':
-                upload_path = app.config['UPLOAD_PACIENTES_PATH']
                 filename = f'paciente_{paciente_para_atualizar.id_paciente}.jpg'
-                
+                blob_name = f'pacientes/{filename}'
+
                 deleta_imagem_pacientes(paciente_para_atualizar.id_paciente)
-                
-                imagem.save(os.path.join(upload_path, filename))
+
+                if not gcs_upload_blob(blob_name, imagem, content_type=imagem.content_type or 'image/jpeg'):
+                    upload_path = app.config['UPLOAD_PACIENTES_PATH']
+                    os.makedirs(upload_path, exist_ok=True)
+                    imagem.save(os.path.join(upload_path, filename))
 
         db.session.commit()
         cache.delete(f'ficha_paciente_{id}')
