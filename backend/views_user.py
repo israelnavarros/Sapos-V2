@@ -122,9 +122,17 @@ def atualizar_avatar_usuario(id_usuario):
 @app.route('/api/uploads/usuarios/<id>')
 def api_imagem_usuario(id):
     imagem = recupera_imagem_usuario(id)
-    blob = get_gcs_bucket().blob(imagem)
-    data = blob.download_as_bytes()
-    return Response(data, mimetype=blob.content_type or 'image/jpeg')
+    
+    if imagem == 'avatar_padrao.jpg':
+        return send_from_directory(app.config['DEFAULT_IMAGES_PATH'], imagem)
+
+    try:
+        blob = get_gcs_bucket().blob(imagem)
+        data = blob.download_as_bytes()
+        return Response(data, mimetype=blob.content_type or 'image/jpeg')
+    except Exception as e:
+        print(f"[DEBUG GCS] ERRO FATAL ao baixar avatar: {e}")
+        return send_from_directory(app.config['DEFAULT_IMAGES_PATH'], 'avatar_padrao.jpg')
 
 @app.route('/api/upload_imagem_usuario_perfil', methods=['POST'])
 @login_required
