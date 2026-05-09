@@ -39,6 +39,7 @@ UPLOAD_PATH = os.environ.get('UPLOAD_PATH', os.path.join(BASE_DIR, 'uploads'))
 UPLOAD_PACIENTES_PATH = os.environ.get('UPLOAD_PACIENTES_PATH', os.path.join(UPLOAD_PATH, 'pacientes'))
 UPLOAD_USUARIOS_PATH = os.environ.get('UPLOAD_USUARIOS_PATH', os.path.join(UPLOAD_PATH, 'usuarios'))
 DEFAULT_IMAGES_PATH = os.environ.get('DEFAULT_IMAGES_PATH', os.path.join(BASE_DIR, 'defaults'))
+GCS_BUCKET_NAME = os.environ.get('GCS_BUCKET_NAME', 'sapo-storage')
 
 MAIL_SERVER = "smtp.googlemail.com"
 MAIL_PORT = 587

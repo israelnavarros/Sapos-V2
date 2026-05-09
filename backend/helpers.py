@@ -1,6 +1,9 @@
+import io
 import os
+from datetime import datetime, timedelta
 from main import app
 from flask_wtf import FlaskForm
+from google.cloud import storage
 from wtforms import StringField, EmailField, PasswordField, IntegerField, TimeField, DateField, TelField, SelectField, SubmitField, HiddenField, SelectMultipleField, DecimalField, TextAreaField, RadioField, DateTimeLocalField, validators
 from wtforms import widgets
 from wtforms import validators
@@ -169,6 +172,75 @@ class FormularioAlerta(FlaskForm):
     criar_alerta = SubmitField('Criar alerta')
 
 
+def get_gcs_client():
+    try:
+        return storage.Client()
+    except Exception:
+        return None
+
+
+def get_gcs_bucket():
+    bucket_name = app.config.get('GCS_BUCKET_NAME')
+    if not bucket_name:
+        return None
+    client = get_gcs_client()
+    if client is None:
+        return None
+    try:
+        return client.bucket(bucket_name)
+    except Exception:
+        return None
+
+
+def gcs_object_exists(blob_name):
+    bucket = get_gcs_bucket()
+    if bucket is None:
+        return False
+    blob = bucket.blob(blob_name)
+    return blob.exists()
+
+
+def gcs_upload_blob(blob_name, data, content_type='application/octet-stream'):
+    bucket = get_gcs_bucket()
+    if bucket is None:
+        return False
+    blob = bucket.blob(blob_name)
+    if isinstance(data, bytes):
+        blob.upload_from_string(data, content_type=content_type)
+    elif hasattr(data, 'seek'):
+        try:
+            data.seek(0)
+        except Exception:
+            pass
+        blob.upload_from_file(data, content_type=content_type)
+    elif hasattr(data, 'read'):
+        content = data.read()
+        blob.upload_from_string(content, content_type=content_type)
+    else:
+        blob.upload_from_string(str(data), content_type=content_type)
+    return True
+
+
+def gcs_delete_blob(blob_name):
+    bucket = get_gcs_bucket()
+    if bucket is None:
+        return False
+    blob = bucket.blob(blob_name)
+    if blob.exists():
+        blob.delete()
+    return True
+
+
+def gcs_signed_url(blob_name, expiration_minutes=15):
+    bucket = get_gcs_bucket()
+    if bucket is None:
+        return None
+    blob = bucket.blob(blob_name)
+    if not blob.exists():
+        return None
+    return blob.generate_signed_url(expiration=timedelta(minutes=expiration_minutes), method='GET')
+
+
 def recupera_imagem(id):
     upload_dir = app.config['UPLOAD_PATH']
     if not os.path.isdir(upload_dir):
@@ -187,6 +259,10 @@ def deleta_imagem(id):
             os.remove(caminho)
 
 def recupera_imagem_pacientes(id):
+    blob_name = f'pacientes/paciente_{id}.jpg'
+    if gcs_object_exists(blob_name):
+        return blob_name
+
     upload_dir = app.config['UPLOAD_PACIENTES_PATH']
     if not os.path.isdir(upload_dir):
         return 'capa_padrao.jpg'
@@ -198,13 +274,20 @@ def recupera_imagem_pacientes(id):
     return 'capa_padrao.jpg'
 
 def deleta_imagem_pacientes(id):
+    blob_name = f'pacientes/paciente_{id}.jpg'
+    gcs_delete_blob(blob_name)
+
     arquivo = recupera_imagem_pacientes(id)
-    if arquivo != 'capa_padrao.jpg':
+    if arquivo != 'capa_padrao.jpg' and not arquivo.startswith('pacientes/'):
         caminho = os.path.join(app.config['UPLOAD_PACIENTES_PATH'], arquivo)
         if os.path.exists(caminho):
             os.remove(caminho)
 
 def recupera_imagem_usuario(id):
+    blob_name = f'usuarios/avatar{id}.jpg'
+    if gcs_object_exists(blob_name):
+        return blob_name
+
     upload_dir = app.config['UPLOAD_USUARIOS_PATH']
     if not os.path.isdir(upload_dir):
         return 'avatar_padrao.jpg'

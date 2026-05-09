@@ -2,11 +2,11 @@ from flask import request, redirect, url_for, send_from_directory, jsonify
 from main import app
 from flask_login import login_user, logout_user, login_required, current_user
 from models import Usuarios
-from helpers import FormularioLogin, FormularioInscricao, recupera_imagem_usuario, deleta_imagem_usuario, registrar_log_auditoria
+from helpers import FormularioLogin, FormularioInscricao, recupera_imagem_usuario, deleta_imagem_usuario, registrar_log_auditoria, gcs_upload_blob, gcs_delete_blob, gcs_signed_url
 from sqlalchemy import text
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_mail import Message
-import random, datetime, json, time, os, base64
+import random, datetime, json, time, os, base64, io
 
 # @app.route('/')
 # def home():
@@ -115,13 +115,22 @@ def atualizar_avatar_usuario(id_usuario):
         if match:
             img_str = match.group(2)
             img_bytes = base64.b64decode(img_str)
-            img_path = os.path.join(app.config['UPLOAD_USUARIOS_PATH'], f"avatar{id_usuario}.png")
-            with open(img_path, "wb") as f:
-                f.write(img_bytes)
+            blob_name = f'usuarios/avatar{id_usuario}.png'
+            if not gcs_upload_blob(blob_name, img_bytes, content_type='image/png'):
+                img_path = os.path.join(app.config['UPLOAD_USUARIOS_PATH'], f"avatar{id_usuario}.png")
+                os.makedirs(app.config['UPLOAD_USUARIOS_PATH'], exist_ok=True)
+                with open(img_path, "wb") as f:
+                    f.write(img_bytes)
     return jsonify({'success': True})
 @app.route('/api/uploads/usuarios/<id>')
 def api_imagem_usuario(id):
     imagem = recupera_imagem_usuario(id)
+    if imagem != 'avatar_padrao.jpg' and imagem.startswith('usuarios/'):
+        signed_url = gcs_signed_url(imagem)
+        if signed_url:
+            return redirect(signed_url)
+        imagem = os.path.basename(imagem)
+
     send_path = app.config['UPLOAD_USUARIOS_PATH']
     if imagem == 'avatar_padrao.jpg':
         send_path = app.config['DEFAULT_IMAGES_PATH']
@@ -139,8 +148,11 @@ def api_upload_imagem_usuario_perfil():
         deleta_imagem_usuario(current_user.id_usuario)
         upload_path = app.config['UPLOAD_USUARIOS_PATH']
         filename = f'avatar{current_user.id_usuario}.jpg'
-        file_path = os.path.join(upload_path, filename)
-        file.save(file_path)
+        blob_name = f'usuarios/{filename}'
+        if not gcs_upload_blob(blob_name, file, content_type=file.content_type or 'image/jpeg'):
+            os.makedirs(upload_path, exist_ok=True)
+            file_path = os.path.join(upload_path, filename)
+            file.save(file_path)
         avatar_url = url_for('api_imagem_usuario', id=current_user.id_usuario, _external=True)
         return jsonify({'avatarUrl': avatar_url}), 200
     else:
