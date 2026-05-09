@@ -100,7 +100,6 @@ jobs:
       - name: Build backend image
         run: gcloud builds submit ./backend --tag gcr.io/$GCP_PROJECT_ID/$IMAGE_NAME:$IMAGE_TAG
 
-
       - name: Deploy backend to Cloud Run
         run: |
           gcloud run deploy $SERVICE_NAME \
@@ -111,5 +110,4 @@ jobs:
             --memory 512Mi \
             --cpu 1 \
             --service-account sapos-sa@tcc-israel-navarro.iam.gserviceaccount.com \
-            --set-secrets GOOGLE_APPLICATION_CREDENTIALS=gcp-sa-key:latest \
             --update-env-vars FRONTEND_ORIGINS=$FRONTEND_ORIGINS,DATABASE_URL=${{ secrets.DATABASE_URL }},GCS_BUCKET_NAME=sapo-storage
