@@ -180,7 +180,7 @@ def get_gcs_client():
 
 
 def get_gcs_bucket():
-    bucket_name = app.config.get('GCS_BUCKET_NAME')
+    bucket_name = os.environ.get('GCS_BUCKET_NAME') or app.config.get('GCS_BUCKET_NAME')
     if not bucket_name:
         return None
     client = get_gcs_client()
@@ -259,9 +259,17 @@ def deleta_imagem(id):
             os.remove(caminho)
 
 def recupera_imagem_pacientes(id):
-    blob_name = f'pacientes/paciente_{id}.jpg'
-    if gcs_object_exists(blob_name):
-        return blob_name
+    blob_name_jpg = f'pacientes/paciente_{id}.jpg'
+    if gcs_object_exists(blob_name_jpg):
+        return blob_name_jpg
+        
+    blob_name_png = f'pacientes/{id}.png'
+    if gcs_object_exists(blob_name_png):
+        return blob_name_png
+
+    blob_name_png_alt = f'pacientes/paciente_{id}.png'
+    if gcs_object_exists(blob_name_png_alt):
+        return blob_name_png_alt
 
     upload_dir = app.config['UPLOAD_PACIENTES_PATH']
     if not os.path.isdir(upload_dir):
@@ -274,8 +282,9 @@ def recupera_imagem_pacientes(id):
     return 'capa_padrao.jpg'
 
 def deleta_imagem_pacientes(id):
-    blob_name = f'pacientes/paciente_{id}.jpg'
-    gcs_delete_blob(blob_name)
+    gcs_delete_blob(f'pacientes/paciente_{id}.jpg')
+    gcs_delete_blob(f'pacientes/{id}.png')
+    gcs_delete_blob(f'pacientes/paciente_{id}.png')
 
     arquivo = recupera_imagem_pacientes(id)
     if arquivo != 'capa_padrao.jpg' and not arquivo.startswith('pacientes/'):
@@ -284,9 +293,13 @@ def deleta_imagem_pacientes(id):
             os.remove(caminho)
 
 def recupera_imagem_usuario(id):
-    blob_name = f'usuarios/avatar{id}.jpg'
-    if gcs_object_exists(blob_name):
-        return blob_name
+    blob_name_jpg = f'usuarios/avatar{id}.jpg'
+    if gcs_object_exists(blob_name_jpg):
+        return blob_name_jpg
+        
+    blob_name_png = f'usuarios/avatar{id}.png'
+    if gcs_object_exists(blob_name_png):
+        return blob_name_png
 
     upload_dir = app.config['UPLOAD_USUARIOS_PATH']
     if not os.path.isdir(upload_dir):
@@ -299,8 +312,11 @@ def recupera_imagem_usuario(id):
     return 'avatar_padrao.jpg'
 
 def deleta_imagem_usuario(id):
+    gcs_delete_blob(f'usuarios/avatar{id}.jpg')
+    gcs_delete_blob(f'usuarios/avatar{id}.png')
+
     arquivo = recupera_imagem_usuario(id)
-    if arquivo != 'avatar_padrao.jpg':
+    if arquivo != 'avatar_padrao.jpg' and not arquivo.startswith('usuarios/'):
         caminho = os.path.join(app.config['UPLOAD_USUARIOS_PATH'], arquivo)
         if os.path.exists(caminho):
             os.remove(caminho)
