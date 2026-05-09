@@ -174,6 +174,12 @@ class FormularioAlerta(FlaskForm):
 
 def get_gcs_client():
     try:
+        # Failsafe: se a variável GOOGLE_APPLICATION_CREDENTIALS ficou "presa" no Cloud Run 
+        # com o JSON literal, nós a apagamos do SO para forçar o uso da Conta de Serviço nativa.
+        if 'GOOGLE_APPLICATION_CREDENTIALS' in os.environ:
+            if os.environ['GOOGLE_APPLICATION_CREDENTIALS'].strip().startswith('{'):
+                del os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+                
         return storage.Client()
     except Exception as e:
         print(f"[DEBUG GCS] Falha ao criar storage.Client(): {e}")
