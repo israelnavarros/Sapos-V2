@@ -427,9 +427,7 @@ def adicionar_paciente_secretaria():
                 deleta_imagem_pacientes(novo_paciente.id_paciente)
 
                 if not gcs_upload_blob(blob_name, imagem, content_type=imagem.content_type or 'image/jpeg'):
-                    upload_path = app.config['UPLOAD_PACIENTES_PATH']
-                    os.makedirs(upload_path, exist_ok=True)
-                    imagem.save(os.path.join(upload_path, filename))
+                    raise Exception("[ERRO GCS] Falha ao fazer upload da imagem do paciente ao adicionar.")
 
         db.session.commit()
 
@@ -777,10 +775,7 @@ def api_atualizar_paciente(id):
                 blob_name = f'pacientes/{filename}'
 
                 if not gcs_upload_blob(blob_name, arquivo, content_type=arquivo.content_type or 'image/png'):
-                    upload_path = app.config['UPLOAD_PACIENTES_PATH']
-                    os.makedirs(upload_path, exist_ok=True)
-                    img_path = os.path.join(upload_path, filename)
-                    arquivo.save(img_path)
+                    raise Exception("[ERRO GCS] Falha ao fazer upload da imagem do paciente ao atualizar.")
 
         db.session.commit()
         return jsonify({'message': 'Paciente atualizado com sucesso.', 'success': True}), 200

@@ -457,9 +457,7 @@ def est_editar_paciente(id):
                 deleta_imagem_pacientes(paciente_para_atualizar.id_paciente)
 
                 if not gcs_upload_blob(blob_name, imagem, content_type=imagem.content_type or 'image/jpeg'):
-                    upload_path = app.config['UPLOAD_PACIENTES_PATH']
-                    os.makedirs(upload_path, exist_ok=True)
-                    imagem.save(os.path.join(upload_path, filename))
+                    raise Exception("[ERRO GCS] Falha ao fazer upload da imagem do paciente pelo estagiário.")
 
         db.session.commit()
         cache.delete(f'ficha_paciente_{id}')

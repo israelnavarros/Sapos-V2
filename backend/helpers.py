@@ -175,20 +175,24 @@ class FormularioAlerta(FlaskForm):
 def get_gcs_client():
     try:
         return storage.Client()
-    except Exception:
+    except Exception as e:
+        print(f"[DEBUG GCS] Falha ao criar storage.Client(): {e}")
         return None
 
 
 def get_gcs_bucket():
     bucket_name = os.environ.get('GCS_BUCKET_NAME') or app.config.get('GCS_BUCKET_NAME')
     if not bucket_name:
+        print(f"[DEBUG GCS] ERRO: GCS_BUCKET_NAME não foi encontrado.")
         return None
     client = get_gcs_client()
     if client is None:
+        print(f"[DEBUG GCS] ERRO: GCS Client retornou None.")
         return None
     try:
         return client.bucket(bucket_name)
-    except Exception:
+    except Exception as e:
+        print(f"[DEBUG GCS] Falha ao acessar bucket '{bucket_name}': {e}")
         return None
 
 
@@ -203,6 +207,7 @@ def gcs_object_exists(blob_name):
 def gcs_upload_blob(blob_name, data, content_type='application/octet-stream'):
     bucket = get_gcs_bucket()
     if bucket is None:
+        print(f"[DEBUG GCS] UPLOAD FALHOU: Bucket inacessível para '{blob_name}'.")
         return False
     blob = bucket.blob(blob_name)
     if isinstance(data, bytes):
@@ -271,15 +276,7 @@ def recupera_imagem_pacientes(id):
     if gcs_object_exists(blob_name_png_alt):
         return blob_name_png_alt
 
-    upload_dir = app.config['UPLOAD_PACIENTES_PATH']
-    if not os.path.isdir(upload_dir):
-        return 'capa_padrao.jpg'
-
-    prefixo = f'paciente_{id}.'
-    for nome_arquivo in os.listdir(upload_dir):
-        if nome_arquivo.startswith(prefixo):
-            return nome_arquivo
-    return 'capa_padrao.jpg'
+    raise Exception(f"[ERRO GCS FATAL] Imagem do paciente {id} não encontrada no Storage!")
 
 def deleta_imagem_pacientes(id):
     gcs_delete_blob(f'pacientes/paciente_{id}.jpg')
@@ -301,15 +298,7 @@ def recupera_imagem_usuario(id):
     if gcs_object_exists(blob_name_png):
         return blob_name_png
 
-    upload_dir = app.config['UPLOAD_USUARIOS_PATH']
-    if not os.path.isdir(upload_dir):
-        return 'avatar_padrao.jpg'
-
-    prefixo = f'avatar{id}.'
-    for nome_arquivo in os.listdir(upload_dir):
-        if nome_arquivo.startswith(prefixo):
-            return nome_arquivo
-    return 'avatar_padrao.jpg'
+    raise Exception(f"[ERRO GCS FATAL] Imagem do usuário {id} não encontrada no Storage!")
 
 def deleta_imagem_usuario(id):
     gcs_delete_blob(f'usuarios/avatar{id}.jpg')
