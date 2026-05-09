@@ -126,13 +126,10 @@ def atualizar_avatar_usuario(id_usuario):
 def api_imagem_usuario(id):
     imagem = recupera_imagem_usuario(id)
     if imagem != 'avatar_padrao.jpg' and imagem.startswith('usuarios/'):
-        try:
-            blob = get_gcs_bucket().blob(imagem)
-            data = blob.download_as_bytes()
-            return Response(data, mimetype='image/jpeg')
-        except Exception as e:
-            print(f"Erro ao baixar imagem do GCS: {e}")
-            imagem = os.path.basename(imagem)
+        signed_url = gcs_signed_url(imagem)
+        if signed_url:
+            return redirect(signed_url)
+        imagem = os.path.basename(imagem)
 
     send_path = app.config['UPLOAD_USUARIOS_PATH']
     if imagem == 'avatar_padrao.jpg':
