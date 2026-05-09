@@ -100,6 +100,7 @@ jobs:
       - name: Build backend image
         run: gcloud builds submit ./backend --tag gcr.io/$GCP_PROJECT_ID/$IMAGE_NAME:$IMAGE_TAG
 
+
       - name: Deploy backend to Cloud Run
         run: |
           gcloud run deploy $SERVICE_NAME \
