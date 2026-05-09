@@ -117,27 +117,14 @@ def atualizar_avatar_usuario(id_usuario):
             img_bytes = base64.b64decode(img_str)
             blob_name = f'usuarios/avatar{id_usuario}.png'
             if not gcs_upload_blob(blob_name, img_bytes, content_type='image/png'):
-                img_path = os.path.join(app.config['UPLOAD_USUARIOS_PATH'], f"avatar{id_usuario}.png")
-                os.makedirs(app.config['UPLOAD_USUARIOS_PATH'], exist_ok=True)
-                with open(img_path, "wb") as f:
-                    f.write(img_bytes)
+                raise Exception(f"[ERRO GCS] Falha ao fazer upload da imagem recortada de usuário {id_usuario}")
     return jsonify({'success': True})
 @app.route('/api/uploads/usuarios/<id>')
 def api_imagem_usuario(id):
     imagem = recupera_imagem_usuario(id)
-    if imagem != 'avatar_padrao.jpg' and imagem.startswith('usuarios/'):
-        try:
-            blob = get_gcs_bucket().blob(imagem)
-            data = blob.download_as_bytes()
-            return Response(data, mimetype=blob.content_type or 'image/jpeg')
-        except Exception as e:
-            print(f"Erro ao baixar do GCS: {e}")
-            imagem = os.path.basename(imagem)
-
-    send_path = app.config['UPLOAD_USUARIOS_PATH']
-    if imagem == 'avatar_padrao.jpg':
-        send_path = app.config['DEFAULT_IMAGES_PATH']
-    return send_from_directory(send_path, imagem)
+    blob = get_gcs_bucket().blob(imagem)
+    data = blob.download_as_bytes()
+    return Response(data, mimetype=blob.content_type or 'image/jpeg')
 
 @app.route('/api/upload_imagem_usuario_perfil', methods=['POST'])
 @login_required
@@ -153,9 +140,7 @@ def api_upload_imagem_usuario_perfil():
         filename = f'avatar{current_user.id_usuario}.jpg'
         blob_name = f'usuarios/{filename}'
         if not gcs_upload_blob(blob_name, file, content_type=file.content_type or 'image/jpeg'):
-            os.makedirs(upload_path, exist_ok=True)
-            file_path = os.path.join(upload_path, filename)
-            file.save(file_path)
+            raise Exception("[ERRO GCS] Falha ao fazer upload do avatar")
         avatar_url = url_for('api_imagem_usuario', id=current_user.id_usuario, _external=True)
         return jsonify({'avatarUrl': avatar_url}), 200
     else:
