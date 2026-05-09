@@ -8,6 +8,14 @@ import os
 @login_required
 def imagem_paciente_tabela(id):
     imagem = recupera_imagem_pacientes(id)
-    blob = get_gcs_bucket().blob(imagem)
-    data = blob.download_as_bytes()
-    return Response(data, mimetype=blob.content_type or 'image/jpeg')
+    
+    if imagem == 'capa_padrao.jpg':
+        return send_from_directory(app.config['DEFAULT_IMAGES_PATH'], imagem)
+        
+    try:
+        blob = get_gcs_bucket().blob(imagem)
+        data = blob.download_as_bytes()
+        return Response(data, mimetype=blob.content_type or 'image/jpeg')
+    except Exception as e:
+        print(f"[DEBUG GCS] ERRO FATAL ao baixar foto paciente: {e}")
+        return send_from_directory(app.config['DEFAULT_IMAGES_PATH'], 'capa_padrao.jpg')

@@ -282,7 +282,7 @@ def recupera_imagem_pacientes(id):
     if gcs_object_exists(blob_name_png_alt):
         return blob_name_png_alt
 
-    raise Exception(f"[ERRO GCS FATAL] Imagem do paciente {id} não encontrada no Storage!")
+    return 'capa_padrao.jpg'
 
 def deleta_imagem_pacientes(id):
     gcs_delete_blob(f'pacientes/paciente_{id}.jpg')
@@ -304,7 +304,7 @@ def recupera_imagem_usuario(id):
     if gcs_object_exists(blob_name_png):
         return blob_name_png
 
-    raise Exception(f"[ERRO GCS FATAL] Imagem do usuário {id} não encontrada no Storage!")
+    return 'avatar_padrao.jpg'
 
 def deleta_imagem_usuario(id):
     gcs_delete_blob(f'usuarios/avatar{id}.jpg')
