@@ -110,4 +110,5 @@ jobs:
             --memory 512Mi \
             --cpu 1 \
             --service-account sapos-sa@tcc-israel-navarro.iam.gserviceaccount.com \
+            --set-secrets GOOGLE_APPLICATION_CREDENTIALS=gcp-sa-key:latest \
             --update-env-vars FRONTEND_ORIGINS=$FRONTEND_ORIGINS,DATABASE_URL=${{ secrets.DATABASE_URL }},GCS_BUCKET_NAME=sapo-storage
