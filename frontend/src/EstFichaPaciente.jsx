@@ -40,19 +40,11 @@ function CampoEvolucao({ label, texto }) {
 function FeedbackCard({ folha }) {
   if (!folha.feedback) return null;
 
-  const isApproved = folha.status_validacao === 'Aprovado';
-  const borderColor = isApproved ? 'border-green' : 'border-[#BD4343]';
-  const bgColor = isApproved ? 'bg-green-50' : 'bg-red-50';
-  const textColor = isApproved ? 'text-green-800' : 'text-red-800';
-  const icon = isApproved
-    ? <i className="bi bi-check-circle-fill text-green"></i>
-    : <i className="bi bi-x-circle-fill text-[#BD4343]"></i>;
-
   return (
-    <div className={`p-4 rounded-lg border ${borderColor} ${bgColor} mb-4`}>
+    <div className="p-4 rounded-lg border border-green bg-green-50 mb-4">
       <div className="flex items-center gap-3 mb-2">
-        {icon}
-        <h4 className={`text-md font-bold ${textColor}`}>Feedback do Supervisor</h4>
+        <i className="bi bi-check-circle-fill text-green"></i>
+        <h4 className="text-md font-bold text-green-800">Feedback do Supervisor</h4>
       </div>
       <p className="text-sm text-slate-700 whitespace-pre-wrap">{folha.feedback}</p>
       {folha.data_status && (
@@ -524,7 +516,6 @@ export default function EstFichaPaciente() {
                                   disabled={folha.status_validacao === 'Validação Pendente'}
                                   className={`flex items-center justify-between w-[140px]  sm:w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all
                                 ${folha.status_validacao === 'Validação Pendente' ? 'border-gray-300 text-gray-500 bg-gray-100 cursor-not-allowed' :
-                                      folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
                                         'border-green-600 text-green hover:bg-green-50 cursor-pointer'}`}
                                   onClick={() => {
                                     if (folha.status_validacao !== 'Validação Pendente') {
@@ -534,17 +525,11 @@ export default function EstFichaPaciente() {
                                 >
                                   {/* Ícone dentro de círculo */}
                                   <span className={`flex items-center justify-center w-6 h-6 rounded-full
-                                ${folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
-                                      folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
+                                ${folha.status_validacao === 'Validado' ? 'bg-green text-white' :
                                         'bg-gray-200 text-gray-500'}`}>
-                                    {folha.status_validacao === 'Aprovado' && (
+                                    {folha.status_validacao === 'Validado' && (
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                      </svg>
-                                    )}
-                                    {folha.status_validacao === 'Reprovado' && (
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                       </svg>
                                     )}
                                     {folha.status_validacao === 'Validação Pendente' && (
@@ -681,23 +666,11 @@ export default function EstFichaPaciente() {
         >
           <div className="space-y-4">
             {feedbackModalState.folha?.feedback ? (
-              <div className={`p-4 rounded-lg border ${
-                feedbackModalState.folha.status_validacao === 'Aprovado' 
-                  ? 'border-green bg-green-50' 
-                  : 'border-[#BD4343] bg-red-50'
-              }`}>
+              <div className="p-4 rounded-lg border border-green bg-green-50">
                 <div className="flex items-center gap-3 mb-3">
-                  {feedbackModalState.folha.status_validacao === 'Aprovado' ? (
-                    <i className="bi bi-check-circle-fill text-green text-2xl"></i>
-                  ) : (
-                    <i className="bi bi-x-circle-fill text-[#BD4343] text-2xl"></i>
-                  )}
-                  <h4 className={`text-lg font-bold ${
-                    feedbackModalState.folha.status_validacao === 'Aprovado' 
-                      ? 'text-green' 
-                      : 'text-[#BD4343]'
-                  }`}>
-                    {feedbackModalState.folha.status_validacao === 'Aprovado' ? 'Aprovado' : 'Reprovado'}
+                  <i className="bi bi-check-circle-fill text-green text-2xl"></i>
+                  <h4 className="text-lg font-bold text-green">
+                    Validado
                   </h4>
                 </div>
                 <p className="text-sm text-slate-700 whitespace-pre-wrap mb-3 leading-relaxed">

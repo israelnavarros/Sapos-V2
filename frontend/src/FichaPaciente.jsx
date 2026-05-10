@@ -39,19 +39,11 @@ function CampoEvolucao({ label, texto }) {
 function FeedbackCard({ folha }) {
   if (!folha.feedback) return null;
 
-  const isApproved = folha.status_validacao === 'Aprovado';
-  const borderColor = isApproved ? 'border-green' : 'border-[#BD4343]';
-  const bgColor = isApproved ? 'bg-green-50' : 'bg-red-50';
-  const textColor = isApproved ? 'text-green-800' : 'text-red-800';
-  const icon = isApproved
-    ? <i className="bi bi-check-circle-fill text-green"></i>
-    : <i className="bi bi-x-circle-fill text-[#BD4343]"></i>;
-
   return (
-    <div className={`p-4 rounded-lg border ${borderColor} ${bgColor} mb-4`}>
+    <div className="p-4 rounded-lg border border-green bg-green-50 mb-4">
       <div className="flex items-center gap-3 mb-2">
-        {icon}
-        <h4 className={`text-md font-bold ${textColor}`}>Feedback do Supervisor</h4>
+        <i className="bi bi-check-circle-fill text-green"></i>
+        <h4 className="text-md font-bold text-green-800">Feedback do Supervisor</h4>
       </div>
       <p className="text-sm text-slate-700 whitespace-pre-wrap">{folha.feedback}</p>
       {folha.data_status && (
@@ -92,7 +84,6 @@ export default function FichaPaciente() {
   const [selectedFolha, setSelectedFolha] = useState(null); // Folha selecionada
   const [feedback, setFeedback] = useState(''); // Feedback do supervisor
   const [expandedFolhaId, setExpandedFolhaId] = useState(null); // Estado para controlar a expansão
-  const [status, setStatus] = useState(''); // Status (Aprovado ou Reprovado)
 
   // Estados para o Modal de Tags
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
@@ -185,17 +176,12 @@ export default function FichaPaciente() {
   };
 
   const handleSubmitValidation = async () => {
-    if (!status) {
-      alert('Por favor, selecione um status (Aprovado ou Reprovado).');
-      return;
-    }
-
     try {
       const response = await fetch(`${API_URL}/api/sup_validar_folha/${selectedFolha.id_folha}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ status, feedback }),
+        body: JSON.stringify({ status: 'Validado', feedback }),
       });
 
       if (response.ok) {
@@ -529,7 +515,6 @@ export default function FichaPaciente() {
                                 disabled={folha.status_validacao !== 'Validação Pendente'}
                                 className={`flex items-center justify-between w-[240px] px-4 py-2 text-sm sm:text-base font-semibold rounded-md border transition-all ${
                                   folha.status_validacao === 'Validação Pendente' ? 'border-yellow-500 text-yellow-600 bg-yellow-50 hover:bg-yellow-100 cursor-pointer' :
-                                  folha.status_validacao === 'Reprovado' ? 'border-[#BD4343] text-[#BD4343] hover:bg-red-50 cursor-pointer' :
                                     'border-green-600 text-green hover:bg-green-50 cursor-pointer'
                                 }`}
                                 onClick={() => {
@@ -542,18 +527,12 @@ export default function FichaPaciente() {
                               >
                                 {/* Ícone dentro de círculo */}
                                 <span className={`flex items-center justify-center w-6 h-6 rounded-full ${
-                                  folha.status_validacao === 'Aprovado' ? 'bg-green text-white' :
-                                  folha.status_validacao === 'Reprovado' ? 'bg-[#BD4343] text-white' :
+                                  folha.status_validacao === 'Validado' ? 'bg-green text-white' :
                                     'bg-yellow-500 text-white'
                                 }`}>
-                                  {folha.status_validacao === 'Aprovado' && (
+                                  {folha.status_validacao === 'Validado' && (
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  )}
-                                  {folha.status_validacao === 'Reprovado' && (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                   )}
                                   {folha.status_validacao === 'Validação Pendente' && (
@@ -697,33 +676,6 @@ export default function FichaPaciente() {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status da Validação</label>
-                <div className="flex items-center space-x-6">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="status"
-                      value="Aprovado"
-                      checked={status === 'Aprovado'}
-                      onChange={(e) => setStatus(e.target.value)}
-                      className="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500"
-                    />
-                    <span className="ml-2 text-gray-800">Aprovado</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="status"
-                      value="Reprovado"
-                      checked={status === 'Reprovado'}
-                      onChange={(e) => setStatus(e.target.value)}
-                      className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"
-                    />
-                    <span className="ml-2 text-gray-800">Reprovado</span>
-                  </label>
-                </div>
-              </div>
 
               <div>
                 <label htmlFor="feedback" className="block text-sm font-medium text-gray-700">
@@ -857,23 +809,11 @@ export default function FichaPaciente() {
         >
           <div className="space-y-4">
             {feedbackModalState.folha?.feedback ? (
-              <div className={`p-4 rounded-lg border ${
-                feedbackModalState.folha.status_validacao === 'Aprovado' 
-                  ? 'border-green bg-green-50' 
-                  : 'border-[#BD4343] bg-red-50'
-              }`}>
+              <div className="p-4 rounded-lg border border-green bg-green-50">
                 <div className="flex items-center gap-3 mb-3">
-                  {feedbackModalState.folha.status_validacao === 'Aprovado' ? (
-                    <i className="bi bi-check-circle-fill text-green text-2xl"></i>
-                  ) : (
-                    <i className="bi bi-x-circle-fill text-[#BD4343] text-2xl"></i>
-                  )}
-                  <h4 className={`text-lg font-bold ${
-                    feedbackModalState.folha.status_validacao === 'Aprovado' 
-                      ? 'text-green' 
-                      : 'text-[#BD4343]'
-                  }`}>
-                    {feedbackModalState.folha.status_validacao === 'Aprovado' ? 'Aprovado' : 'Reprovado'}
+                  <i className="bi bi-check-circle-fill text-green text-2xl"></i>
+                  <h4 className="text-lg font-bold text-green">
+                    Validado
                   </h4>
                 </div>
                 <p className="text-sm text-slate-700 whitespace-pre-wrap mb-3 leading-relaxed">
