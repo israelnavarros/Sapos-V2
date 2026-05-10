@@ -38,19 +38,12 @@ function CampoEvolucao({ label, texto }) {
 
 function FeedbackCard({ folha }) {
   if (!folha.feedback) return null;
-  const isApproved = folha.status_validacao === 'Aprovado';
-  const borderColor = isApproved ? 'border-green' : 'border-[#BD4343]';
-  const bgColor = isApproved ? 'bg-green-50' : 'bg-red-50';
-  const textColor = isApproved ? 'text-green-800' : 'text-red-800';
-  const icon = isApproved
-    ? <i className="bi bi-check-circle-fill text-green"></i>
-    : <i className="bi bi-x-circle-fill text-[#BD4343]"></i>;
 
   return (
-    <div className={`p-4 rounded-lg border ${borderColor} ${bgColor} mb-4`}>
+    <div className="p-4 rounded-lg border border-green bg-green-50 mb-4">
       <div className="flex items-center gap-3 mb-2">
-        {icon}
-        <h4 className={`text-md font-bold ${textColor}`}>Feedback do Supervisor</h4>
+        <i className="bi bi-check-circle-fill text-green"></i>
+        <h4 className="text-md font-bold text-green-800">Feedback do Supervisor</h4>
       </div>
       <p className="text-sm text-slate-700 whitespace-pre-wrap">{folha.feedback}</p>
       {folha.data_status && (
@@ -270,9 +263,7 @@ export default function SecFichaPaciente() {
                                     }
                                   }}
                                   className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer transition-colors ${
-                                    folha.status_validacao === 'Aprovado' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
-                                    folha.status_validacao === 'Reprovado' ? 'bg-red-100 text-red-800 hover:bg-red-200' :
-                                    'bg-yellow-100 text-yellow-800'
+                                    folha.status_validacao === 'Validado' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-yellow-100 text-yellow-800'
                                   }`}>
                                   {folha.status_validacao}
                                 </button>
@@ -341,23 +332,11 @@ export default function SecFichaPaciente() {
         >
           <div className="space-y-4">
             {feedbackModalState.folha?.feedback ? (
-              <div className={`p-4 rounded-lg border ${
-                feedbackModalState.folha.status_validacao === 'Aprovado' 
-                  ? 'border-green bg-green-50' 
-                  : 'border-[#BD4343] bg-red-50'
-              }`}>
+              <div className="p-4 rounded-lg border border-green bg-green-50">
                 <div className="flex items-center gap-3 mb-3">
-                  {feedbackModalState.folha.status_validacao === 'Aprovado' ? (
-                    <i className="bi bi-check-circle-fill text-green text-2xl"></i>
-                  ) : (
-                    <i className="bi bi-x-circle-fill text-[#BD4343] text-2xl"></i>
-                  )}
-                  <h4 className={`text-lg font-bold ${
-                    feedbackModalState.folha.status_validacao === 'Aprovado' 
-                      ? 'text-green' 
-                      : 'text-[#BD4343]'
-                  }`}>
-                    {feedbackModalState.folha.status_validacao === 'Aprovado' ? 'Aprovado' : 'Reprovado'}
+                  <i className="bi bi-check-circle-fill text-green text-2xl"></i>
+                  <h4 className="text-lg font-bold text-green">
+                    Validado
                   </h4>
                 </div>
                 <p className="text-sm text-slate-700 whitespace-pre-wrap mb-3 leading-relaxed">
