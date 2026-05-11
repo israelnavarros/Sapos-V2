@@ -254,7 +254,17 @@ export default function SecEditarPaciente() {
                             <h2 className="text-lg font-semibold text-slate-800 mb-4">Dados Socioeconômicos</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormField label="Escolaridade" htmlFor="escolaridade">
-                                    <input id="escolaridade" name="escolaridade" value={formData.escolaridade || ""} onChange={handleChange} className={getInputStyle('escolaridade')} />
+                                <select id="escolaridade" name="escolaridade" value={formData.escolaridade || ""} onChange={handleChange} className={getInputStyle('escolaridade')}>
+                                    <option value="">Selecione...</option>
+                                    <option value="AN">Analfabeto</option>
+                                    <option value="PE">Pré-Escolar</option>
+                                    <option value="FI">Ensino Fundamental Incompleto</option>
+                                    <option value="FC">Ensino Fundamental Completo</option>
+                                    <option value="MI">Ensino Médio Incompleto</option>
+                                    <option value="MC">Ensino Médio Completo</option>
+                                    <option value="SI">Ensino Superior Incompleto</option>
+                                    <option value="SC">Ensino Superior Completo</option>
+                                </select>
                                 </FormField>
                                 <FormField label="Profissão" htmlFor="profissao">
                                     <input id="profissao" name="profissao" value={formData.profissao || ""} onChange={handleChange} className={getInputStyle('profissao')} />
