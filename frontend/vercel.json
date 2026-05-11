@@ -1,6 +1,20 @@
 {
   "rewrites": [
     {
+      "source": "/api/:match*",
+      "has": [
+        {
+          "type": "host",
+          "value": "sapos-eight-hom.vercel.app"
+        }
+      ],
+      "destination": "https://sapos-backend-hom-880974739562.us-central1.run.app/api/:match*"
+    },
+    {
+      "source": "/api/:match*",
+      "destination": "https://sapos-backend-880974739562.us-central1.run.app/api/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
