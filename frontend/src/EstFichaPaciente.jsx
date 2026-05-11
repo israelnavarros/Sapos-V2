@@ -72,6 +72,21 @@ function Tag({ nome }) {
     <div className="px-3 py-1 text-sm font-medium text-white rounded-md shadow-sm" style={{ backgroundColor: tagColor }}>{nome}</div>
   );
 }
+
+const mapEscolaridade = (sigla) => {
+  const mapa = {
+    "AN": "Analfabeto",
+    "PE": "Pré-Escolar",
+    "FI": "Ensino Fundamental Incompleto",
+    "FC": "Ensino Fundamental Completo",
+    "MI": "Ensino Médio Incompleto",
+    "MC": "Ensino Médio Completo",
+    "SI": "Ensino Superior Incompleto",
+    "SC": "Ensino Superior Completo"
+  };
+  return mapa[sigla] || sigla;
+};
+
 export default function EstFichaPaciente() {
   const { id_paciente } = useParams();
   const [info, setInfo] = useState(null);
@@ -393,7 +408,7 @@ export default function EstFichaPaciente() {
                       <InfoCampo label="Email" value={paciente.email} />
                       <InfoCampo label="Nome do Responsável" value={paciente.nome_responsavel} />
                       <InfoCampo label="Grau de Parentesco" value={paciente.grau_parentesco} />
-                      <InfoCampo label="Escolaridade" value={paciente.escolaridade} />
+                      <InfoCampo label="Escolaridade" value={mapEscolaridade(paciente.escolaridade)} />
                       <InfoCampo label="Classe Social" value={paciente.classe_social} />
                       <InfoCampo label="Profissão" value={paciente.profissao} />
                       <InfoCampo label="Ocupação" value={paciente.ocupacao} />
