@@ -14,6 +14,10 @@ from flask_caching import Cache
 
 app = Flask(__name__)
 
+# Configurações essenciais para permitir cookies entre Vercel (Frontend) e Cloud Run (Backend)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+
 allowed_origins = [
     'http://localhost:5173',
     'http://localhost:5000',
